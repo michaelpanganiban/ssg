@@ -108,17 +108,22 @@ class ClientController extends MY_Controller
 		    }
 		    else if($this->input->post('client_list') == "true")
 		    {
-		    	if(!$data['clients'] = $this->cache->get('clients'))
+		    	if(!$data['clients'] = $this->cache->get(md5('clients')))
 				{
 					$data['clients'] = $this->ClientModel->getClientList();
-					$this->cache->save('clients', $data['clients'], 3600);
+					$this->cache->save(md5('clients'), $data['clients'], 3600);
 				}
 		    	echo json_encode($data['clients']);
 		    }
 		    else if($this->input->post('add') == 'true')
 		    {
 		    	$this->cache->delete(md5('targets'));
+		    	$this->cache->delete(md5('current'));
 		    	echo $this->ClientModel->addTargets();
+		    }
+		    else if($this->input->post('get_detailed') == 'true')
+		    {
+		    	echo json_encode($this->ClientModel->getDetailed());
 		    }
 		    else
 		    {
@@ -129,22 +134,18 @@ class ClientController extends MY_Controller
 					$data['targets'] = $this->ClientModel->getTargetAndActual();
 					$this->cache->save($cache, $data['targets'], 3600);
 				}
-				$cache = md5('prev_targets');
-				if(!$data['prev_targets'] = $this->cache->get($cache))
+				$cache = md5('current');
+				if(!$data['current'] = $this->cache->get($cache))
 				{
-					$data['prev_targets'] = $this->ClientModel->getPrevTargetAndActual();
-					$this->cache->save($cache, $data['prev_targets'], 3600);
+					$data['current'] = $this->ClientModel->getPrevTargetAndActual();
+					$this->cache->save($cache, $data['current'], 3600);
 				}
-				if(!$data['clients'] = $this->cache->get('clients'))
+				if(!$data['clients'] = $this->cache->get(md5('clients')))
 				{
 					$data['clients'] = $this->ClientModel->getClientList();
-					$this->cache->save('clients', $data['clients'], 3600);
+					$this->cache->save(md5('clients'), $data['clients'], 3600);
 				}
-				foreach($data['clients'] as $row1)
-				{
-					
-				}
-	        	$this->load->view('title_container');
+				$this->load->view('title_container');
 		    	$this->load->view('header', $data);
 		    	$this->load->view('client/targetsAndActuals');
 		    	$this->load->view('footer');

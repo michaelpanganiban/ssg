@@ -179,7 +179,7 @@ $("#table-add-update").click(function(e){
 
 $("#add-target").click(function(e){
 	var date = new Date();
-	var html = '<section class="content"><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Client:</label><div class="col-md-4"><select class="form-control select2" id="client"></select></div><label class="control-label col-md-1">Month:</label><div class="col-md-3"><select class="form-control select2" id="month"></select></div><label class="control-label col-md-1">Year:</label><div class="col-md-2"><input type="text" class="form-control" value="'+(1900 + date.getYear())+'" readOnly id="year"></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Target:</label><div class="col-md-4"><input type="text" class="form-control col-md-4" id="target"></div><label class="control-label col-md-1">Add:</label><div class="col-md-3"><input type="radio" class="action" name="action-type" value="Add"></div><label class="control-label col-md-1">Deduct:</label><div class="col-md-2"><input type="radio" class="action" name="action-type" value="Deduct"></div></div></div><hr>';
+	var html = '<section class="content"><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Client:</label><div class="col-md-4"><select class="form-control select2" id="client"></select></div><label class="control-label col-md-1">Month:</label><div class="col-md-3"><select class="form-control select2" id="month"></select></div><label class="control-label col-md-1">Year:</label><div class="col-md-2"><input type="text" class="form-control" value="'+(1900 + date.getYear() + 1)+'" readOnly id="year"></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Target:</label><div class="col-md-4"><input type="number" class="form-control col-md-4" id="target"></div><label class="control-label col-md-1">Add:</label><div class="col-md-3"><input type="radio" class="action" name="action-type" value="Add"></div><label class="control-label col-md-1">Deduct:</label><div class="col-md-2"><input type="radio" class="action" name="action-type" value="Deduct"></div></div></div><hr>';
 		html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><i class="fa fa-2x fa-plus-circle text-success" style="cursor:pointer;" id="add-column-target"></i></th></tr></thead>';
 		html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control"></td><td><input type="number" class="form-control" name="cost[]"></td><td><input type="number" class="form-control" name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><input type="text" class="form-control" name="timezone[]"></td><td><input type="text" class="form-control " name="shift[]"></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
 	BootstrapDialog.show({
@@ -241,11 +241,18 @@ $("#add-target").click(function(e){
 			        {
 			            label: '<i class="fa fa-check-circle"></i>&nbsp;&nbsp; Proceed',
 			            cssClass: 'btn btn-sm btn-primary pull-right',
-			            id: 'grand-btn',
+			            id: 'proceed-target-btn',
 			            action: function(dialog) 
 			            {
-			        		var error  = 0;
-			        		if($("#target").val() != $(".functions").length)
+			        		var error    = 0;
+			        		var total_hc = 0;
+			        		$("input[name^='billed[]'").each(function(e){
+								if($(this).val() != "")
+								{
+									total_hc += parseInt($(this).val());
+								}
+							});
+			        		if($("#target").val() != total_hc)
 			        		{
 			        			alertify.error('Target must match the column count.');
 			        			error = 1;
@@ -260,19 +267,33 @@ $("#add-target").click(function(e){
 			        		{
 			        			var data_target = getTargetData();
 			        		}
+			        		else
+			        		{
+			        			alertify.error("All fields are required.");
+			        			error = 1;
+			        		}
 			        		if(error == 0)
 			        		{
+			        			$("#proceed-target-btn").attr('disabled','true');
 			        			waitingDialog.show('Processing data...', {dialogSize: 'sm', progressType: 'success'});
 			        			Pace.restart();
 			        			Pace.track(function(){
 			        				var client = {
 			        								'team_id': $("#client").val(),
-			        								'month'  : $("#month").val(),
 			        								'year' 	 : $("#year").val(),
-			        								'target' : $("#target").val(),
 			        								'action' : $("input[name='action-type']:checked").val()
 			        							 };
-			        				$.post("targetsAndActuals", {add:'true', client:client, line: data_target}, function(r){
+			        					if($("input[name='action-type']:checked").val() == "Deduct")
+			        						var target = '-'+$("#target").val();
+			        					else
+			        						var target = $("#target").val();
+			        					client[$("#month").val()] = target;
+			        				var client2 = {
+			        								'team_id': $("#client").val(),
+			        								'year' 	 : (parseInt($("#year").val()) - 1),
+			        								'action' : ""
+			        							  }; 
+			        				$.post("targetsAndActuals", {add:'true', client:client, line: data_target, client2:client2, id:$("#client").val()}, function(r){
 			        					if(r == 1)
 			        					{
 			        						alertify.success("Target was successfully added.");
@@ -293,7 +314,50 @@ $("#add-target").click(function(e){
         			}
         		]
     });
-});
+}); 
+
+$(".target-each").click(function(e){
+	var id 	 = $(this).data('pk');
+	var name = $(this).data('name');
+	var html = '<section class="content"><div class="row"><h4 style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: light; text-align:center;">'+name+'</h4><br><table class="table table-bordered"><thead><tr style="background-color: #d7d7d8;" ><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th>TTL Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th></tr></thead><tbody id="append-body"></tbody></table></div></section>';
+	BootstrapDialog.show({
+		title: 'Detailed List',
+		message: html,
+		size: BootstrapDialog.SIZE_WIDE,
+		onshown: function()
+		{
+			$(".modal-dialog").css('width', '90%');
+			waitingDialog.show('Fetching data...', {dialogSize: 'sm', progressType: 'success'});
+			Pace.restart();
+			Pace.track(function(){
+				$.post("targetsAndActuals", {id:id, get_detailed: "true"}, function(r){
+					var data 		 = jQuery.parseJSON(r);
+					var text 		 = "";
+					var total_billed = 0;
+					var total_cost 	 = 0;
+					$.each(data, function(key, val){
+						text += "<tr><td>"+this.title+"</td><td align='right'>"+this.billed_hc+"</td><td  align='right'>$ "+this.cost_per_title+"</td><td  align='right'>"+this.ttl_cost+"</td><td  align='right'>"+this.hours_work+"</td><td  align='right'>"+this.timezone+"</td><td  align='right'>"+this.shift+"</td><td>"+this.location+"</td></tr>";
+						total_billed += parseInt(this.billed_hc);
+						total_cost 	 += parseInt(this.cost_per_title);
+					});
+						text += "<tr style='background-color: #d7d7d8;'><td><b>Total</b></td><td align='right'><b>"+total_billed+"</b></td><td  align='right'><b>$ "+total_cost+"</b></td><td  align='right'></td><td  align='right'></td><td  align='right'></td><td  align='right'></td><td></td></tr>";
+					$("#append-body").append(text);
+				});
+			});
+			waitingDialog.hide();
+		},
+		buttons: [	
+					{
+						label: '<i class="fa fa-close"></i>&nbsp;&nbsp;Close',
+			            cssClass: 'btn btn-sm btn-default pull-left',
+			            action: function(dialog) {
+			               dialog.close();
+			            }
+					}
+				]
+
+	});
+});	
 
 
 
@@ -429,7 +493,7 @@ function checkFieldsTarget()
 		$("#target").css('border', '1px solid red');
 		error = 1;
 	}
-	if($("input[name='action-type']:checked").val() == "undefined")
+	if($("input[name='action-type']:checked").val() == undefined)
 	{
 		error = 1;
 	}
@@ -466,7 +530,12 @@ function getTargetData()
 			$(this).css('border', '1px solid red');
 		}
 		else
-			billed.push($(this).val());
+		{
+			if($("input[name='action-type']:checked").val() == "Deduct")
+				billed.push('-'+$(this).val());
+			else
+				billed.push($(this).val());
+		}
 	});
 
 	$("input[name^='cost[]'").each(function(e){

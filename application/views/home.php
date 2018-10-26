@@ -7,7 +7,7 @@
     </section>
     <section class="content">
         <div class="row">
-            <div class="col-lg-3 col-xs-6">
+            <!-- <div class="col-lg-3 col-xs-6">
                 <div class="small-box bg-aqua">
                     <div class="inner">
                         <h3>150</h3>
@@ -54,8 +54,9 @@
                         </div>
                         <a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>
                     </div>
-                </div>
-            </div>
+                </div>-->
+            </div> 
+            <h1 align="center">Dashboard goes here..</h1>
         </div>
     </section>
                 

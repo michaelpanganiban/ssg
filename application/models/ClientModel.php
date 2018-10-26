@@ -102,6 +102,13 @@ class ClientModel extends CI_Model
 	{
 		$client = $this->input->post('client');
 		$target = $this->input->post('line');
+		$id     = $this->input->post('id');
+		$data   = $this->db->query("SELECT COUNT(team_id) AS COUNT FROM ssg_targets_and_actuals WHERE team_id = '$id'")->result_array();
+		if($data[0]['COUNT'] == 0)
+		{
+			$client2 = $this->input->post('client2');
+			$this->db->insert('ssg_targets_and_actuals', $client2);
+		}
 		
 		if($this->db->insert('ssg_targets_and_actuals', $client) === true)
 			$id = $this->db->insert_id();
@@ -127,13 +134,21 @@ class ClientModel extends CI_Model
 
 	public function getTargetAndActual()
 	{
-		$year   = @date('Y');
-		return $this->db->query("SELECT t.team_name, COUNT(sg.target) AS target_count, sg.month, sg.action FROM ssg_targets_and_actuals sg LEFT JOIN team t ON t.team_id = sg.team_id WHERE sg.year = '$year' GROUP BY sg.month, sg.team_id")->result();
+		$year   = @date('Y') + 1;
+		return $this->db->query("SELECT SUM(January) AS January,SUM(February) AS February,SUM(March) AS March,SUM(April) AS April ,SUM(May) AS May,SUM(June) AS June,SUM(July) AS July,SUM(August) AS August,SUM(September) AS September,SUM(November) AS November,SUM(October) AS October,SUM(December) AS December, action, team_id FROM ssg_targets_and_actuals  WHERE year = '$year' GROUP BY January, February, March, April, May, June, July, August, September, October, November, December, team_id, action")->result();
 	}
 
 	public function getPrevTargetAndActual()
 	{
-		$prev 	= @date('Y') - 1;
-		return $this->db->query("SELECT t.team_name, COUNT(sg.target) AS target_count, sg.month, sg.action FROM ssg_targets_and_actuals sg LEFT JOIN team t ON t.team_id = sg.team_id WHERE sg.year = '$prev' GROUP BY sg.month, sg.team_id")->result();
+		$current 	= @date('Y');
+		return  $this->db->query("SELECT SUM(January) AS January,SUM(February) AS February,SUM(March) AS March,SUM(April) AS April ,SUM(May) AS May,SUM(June) AS June,SUM(July) AS July,SUM(August) AS August,SUM(September) AS September,SUM(November) AS November,SUM(October) AS October,SUM(December) AS December, team_id, action FROM ssg_targets_and_actuals WHERE year = '$current' GROUP BY team_id")->result();
+	}
+
+	public function getDetailed()
+	{
+		$id = htmlspecialchars(trim($this->input->post('id')));
+		return $this->db->query("SELECT sl.*, SUM(sl.billed_hc) AS billed_hc, j.title FROM ssg_targets_and_actuals sg LEFT JOIN ssg_targets_and_actuals_line sl ON sg.t_a_id = sl.t_a_id LEFT JOIN joborder j ON sl.function = j.joborder_id WHERE sg.team_id = '$id' AND sl.function IS NOT NULL GROUP BY sl.function")->result();
 	}
 }
+
+//check if has previous record if not insert first with backdated year

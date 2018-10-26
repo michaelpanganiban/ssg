@@ -20,7 +20,7 @@
 	<body class="hold-transition login-page">
 		<div class="login-box">
 		  	<div class="login-logo">
-		    	<a href="#"><b>Infinit - o</b>&nbsp;SSG</a>
+		    	<a href="#"><b>Infinit - o</b><br>Client Database</a>
 		  	</div>
 		  	<div class="login-box-body">
 		    	<p class="login-box-msg">Sign in to start your session</p>

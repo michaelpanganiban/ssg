@@ -106,7 +106,7 @@
                     <ul class="sidebar-menu" data-widget="tree">
                         <li class="header">MAIN NAVIGATION</li>
                             <li <?php echo ($this->uri->segment(2) == "home" || $this->uri->segment(2) == "")? "class='active'" : "" ?>>
-                                <a href="pages/widgets.html">
+                                <a href="<?php echo site_url(); ?>">
                                     <i class="fa fa-th "></i> <span><?php echo ($this->uri->segment(2) == "home" || $this->uri->segment(2) == "")? "<b style='color:#00c0ef;'>Dashboard</b>" : "Dashboard" ?></span>
                                 </a>
                             </li>
@@ -134,7 +134,7 @@
                                     <li <?php echo ($this->uri->segment(2) == "targetsAndActuals")? "class='active'" : "" ?>><a href="<?php echo site_url('ClientController/targetsAndActuals'); ?>"><i class="fa fa-circle-o"></i>Targets and Actuals</a></li>
                                 </ul>
                             </li>
-                            <li class="treeview">
+                            <!-- <li class="treeview">
                                 <a href="#">
                                     <i class="fa fa-files-o"></i>
                                     <span>Layout Options</span>
@@ -156,7 +156,7 @@
                                       <small class="label pull-right bg-green">new</small>
                                     </span>
                                 </a>
-                            </li>
+                            </li> -->
                         </li>
                     </ul>
                 </section>
