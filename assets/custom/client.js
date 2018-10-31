@@ -181,7 +181,7 @@ $("#add-target").click(function(e){
 	var date = new Date();
 	var html = '<section class="content"><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Client:</label><div class="col-md-4"><select class="form-control select2" id="client"></select></div><label class="control-label col-md-1">Month:</label><div class="col-md-3"><select class="form-control select2" id="month"></select></div><label class="control-label col-md-1">Year:</label><div class="col-md-2"><input type="text" class="form-control" value="'+(1900 + date.getYear() + 1)+'" readOnly id="year"></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Target:</label><div class="col-md-4"><input type="number" class="form-control col-md-4" id="target"></div><label class="control-label col-md-1">Add:</label><div class="col-md-3"><input type="radio" class="action" name="action-type" value="Add"></div><label class="control-label col-md-1">Deduct:</label><div class="col-md-2"><input type="radio" class="action" name="action-type" value="Deduct"></div></div></div><hr>';
 		html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><i class="fa fa-2x fa-plus-circle text-success" style="cursor:pointer;" id="add-column-target"></i></th></tr></thead>';
-		html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control"></td><td><input type="number" class="form-control" name="cost[]"></td><td><input type="number" class="form-control" name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><input type="text" class="form-control" name="timezone[]"></td><td><input type="text" class="form-control " name="shift[]"></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
+		html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control"></td><td><input type="number" class="form-control" name="cost[]"></td><td><input type="number" class="form-control" name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
 	BootstrapDialog.show({
         title: 'Manage Targets',
 		size: BootstrapDialog.SIZE_WIDE,
@@ -568,7 +568,7 @@ function getTargetData()
 			hours.push($(this).val());
 	});
 
-	$("input[name^='timezone[]'").each(function(e){
+	$("select[name^='timezone[]'").each(function(e){
 		if($(this).val() == "")
 		{
 			error = 1;
@@ -578,7 +578,7 @@ function getTargetData()
 			timezone.push($(this).val());
 	});
 
-	$("input[name^='shift[]'").each(function(e){
+	$("select[name^='shift[]'").each(function(e){
 		if($(this).val() == "")
 		{
 			error = 1;

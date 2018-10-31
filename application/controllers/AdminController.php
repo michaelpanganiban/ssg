@@ -86,7 +86,7 @@ class AdminController extends MY_Controller
 	        	$cache = md5('users');
 				if(!$data['users'] = $this->cache->get($cache))
 				{
-					$data['users'] = $this->AdminModel->getUserList();
+					$data['users'] = $this->AdminModel->userListModel();
 					$this->cache->save($cache, $data['users'], 3600);
 				}
 
