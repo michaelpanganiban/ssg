@@ -59,6 +59,52 @@ class AdminController extends MY_Controller
 
 	public function userModules()
 	{
-		
+		if($ssg_session_data = $this->session->userdata('ssg_set_session'))
+        {
+	        $data['session'] = $ssg_session_data;
+	        if(!empty($this->input->post('user_modules')))
+	        {
+				echo json_encode($this->AdminModel->getUserModules());
+	        }
+	        else if(!empty($this->input->post('add_module')))
+	        {
+	        	$this->cache->delete('user_modules');
+	        	echo $this->AdminModel->addModule();
+	        }
+	        else if(!empty($this->input->post('remove_module')))
+	        {
+	        	$this->cache->delete('user_modules');
+	        	echo $this->AdminModel->removeModule();
+	        }
+	        else if(!empty($this->input->post('update_access')))
+	        {
+	        	$this->cache->delete('user_modules');
+	        	echo $this->AdminModel->updateAccess();
+	        }
+	       	else
+	        {
+	        	$cache = md5('users');
+				if(!$data['users'] = $this->cache->get($cache))
+				{
+					$data['users'] = $this->AdminModel->getUserList();
+					$this->cache->save($cache, $data['users'], 3600);
+				}
+
+				$cache = 'user_modules';
+				if(!$data['user_modules'] = $this->cache->get($cache))
+				{
+					$data['user_modules'] = $this->AdminModel->getUserAccess();
+					$this->cache->save($cache, $data['user_modules'], 3600);
+				}
+	        	$this->load->view('title_container');
+	        	$this->load->view('header', $data);
+	        	$this->load->view('Admin/userModules');
+	        	$this->load->view('footer');
+        	}
+        }
+        else
+        {
+			redirect('','refresh');
+		}
 	}
 }

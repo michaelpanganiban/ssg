@@ -141,7 +141,6 @@
                                 </td>
                                 <td>
                                     <select class="form-control" name="status[]">
-                                        <option value="">Select Status..</option>
                                         <option value="Signed">Signed</option>
                                         <option value="Renewed on time">Renewed on time</option>
                                         <option value="Contract expired during this month">Contract expired during this month</option>

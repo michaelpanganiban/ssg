@@ -151,4 +151,3 @@ class ClientModel extends CI_Model
 	}
 }
 
-//check if has previous record if not insert first with backdated year

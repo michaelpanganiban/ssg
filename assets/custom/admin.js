@@ -141,3 +141,79 @@ $(".grant-access").click(function(e){
 			    		}
 			});
 });	
+
+//------------------------------- USER MODULES ------------------------------------------------>
+
+$("#user-list").change(function(e){
+	if($(this).val() == '')
+	{
+		$("#append-modules").html("<tr><td colspan='3' class='text-center'><i>Data not available..</i></td></tr>");
+	}
+	else
+	{
+		var id  = $(this).val();
+		var html= ""; 
+		$.post("userModules", {id:id, user_modules:'true'}, function(r){
+			var data = jQuery.parseJSON(r);
+			$.each(data, function(key, val){
+				html += "<tr><td>"+this.parent_module.toUpperCase()+"</td><td>"+this.module_name.toUpperCase()+"</td>";
+				if(this.is_set == 1)
+					html +="<td class='text-center'><input type='checkbox' data-id='"+this.id+"' data-pk='"+this.module_id+"' class='flat-blue module-ssg' checked></td></tr>";
+				else
+					html +="<td class='text-center'><input type='checkbox' data-pk='"+this.module_id+"' class='flat-blue module-ssg' ></td></tr>";
+			});
+			$("#append-modules").html(html);
+			$('.flat-blue').iCheck({
+			   	checkboxClass: 'icheckbox_minimal-blue',
+              	radioClass   : 'iradio_minimal-blue'
+			});
+		});
+	}
+});
+
+//----------------- User modules tab ------->>
+$(document).on('ifChecked','.module-ssg',function(e){
+	var module_id = $(this).data('pk');
+	var user_id   = $("#user-list").val();
+	$.post("userModules", {add_module: 'true', module_id:module_id, user_id: user_id}, function(r){
+		if(r == 1)
+			alertify.success("Module added");
+		else
+			alertify.error("Error adding module.");
+	});
+});
+
+$(document).on('ifUnchecked', '.module-ssg', function(event){
+	var id = $(this).data('id');
+	$.post("userModules", {remove_module: 'true', id:id}, function(r){
+		if(r == 1)
+			alertify.success("Module removed");
+		else
+			alertify.error("Error removing module.");
+	});
+});
+//----------------- User modules tab ------->>
+
+//----------------- User access tab ------->>
+$(document).on('ifChecked','.update-access',function(e){
+	var id   = $(this).data('pk');
+	var type = $(this).data('value');
+	$.post("userModules", {update_access: 'true', id:id, type: type, access:'true'}, function(r){
+		if(r == 1)
+			alertify.success("Access granted");
+		else
+			alertify.error("Error adding access.");
+	});
+});
+
+$(document).on('ifUnchecked', '.update-access', function(event){
+	var id   = $(this).data('pk');
+	var type = $(this).data('value');
+	$.post("userModules", {update_access: 'true', id:id, type: type, access:'false'}, function(r){
+		if(r == 1)
+			alertify.success("Access removed");
+		else
+			alertify.error("Error removing access.");
+	});
+});
+//----------------- User access tab ------->>

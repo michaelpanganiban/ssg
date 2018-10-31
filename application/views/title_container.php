@@ -12,6 +12,8 @@
 		$title = "Update Client";
 	else if($this->uri->segment(2) == "targetsAndActuals")
 		$title = "Targets and Actuals";
+	else if($this->uri->segment(2) == "userModules")
+		$title = "User Modules";
 
 ?>
 <!DOCTYPE html>

@@ -166,6 +166,7 @@
                                 <th class="text-center">Annex</th>
                                 <th class="text-center">Start Date</th>
                                 <th class="text-center">Expiry Date</th>
+                                <th class="text-center">Remaining Months</th>
                                 <th class="text-center">Status</th>
                                 <th class="text-center">Next Step</th>
                                 <th class="text-center">Remarks</th>
@@ -178,6 +179,12 @@
                                 {
                                     foreach($client_data as $row)
                                     {
+                                        $date1 = @date('m', @strtotime($row->start_date));
+                                        $date2 = @date('m', @strtotime($row->expiry_date));
+                                        $year1 = @date('Y', @strtotime($row->start_date));
+                                        $year2 = @date('Y', @strtotime($row->expiry_date));
+
+                                        $diff  = (($year2 - $year1) * 12) + ($date2 - $date1);
                                         echo'<tr class="client-line">
                                                 <td>
                                                     <input type="text" name="annex[]" class="form-control col-md-4" placeholder="Annex" value="'.$row->annex.'" data-pk="'.$row->team_line_id.'">
@@ -189,8 +196,10 @@
                                                     <input type="text" name="e_date[]" class="form-control col-md-4 date-picker" placeholder="Expiry Date" value="'.@date_format(@date_create($row->expiry_date), 'Y-m-d').'">
                                                 </td>
                                                 <td>
+                                                    <input type="text" readOnly class="form-control col-md-4" value="'.$diff.'">
+                                                </td>
+                                                <td>
                                                     <select class="form-control" name="status[]">
-                                                        <option value="">Select Status..</option>
                                                         <option value="Signed" '.(($row->status == "Signed") ? "selected" : "").'>Signed</option>
                                                         <option value="Renewed on time" '.(($row->status == "Renewed on time") ? "selected" : "").'>Renewed on time</option>
                                                         <option value="Contract expired during this month" '.(($row->status == "Contract expired during this month") ? "selected" : "").'>Contract expired during this month</option>

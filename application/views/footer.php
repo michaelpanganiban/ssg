@@ -84,6 +84,7 @@
         <script src="<?php echo base_url('assets/alertifyjs/alertify.js'); ?>"></script> 
         <script src="<?php echo base_url('assets/alertifyjs/alertify.js'); ?>"></script> 
         <script src="<?php echo base_url('assets/jquery-confirm/dist/jquery-confirm.min.js'); ?>"></script>
+        <script src="<?php echo base_url('assets/plugins/iCheck/icheck.min.js'); ?>"></script>
         <script src="<?php echo base_url('assets/custom/admin.js'); ?>"></script>
         <script src="<?php echo base_url('assets/custom/client.js'); ?>"></script>
         <script src="<?php echo base_url('assets/loading.js'); ?>"></script>
@@ -118,6 +119,14 @@
                 autoclose: true,
                 format: 'yyyy-m-d'
             });
+
+             //iCheck for checkbox and radio inputs
+            $('input[type="checkbox"].minimal, input[type="radio"].minimal').iCheck({
+              checkboxClass: 'icheckbox_minimal-blue',
+              radioClass   : 'iradio_minimal-blue'
+            });
+
+            $(".data-table").DataTable({'ordering'    : false});
         </script>
     </body>
 </html>

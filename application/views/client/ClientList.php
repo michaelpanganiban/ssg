@@ -32,7 +32,7 @@
                                         foreach($clients as $row)
                                         {
                                             echo"<tr class='hover-tbl client-each' data-pk='".$row->team_id."' title='Click to update this client'>
-                                                    <td>".$row->team_id." - ".$row->team_name."</td>
+                                                    <td>".$row->team_name."</td>
                                                     <td>".$row->ref_no."</td>
                                                     <td>".$row->div_name."</td>
                                                     <td>".$row->back_office."</td>

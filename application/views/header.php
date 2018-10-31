@@ -17,6 +17,7 @@
         <link rel="stylesheet" href="<?php echo base_url('assets/alertifyjs/css/themes/bootstrap.min.css'); ?>"/> 
         <link rel="stylesheet" href="<?php echo base_url('assets/jquery-confirm/dist/jquery-confirm.min.css'); ?>"/> 
         <link rel="stylesheet" href="<?php echo base_url('assets/plugins/pace/pace.min.css'); ?>">
+        <link rel="stylesheet" href="<?php echo base_url('assets/plugins/iCheck/all.css'); ?>">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
         <style type="text/css">
             .text-center
@@ -110,27 +111,27 @@
                                     <i class="fa fa-th "></i> <span><?php echo ($this->uri->segment(2) == "home" || $this->uri->segment(2) == "")? "<b style='color:#00c0ef;'>Dashboard</b>" : "Dashboard" ?></span>
                                 </a>
                             </li>
-                            <li <?php echo ($this->uri->segment(2) == "userList")? "class='treeview active'" : "class='treeview'" ?>>
+                            <li <?php echo ($this->uri->segment(2) == "userList" || $this->uri->segment(2) == "userModules")? "class='treeview active'" : "class='treeview'" ?>>
                                 <a href="#">
-                                    <i class="fa fa-user-secret"></i> <span><?php echo ($this->uri->segment(2) == "userList")? "<b style='color:#00c0ef;'>Admin</b>" : "Admin" ?></span>
+                                    <i class="fa fa-user-secret"></i> <span><?php echo ($this->uri->segment(2) == "userList" || $this->uri->segment(2) == "userModules")? "<b style='color:#00c0ef;'>Admin</b>" : "Admin" ?></span>
                                     <span class="pull-right-container">
                                       <i class="fa fa-angle-left pull-right"></i>
                                     </span>
                                 </a>
                                 <ul class="treeview-menu">
                                     <li <?php echo ($this->uri->segment(2) == "userList")? "class='active'" : "" ?>><a href="<?php echo site_url('AdminController/userList'); ?>"><i class="fa fa-circle-o"></i> Users</a></li>
-                                    <li><a href="#"><i class="fa fa-circle-o"></i>User Modules</a></li>
+                                    <li <?php echo ($this->uri->segment(2) == "userModules")? "class='active'" : "" ?>><a href="<?php echo site_url('AdminController/userModules'); ?>"><i class="fa fa-circle-o"></i>User Modules</a></li>
                                 </ul>
                             </li>
                             <li  <?php echo ($this->uri->segment(2) == "client" || $this->uri->segment(2) == "addClient"  || $this->uri->segment(2) == "editClient" || $this->uri->segment(2) == "targetsAndActuals")? "class='active treeview'" : "class='treeview'" ?>>
                                 <a href="#">
-                                    <i class="fa fa-users"></i> <span><?php echo ($this->uri->segment(2) == "client"  || $this->uri->segment(2) == "addClient"  || $this->uri->segment(2) == "editClient" || $this->uri->segment(2) == "targetsAndActuals")? "<b style='color:#00c0ef;'>Client</b>" : "Client" ?></span>
+                                    <i class="fa fa-users"></i> <span><?php echo ($this->uri->segment(2) == "client"  || $this->uri->segment(2) == "addClient"  || $this->uri->segment(2) == "editClient" || $this->uri->segment(2) == "targetsAndActuals" )? "<b style='color:#00c0ef;'>Client</b>" : "Client" ?></span>
                                     <span class="pull-right-container">
                                       <i class="fa fa-angle-left pull-right"></i>
                                     </span>
                                 </a>
                                 <ul class="treeview-menu">
-                                    <li <?php echo ($this->uri->segment(2) == "client")? "class='active'" : "" ?>><a href="<?php echo site_url('ClientController/client'); ?>"><i class="fa fa-circle-o"></i> Client List</a></li>
+                                    <li <?php echo ($this->uri->segment(2) == "client" || $this->uri->segment(2) == "editClient"  || $this->uri->segment(2) == "addClient")? "class='active'" : "" ?>><a href="<?php echo site_url('ClientController/client'); ?>"><i class="fa fa-circle-o"></i> Client List</a></li>
                                     <li <?php echo ($this->uri->segment(2) == "targetsAndActuals")? "class='active'" : "" ?>><a href="<?php echo site_url('ClientController/targetsAndActuals'); ?>"><i class="fa fa-circle-o"></i>Targets and Actuals</a></li>
                                 </ul>
                             </li>
