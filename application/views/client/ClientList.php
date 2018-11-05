@@ -23,6 +23,7 @@
                                     <th class="text-center">Auth HC</th>
                                     <th class="text-center">F&A</th>
                                     <th class="text-center">HQ</th>
+                                    <th class="text-center"></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -31,14 +32,15 @@
                                     {
                                         foreach($clients as $row)
                                         {
-                                            echo"<tr class='hover-tbl client-each' data-pk='".$row->team_id."' title='Click to update this client'>
-                                                    <td>".$row->team_name."</td>
-                                                    <td>".$row->ref_no."</td>
-                                                    <td>".$row->div_name."</td>
-                                                    <td>".$row->back_office."</td>
-                                                    <td>".$row->auth_hc."</td>
-                                                    <td>".$row->F_and_a."</td>
-                                                    <td>".$row->hq."</td>";
+                                            echo"<tr class='hover-tbl' title='Click to update this client'>
+                                                    <td class='client-each' data-pk='".$row->team_id."'>".$row->team_name."</td>
+                                                    <td class='client-each' data-pk='".$row->team_id."'>".$row->ref_no."</td>
+                                                    <td class='client-each' data-pk='".$row->team_id."'>".$row->div_name."</td>
+                                                    <td class='client-each' data-pk='".$row->team_id."'>".$row->back_office."</td>
+                                                    <td class='client-each' data-pk='".$row->team_id."'>".$row->auth_hc."</td>
+                                                    <td class='client-each' data-pk='".$row->team_id."'>".$row->F_and_a."</td>
+                                                    <td class='client-each' data-pk='".$row->team_id."'>".$row->hq."</td>
+                                                    <td class='text-center'><button  data-pk='".$row->team_id."' class='add-target btn btn-sm btn-primary'><i class='fa fa-plus'></i>&nbsp; &nbsp; Add Target</button></td>";
                                             echo"</tr>";
                                         }
                                     }

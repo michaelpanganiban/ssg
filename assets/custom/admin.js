@@ -142,6 +142,44 @@ $(".grant-access").click(function(e){
 			});
 });	
 
+$(".delete-user").click(function(e){
+	var id = $(this).data('pk');
+	$.confirm({
+			    title: 'Warning!',
+			    content: 'Delete this user?',
+			    type: 'error',
+			    icon: 'fa fa-warning',
+			    theme:'dark',
+			    buttons: {
+			    			close: function () {
+					        },
+					        tryAgain: {
+					            text: 'Confirm',
+					            btnClass: 'btn-red',
+					            action: function()
+					            {
+						            Pace.restart();
+									Pace.track(function(){
+						    			$.post("userList", {id:id, delete_user:'true'}, function(r){
+						    				if(r == 1)
+						    				{
+						    					alertify.success("User was successfully deleted.");
+						    					setTimeout(function(e){
+						    						location.reload();
+						    					}, 1500);
+						    				}
+						    				else
+						    				{
+						    					alertify.error("Error deleting user.");
+						    				}
+										});
+									});
+								}
+					        }						        
+			    		}
+			});
+});
+
 //------------------------------- USER MODULES ------------------------------------------------>
 
 $("#user-list").change(function(e){

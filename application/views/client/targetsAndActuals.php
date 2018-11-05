@@ -67,7 +67,7 @@
             <div class="col-xs-12">
                 <div class="box box-primary" >
                     <div class="box-header">
-                        <button class="btn btn-sm btn-success pull-right" id="add-target"><i class="fa fa-plus-circle"></i>&nbsp;&nbsp;Manage Target</button>
+                        <button class="btn btn-sm btn-success pull-right add-target" data-pk=""><i class="fa fa-plus-circle"></i>&nbsp;&nbsp;Manage Target</button>
                     </div><hr>
                     <div class="box-body">
                         <table id="example1" class="table table-bordered table-striped" >
@@ -114,18 +114,18 @@
                                             echo"<tr class='hover-tbl target-each' data-name='".$data[$i]['client']."' data-pk='".$data[$i]['team_id']."' title='Click to view details'>";
                                                     echo"<td>".$data[$i]['client']."</td>";
                                                     echo"<td class='text-center'>".$data[$i]['prev_total']."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['January'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['January'] == 0)? "" : $data[$i]['January'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['February'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['February'] == 0)? "" : $data[$i]['February'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['March'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['March'] == 0)? "" : $data[$i]['March'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['April'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['April'] == 0)? "" : $data[$i]['April'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['May'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['May'] == 0)? "" : $data[$i]['May'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['June'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['June'] == 0)? "" : $data[$i]['June'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['July'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['July'] == 0)? "" : $data[$i]['July'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['August'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['August'] == 0)? "" : $data[$i]['August'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['September'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['September'] == 0)? "" : $data[$i]['September'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['October'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['October'] == 0)? "" : $data[$i]['October'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['November'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['November'] == 0)? "" : $data[$i]['November'])."</td>";
-                                                    echo"<td class='text-center' ".(($data[$i]['December'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['December'] == 0)? "" : $data[$i]['December'])."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['January'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['January'] == 0)? "" : (($data[$i]['January'] < 0) ? "( ".abs($data[$i]['January'])." )" : $data[$i]['January']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['February'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['February'] == 0)? "" : (($data[$i]['February'] < 0) ? "( ".abs($data[$i]['February'])." )" : $data[$i]['February']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['March'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['March'] == 0)? "" : (($data[$i]['March'] < 0) ? "( ".abs($data[$i]['March'])." )" : $data[$i]['March']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['April'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['April'] == 0)? "" : (($data[$i]['April'] < 0) ? "( ".abs($data[$i]['April'])." )" : $data[$i]['April']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['May'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['May'] == 0)? "" : (($data[$i]['May'] < 0) ? "( ".abs($data[$i]['May'])." )" : $data[$i]['May']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['June'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['June'] == 0)? "" : (($data[$i]['June'] < 0) ? "( ".abs($data[$i]['June'])." )" : $data[$i]['June']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['July'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['July'] == 0)? "" : (($data[$i]['July'] < 0) ? "( ".abs($data[$i]['July'])." )" : $data[$i]['July']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['August'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['August'] == 0)? "" : (($data[$i]['August'] < 0) ? "( ".abs($data[$i]['August'])." )" : $data[$i]['August']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['September'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['September'] == 0)? "" : (($data[$i]['September'] < 0) ? "( ".abs($data[$i]['September'])." )" : $data[$i]['September']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['October'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['October'] == 0)? "" : (($data[$i]['October'] < 0) ? "( ".abs($data[$i]['October'])." )" : $data[$i]['October']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['November'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['November'] == 0)? "" : (($data[$i]['November'] < 0) ? "( ".abs($data[$i]['November'])." )" : $data[$i]['November']))."</td>";
+                                                    echo"<td class='text-center' ".(($data[$i]['December'] < 0) ? "style='color:red;'" : "").">".(($data[$i]['December'] == 0)? "" : (($data[$i]['December'] < 0) ? "( ".abs($data[$i]['December'])." )" : $data[$i]['December']))."</td>";
                                                     echo"<td class='text-center' ".(($data[$i]['total'] < 0) ? "style='color:red;'" : "").">". $data[$i]['total']."</td>";
                                             echo"</tr>";
                                         }

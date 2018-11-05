@@ -36,6 +36,11 @@ class AdminController extends MY_Controller
 	        	$this->cache->delete(md5('users'));
 	        	echo $this->AdminModel->setAccess(1);
 	        }
+	        else if(!empty($this->input->post('delete_user')))
+	        {
+	        	$this->cache->delete(md5('users'));
+	        	echo $this->AdminModel->deleteUser();
+	        }
 	        else
 	        {
 	        	$data['session'] = $ssg_session_data;

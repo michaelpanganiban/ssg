@@ -121,7 +121,23 @@ $("#proceed-update-client").click(function(e){
 			});
 		});
 	}
-}); //edit client info
+}); //edit client info 
+
+$(".start-date").change(function(e){
+	var s_date = $(this).val().split("-");
+	var id 	   = $(this).data('pk');
+	var e_date = $(".c-line-"+id).find(".expiry-date").val().split("-");
+	var diff   = s_date[1] - e_date[1];
+	$("tr").find(".remaining-months-" + id).val(Math.abs(diff));
+});
+
+$(".expiry-date").change(function(e){
+	var s_date = $(this).val().split("-");
+	var id 	   = $(this).data('pk');
+	var e_date = $(".c-line-"+id).find(".start-date").val().split("-");
+	var diff   = s_date[1] - e_date[1];
+	$("tr").find(".remaining-months-" + id).val(Math.abs(diff));
+});
 
 $(".remove-line-edit").click(function(e){
 	if($("input[name^='annex']").length == 1)
@@ -177,9 +193,17 @@ $("#table-add-update").click(function(e){
 
 //-------------------------------------------END OF UPDATE CLIENT / START TARGETS AND ACTUALS-------------------------------------------------------->
 
-$("#add-target").click(function(e){
+$(".add-target").click(function(e){
 	var date = new Date();
-	var html = '<section class="content"><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Client:</label><div class="col-md-4"><select class="form-control select2" id="client"></select></div><label class="control-label col-md-1">Month:</label><div class="col-md-3"><select class="form-control select2" id="month"></select></div><label class="control-label col-md-1">Year:</label><div class="col-md-2"><input type="text" class="form-control" value="'+(1900 + date.getYear() + 1)+'" readOnly id="year"></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Target:</label><div class="col-md-4"><input type="number" class="form-control col-md-4" id="target"></div><label class="control-label col-md-1">Add:</label><div class="col-md-3"><input type="radio" class="action" name="action-type" value="Add"></div><label class="control-label col-md-1">Deduct:</label><div class="col-md-2"><input type="radio" class="action" name="action-type" value="Deduct"></div></div></div><hr>';
+	if($(this).data('pk') == "")
+	{
+		var client_id = "";
+	}
+	else
+	{
+		var client_id = $(this).data('pk');
+	}
+	var html = '<section class="content"><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Client:</label><div class="col-md-4"><select class="form-control select2" id="client"></select></div><label class="control-label col-md-1">Month:</label><div class="col-md-3"><select class="form-control select2" id="month"></select></div><label class="control-label col-md-1">Year:</label><div class="col-md-2"><select class="form-control" id="year"><option value="'+(1900 + date.getYear())+'">'+(1900 + date.getYear())+'</option><option value="'+(1900 + date.getYear() + 1)+'">'+(1900 + date.getYear() + 1)+'</option></select></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Target:</label><div class="col-md-4"><input type="number" class="form-control col-md-4" id="target"></div><label class="control-label col-md-1">Add:</label><div class="col-md-3"><input type="radio" class="action" name="action-type" value="Add"></div><label class="control-label col-md-1">Deduct:</label><div class="col-md-2"><input type="radio" class="action" name="action-type" value="Deduct"></div></div></div><hr>';
 		html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><i class="fa fa-2x fa-plus-circle text-success" style="cursor:pointer;" id="add-column-target"></i></th></tr></thead>';
 		html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control"></td><td><input type="number" class="form-control" name="cost[]"></td><td><input type="number" class="form-control" name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
 	BootstrapDialog.show({
@@ -190,10 +214,11 @@ $("#add-target").click(function(e){
         {
         	$.post("targetsAndActuals", {joborder_list:"true"}, function(r){
         		var data = jQuery.parseJSON(r);
-        		var functions = "<option value=''>Select Current Function...</option>";
+        		var functions = "<option value=''>Select Current Function...</option><option value='add'>Add Function</option>";
         		$.each(data, function(key, val){
         			functions += "<option value='"+this.joborder_id+"'>"+this.title+"</option>";
         		});
+        		functions+="<option value=''>"
         		$(".functions").html(functions);
         	});
 	        $(".modal-dialog").css('width', '90%');
@@ -216,9 +241,60 @@ $("#add-target").click(function(e){
 	        	var data = jQuery.parseJSON(r);
 	        	var client = "<option value=''>Select Client..</option>";
 	        	$.each(data, function(key, val){
-	        		client += "<option value='"+this.team_id+"'>"+this.team_name+"</option>";
+	        		if(client_id == this.team_id)
+	        		{
+	        			client += "<option selected value='"+this.team_id+"'>"+this.team_name+"</option>";
+	        			$("#client").attr('disabled','true').trigger('change');
+	        		}
+	        		else
+	        			client += "<option value='"+this.team_id+"'>"+this.team_name+"</option>";
 	        	});
 	        	$("#client").html(client).select2();
+	        });
+
+	        $(document).on('change','.functions', function(e){
+	        	if($(this).val() == "add")
+	        	{
+	        		BootstrapDialog.show({
+	        			title: 'Add Function',
+	        			message: '<center><input type="text" class="form-control" placeholder="Add new function" id="add-function-input"></center>',
+	        			buttons: [
+	        						{
+	        							label: '<i class="fa fa-close"></i>&nbsp;&nbsp;Close',
+								            cssClass: 'btn btn-sm btn-default pull-left',
+								            action: function(dialog) {
+								               dialog.close();
+								            }
+	        					 	},
+	        					 	{
+	        					 		label: '<i class="fa fa-plus-circle"></i>&nbsp;&nbsp; Add',
+							            cssClass: 'btn btn-sm btn-primary pull-right',
+							            id: 'proceed-add-func-btn',
+							            action: function(dialog) 
+							            {
+							            	var new_function = $("#add-function-input").val();
+								            if(new_function != "")
+								            {
+								            	$("#proceed-add-func-btn").attr('disabled', 'true');
+								            	$.post("targetsAndActuals", {new_function:new_function, add_function:'true'}, function(r){
+								            		if(r != 0)
+								            		{
+								            			$(".functions").append("<option selected value='"+r+"'>"+new_function+"</option>");
+								            			dialog.close();
+								            		}
+								            		else
+								            			alertify.error("Error adding new function.");
+								            	});
+							            	}
+							            	else
+							            	{
+							            		alertify.error("Job name cannot be empty.");
+							            	}
+							            }
+	        					 	}
+	        					 ],
+	        		});
+	        	}
 	        });
 
 	        var month = [ "January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December" ];
@@ -331,6 +407,7 @@ $(".target-each").click(function(e){
 			Pace.restart();
 			Pace.track(function(){
 				$.post("targetsAndActuals", {id:id, get_detailed: "true"}, function(r){
+					console.log(r);
 					var data 		 = jQuery.parseJSON(r);
 					var text 		 = "";
 					var total_billed = 0;
@@ -514,7 +591,7 @@ function getTargetData()
 	var data      = Array();
 
 	$("select[name^='functions[]'").each(function(e){
-		if($(this).val() == "")
+		if($(this).val() == "" || $(this).val() == 'add')
 		{
 			error = 1;
 			$(this).css('border', '1px solid red');
@@ -619,3 +696,4 @@ function getTargetData()
 	}
 	return error;
 }
+

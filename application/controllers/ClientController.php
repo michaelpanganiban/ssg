@@ -115,6 +115,10 @@ class ClientController extends MY_Controller
 				}
 		    	echo json_encode($data['clients']);
 		    }
+		    else if($this->input->post('add_function') == "true")
+		    {
+		    	echo json_encode($this->ClientModel->addFunction());
+		    }
 		    else if($this->input->post('add') == 'true')
 		    {
 		    	$this->cache->delete(md5('targets'));

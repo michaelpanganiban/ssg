@@ -185,18 +185,18 @@
                                         $year2 = @date('Y', @strtotime($row->expiry_date));
 
                                         $diff  = (($year2 - $year1) * 12) + ($date2 - $date1);
-                                        echo'<tr class="client-line">
+                                        echo'<tr class="client-line c-line-'.$row->team_line_id.'">
                                                 <td>
                                                     <input type="text" name="annex[]" class="form-control col-md-4" placeholder="Annex" value="'.$row->annex.'" data-pk="'.$row->team_line_id.'">
                                                 </td>
                                                 <td>
-                                                    <input type="text" name="s_date[]" class="form-control col-md-4 date-picker" placeholder="Start Date" value="'.@date_format(@date_create($row->start_date), 'Y-m-d').'">
+                                                    <input type="text" name="s_date[]" data-pk="'.$row->team_line_id.'" class="start-date form-control col-md-4 date-picker" placeholder="Start Date" value="'.@date_format(@date_create($row->start_date), 'Y-m-d').'">
                                                 </td>
                                                 <td>
-                                                    <input type="text" name="e_date[]" class="form-control col-md-4 date-picker" placeholder="Expiry Date" value="'.@date_format(@date_create($row->expiry_date), 'Y-m-d').'">
+                                                    <input type="text" name="e_date[]" data-pk="'.$row->team_line_id.'" class="expiry-date form-control col-md-4 date-picker" placeholder="Expiry Date" value="'.@date_format(@date_create($row->expiry_date), 'Y-m-d').'">
                                                 </td>
                                                 <td>
-                                                    <input type="text" readOnly class="form-control col-md-4" value="'.$diff.'">
+                                                    <input type="text" readOnly class="form-control col-md-4 remaining-months-'.$row->team_line_id.'" value="'.$diff.'">
                                                 </td>
                                                 <td>
                                                     <select class="form-control" name="status[]">

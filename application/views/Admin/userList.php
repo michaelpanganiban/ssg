@@ -23,6 +23,7 @@
                                     <th class="text-center">Location</th>
                                     <th class="text-center">Status</th>
                                     <th></th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -44,6 +45,10 @@
                                                         echo"<td class='text-center'><button data-pk='".$row->auth_id."' title='Grant access' class='btn btn-sm btn-primary grant-access'><i class='fa fa-check'></i></button></td>";
                                                     else 
                                                         echo"<td class='text-center'><button data-pk='".$row->auth_id."' title='Remove access' class='remove-grant btn btn-sm btn-danger'><i class='fa fa-close' ></i></button></td>";
+                                                    if($row->emp_id == $session['emp_id'])
+                                                        echo"<td class='text-center'></td>";
+                                                    else
+                                                        echo"<td class='text-center'><i class='fa fa-trash text-danger delete-user' data-pk='".$row->auth_id."'></i></td>";
                                             echo"</tr>";
                                         }
                                     }

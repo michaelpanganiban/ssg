@@ -147,7 +147,14 @@ class ClientModel extends CI_Model
 	public function getDetailed()
 	{
 		$id = htmlspecialchars(trim($this->input->post('id')));
-		return $this->db->query("SELECT sl.*, SUM(sl.billed_hc) AS billed_hc, j.title FROM ssg_targets_and_actuals sg LEFT JOIN ssg_targets_and_actuals_line sl ON sg.t_a_id = sl.t_a_id LEFT JOIN joborder j ON sl.function = j.joborder_id WHERE sg.team_id = '$id' AND sl.function IS NOT NULL GROUP BY sl.function")->result();
+		return $this->db->query("SELECT sl.*, SUM(sl.billed_hc) AS billed_hc, j.jobtitle as title FROM ssg_targets_and_actuals sg LEFT JOIN ssg_targets_and_actuals_line sl ON sg.t_a_id = sl.t_a_id LEFT JOIN jobs j ON sl.function = j.id WHERE sg.team_id = '$id' AND sl.function IS NOT NULL GROUP BY sl.function")->result();
+	}
+
+	public function addFunction()
+	{
+		if($this->db->insert('jobs', array('jobtitle'=>htmlspecialchars(trim($this->input->post('new_function'))))))
+			return $this->db->insert_id();
+		return 0;
 	}
 }
 

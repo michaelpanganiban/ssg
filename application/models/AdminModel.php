@@ -83,4 +83,12 @@ class AdminModel extends CI_Model
 	{
 		return $this->db->query("SELECT sl.auth_id, sl.emp_id, sl.status, p.first_name, p.last_name, e.position, e.infinit_email, e.work_location FROM ssg_auth_login sl LEFT JOIN profile p ON sl.emp_id = p.emp_id LEFT JOIN employment e ON sl.emp_id = e.emp_id")->result();
 	}
+
+	public function deleteUser()
+	{
+		$this->db->where('auth_id', htmlspecialchars(trim($this->input->post('id'))));
+		if($this->db->delete('ssg_auth_login'))
+			return 1;
+		return 0;		
+	}
 }
