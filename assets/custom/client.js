@@ -205,11 +205,12 @@ $(".add-target").click(function(e){
 	}
 	var html = '<section class="content"><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Client:</label><div class="col-md-4"><select class="form-control select2" id="client"></select></div><label class="control-label col-md-1">Month:</label><div class="col-md-3"><select class="form-control select2" id="month"></select></div><label class="control-label col-md-1">Year:</label><div class="col-md-2"><select class="form-control" id="year"><option value="'+(1900 + date.getYear())+'">'+(1900 + date.getYear())+'</option><option value="'+(1900 + date.getYear() + 1)+'">'+(1900 + date.getYear() + 1)+'</option></select></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Target:</label><div class="col-md-4"><input type="number" class="form-control col-md-4" id="target"></div><label class="control-label col-md-1">Add:</label><div class="col-md-3"><input type="radio" class="action" name="action-type" value="Add"></div><label class="control-label col-md-1">Deduct:</label><div class="col-md-2"><input type="radio" class="action" name="action-type" value="Deduct"></div></div></div><hr>';
 		html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><i class="fa fa-2x fa-plus-circle text-success" style="cursor:pointer;" id="add-column-target"></i></th></tr></thead>';
-		html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control"></td><td><input type="number" class="form-control" name="cost[]"></td><td><input type="number" class="form-control" name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
+		html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" id="func-1" data-pk="1" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control"></td><td><input type="number" class="form-control" name="cost[]"></td><td><input type="number" class="form-control" name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
 	BootstrapDialog.show({
         title: 'Manage Targets',
 		size: BootstrapDialog.SIZE_WIDE,
         message: html,
+        closable: false,
         onshown: function(e)
         {
         	$.post("targetsAndActuals", {joborder_list:"true"}, function(r){
@@ -227,6 +228,8 @@ $(".add-target").click(function(e){
 	        	var clone_target = $(".target-clone:first").clone();
 	        	clone_target.attr('id', 'remove-tr-'+(count+1));
 	        	clone_target.find('i').attr('id', 'remove-'+ (count + 1));
+	        	clone_target.find('.functions').attr('data-pk', (count + 1));
+	        	clone_target.find('.functions').attr('id', 'func-'+ (count + 1));
 	        	clone_target.find('i').attr('data-pk', count + 1);
 	        	$("#target-data").append(clone_target);
 	        	clearData(clone_target);
@@ -255,15 +258,18 @@ $(".add-target").click(function(e){
 	        $(document).on('change','.functions', function(e){
 	        	if($(this).val() == "add")
 	        	{
+	        		var count_id = $(this).data('pk');
 	        		BootstrapDialog.show({
 	        			title: 'Add Function',
 	        			message: '<center><input type="text" class="form-control" placeholder="Add new function" id="add-function-input"></center>',
+	        			closable: false,
 	        			buttons: [
 	        						{
 	        							label: '<i class="fa fa-close"></i>&nbsp;&nbsp;Close',
 								            cssClass: 'btn btn-sm btn-default pull-left',
 								            action: function(dialog) {
 								               dialog.close();
+								               $("#func-"+count_id).val("");
 								            }
 	        					 	},
 	        					 	{
@@ -279,7 +285,7 @@ $(".add-target").click(function(e){
 								            	$.post("targetsAndActuals", {new_function:new_function, add_function:'true'}, function(r){
 								            		if(r != 0)
 								            		{
-								            			$(".functions").append("<option selected value='"+r+"'>"+new_function+"</option>");
+								            			$("#func-"+count_id).append("<option selected value='"+r+"'>"+new_function+"</option>");
 								            			dialog.close();
 								            		}
 								            		else
@@ -312,6 +318,7 @@ $(".add-target").click(function(e){
 			            cssClass: 'btn btn-sm btn-default pull-left',
 			            action: function(dialog) {
 			               dialog.close();
+			               location.reload();
 			            }
 			        }, 
 			        {
@@ -407,15 +414,16 @@ $(".target-each").click(function(e){
 			Pace.restart();
 			Pace.track(function(){
 				$.post("targetsAndActuals", {id:id, get_detailed: "true"}, function(r){
-					console.log(r);
+					// console.log(r);
 					var data 		 = jQuery.parseJSON(r);
 					var text 		 = "";
 					var total_billed = 0;
 					var total_cost 	 = 0;
 					$.each(data, function(key, val){
-						text += "<tr><td>"+this.title+"</td><td align='right'>"+this.billed_hc+"</td><td  align='right'>$ "+this.cost_per_title+"</td><td  align='right'>"+this.ttl_cost+"</td><td  align='right'>"+this.hours_work+"</td><td  align='right'>"+this.timezone+"</td><td  align='right'>"+this.shift+"</td><td>"+this.location+"</td></tr>";
+						text += "<tr><td>"+this.title+"</td><td align='right'>"+this.billed_hc+"</td><td  align='right'>$ "+this.cost_per_title+"</td><td  align='right'>"+this.ttl_cost+"</td><td  align='right'>"+this.hours_work+"</td><td  align='right'>"+this.timezone+"</td><td  align='right'>"+this.shift+"</td><td  align='right'>"+this.location+"</td></tr>";
 						total_billed += parseInt(this.billed_hc);
-						total_cost 	 += parseInt(this.cost_per_title);
+						if(this.billed_hc > 0)
+							total_cost 	 += parseInt(this.cost_per_title);
 					});
 						text += "<tr style='background-color: #d7d7d8;'><td><b>Total</b></td><td align='right'><b>"+total_billed+"</b></td><td  align='right'><b>$ "+total_cost+"</b></td><td  align='right'></td><td  align='right'></td><td  align='right'></td><td  align='right'></td><td></td></tr>";
 					$("#append-body").append(text);
