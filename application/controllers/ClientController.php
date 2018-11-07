@@ -37,8 +37,19 @@ class ClientController extends MY_Controller
     {
     	if($ssg_session_data = $this->session->userdata('ssg_set_session'))
         {
+        	$data['session'] = $ssg_session_data;
 	        if($this->input->post('add') == "true")
 	        {
+	        	//--------------------- LOGS --------------------
+	        	$logs = array(
+	        					'emp_id' 		=> $data['session'][md5('emp_id')],
+	        					'log_details'	=> "Client added",
+	        					'particulars'	=> "",
+	        					'module'		=> 'Client list',
+	        					'ip_address'	=> $this->get_client_ip(),
+	        				);
+	        	$this->MainModel->addActivityModel($logs);
+	        	//--------------------- LOGS --------------------
 	        	$this->cache->delete(md5('clients'));
 	        	$data = $this->ClientModel->addClientModel();
 	        	echo json_encode($data);
@@ -63,8 +74,20 @@ class ClientController extends MY_Controller
     {
     	if($ssg_session_data = $this->session->userdata('ssg_set_session'))
         {
+        	$data['session'] = $ssg_session_data;
+        	
 	        if($this->input->post('edit') == "true")
 	        {
+	        	//--------------------- LOGS --------------------
+		        	$logs = array(
+		        					'emp_id' 		=> $data['session'][md5('emp_id')],
+		        					'log_details'	=> "Client has been edited",
+		        					'particulars'	=> htmlspecialchars(trim($this->input->post('team_id'))),
+		        					'module'		=> 'Client list',
+		        					'ip_address'	=> $this->get_client_ip(),
+		        				);
+		        	$this->MainModel->addActivityModel($logs);
+		        //--------------------- LOGS --------------------
 	        	$this->cache->delete(md5('clients'));
 	        	$data = $this->ClientModel->editClientModel();
 	        	echo json_encode($data);
@@ -102,6 +125,7 @@ class ClientController extends MY_Controller
     {
     	if($ssg_session_data = $this->session->userdata('ssg_set_session'))
         {
+        	$data['session'] 	= $ssg_session_data;
 		    if($this->input->post('joborder_list') == 'true')
 		    {
 		    	echo json_encode($this->ClientModel->getJobOrderList());
@@ -117,10 +141,30 @@ class ClientController extends MY_Controller
 		    }
 		    else if($this->input->post('add_function') == "true")
 		    {
+		    	//--------------------- LOGS --------------------
+		        	$logs = array(
+		        					'emp_id' 		=> $data['session'][md5('emp_id')],
+		        					'log_details'	=> "Added new function",
+		        					'particulars'	=> "",
+		        					'module'		=> 'Targets and actuals',
+		        					'ip_address'	=> $this->get_client_ip(),
+		        				);
+		        	$this->MainModel->addActivityModel($logs);
+		        //--------------------- LOGS --------------------
 		    	echo json_encode($this->ClientModel->addFunction());
 		    }
 		    else if($this->input->post('add') == 'true')
 		    {
+		    	//--------------------- LOGS --------------------
+		        	$logs = array(
+		        					'emp_id' 		=> $data['session'][md5('emp_id')],
+		        					'log_details'	=> "Added new target",
+		        					'particulars'	=> "",
+		        					'module'		=> 'Targets and actuals',
+		        					'ip_address'	=> $this->get_client_ip(),
+		        				);
+		        	$this->MainModel->addActivityModel($logs);
+		        //--------------------- LOGS --------------------
 		    	$this->cache->delete(md5('targets'));
 		    	$this->cache->delete(md5('current'));
 		    	echo $this->ClientModel->addTargets();
@@ -131,8 +175,7 @@ class ClientController extends MY_Controller
 		    }
 		    else
 		    {
-		        $data['session'] 	= $ssg_session_data;
-		    	$cache = md5('targets');
+		        $cache = md5('targets');
 				if(!$data['targets'] = $this->cache->get($cache))
 				{
 					$data['targets'] = $this->ClientModel->getTargetAndActual();

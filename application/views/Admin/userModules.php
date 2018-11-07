@@ -71,21 +71,21 @@
                                                                     <td>".$row->position."</td>
                                                                     <td>".ucfirst($row->module_name)."</td>";
                                                                     if($row->view == 1)
-                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='view' checked data-pk='".$row->id."'></td>";
+                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='view' checked data-pk='".$row->id."' data-module='".$row->module_name."'  data-emp='".$row->last_name.", ".$row->first_name."'></td>";
                                                                     else
-                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='view' data-pk='".$row->id."'></td>";
+                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='view' data-pk='".$row->id."' data-module='".$row->module_name."'  data-emp='".$row->last_name.", ".$row->first_name."'></td>";
                                                                     if($row->edit == 1)
-                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='edit' checked data-pk='".$row->id."'></td>";
+                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='edit' checked data-pk='".$row->id."' data-module='".$row->module_name."'  data-emp='".$row->last_name.", ".$row->first_name."'></td>";
                                                                     else
-                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='edit' data-pk='".$row->id."'></td>";
+                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='edit' data-pk='".$row->id."' data-module='".$row->module_name."'  data-emp='".$row->last_name.", ".$row->first_name."'></td>";
                                                                     if($row->add == 1)
-                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='add' checked data-pk='".$row->id."'></td>";
+                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='add' checked data-pk='".$row->id."' data-module='".$row->module_name."'  data-emp='".$row->last_name.", ".$row->first_name."'></td>";
                                                                     else
-                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='add' data-pk='".$row->id."'></td>";
+                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='add' data-pk='".$row->id."' data-module='".$row->module_name."'  data-emp='".$row->last_name.", ".$row->first_name."'></td>";
                                                                     if($row->delete == 1)
-                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='delete' checked data-pk='".$row->id."'></td>";
+                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='delete' checked data-pk='".$row->id."' data-module='".$row->module_name."'  data-emp='".$row->last_name.", ".$row->first_name."'></td>";
                                                                     else
-                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='delete' data-pk='".$row->id."'></td>";
+                                                                        echo"<td class='text-center'><input  type='checkbox' class='minimal update-access' data-value='delete' data-pk='".$row->id."' data-module='".$row->module_name."'  data-emp='".$row->last_name.", ".$row->first_name."'></td>";
                                                             echo"</tr>";
                                                         }
                                                     }

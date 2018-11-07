@@ -48,11 +48,12 @@ class MainController extends MY_Controller
 				foreach($data as $row)
 				{
 					$ssg_session_array = array(
-												'emp_id'  	 => $row->emp_id,
-												'fullname' 	 => $row->last_name.", ".$row->first_name,
-												'hired_date' => $row->date_hired,
-												'position'	 => $row->position,
-												'location'	 => $row->work_location
+												md5('emp_id')  	 	 => $row->emp_id,
+												md5('fullname') 	 => $row->last_name.", ".$row->first_name,
+												md5('hired_date') 	 => $row->date_hired,
+												md5('position')	 	 => $row->position,
+												md5('location')	 	 => $row->work_location,
+												md5('is_admin')	 	 => $row->is_admin
 											  );
 				}
 	   			$ssg_session_data = $this->session->set_userdata('ssg_set_session', $ssg_session_array);

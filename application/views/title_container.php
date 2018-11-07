@@ -14,6 +14,8 @@
 		$title = "Targets and Actuals";
 	else if($this->uri->segment(2) == "userModules")
 		$title = "User Modules";
+	else if($this->uri->segment(2) == "userActivityLogs")
+		$title = "User Activity Logs";
 
 ?>
 <!DOCTYPE html>

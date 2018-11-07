@@ -69,6 +69,7 @@ $("#add-user").click(function(e){
 
 $(".remove-grant").click(function(e){
 	var id = $(this).data('pk');
+	var emp= $(this).data('id');
 	$.confirm({
 			    title: 'Warning!',
 			    content: 'Remove access to this user?',
@@ -85,7 +86,7 @@ $(".remove-grant").click(function(e){
 					            {
 						            Pace.restart();
 									Pace.track(function(){
-						    			$.post("userList", {id:id, remove_grant:'true'}, function(r){
+						    			$.post("userList", {id:id, remove_grant:'true', emp_id:emp}, function(r){
 						    				if(r == 1)
 						    				{
 						    					alertify.success("Access was successfully removed.");
@@ -107,6 +108,7 @@ $(".remove-grant").click(function(e){
 
 $(".grant-access").click(function(e){
 	var id = $(this).data('pk');
+	var emp= $(this).data('id');
 	$.confirm({
 			    content: 'Grant access to this user?',
 			    icon: 'fa fa-check',
@@ -122,7 +124,7 @@ $(".grant-access").click(function(e){
 					            {
 						            Pace.restart();
 									Pace.track(function(){
-						    			$.post("userList", {id:id, grant_access:'true'}, function(r){
+						    			$.post("userList", {id:id, grant_access:'true', emp_id:emp}, function(r){
 						    				if(r == 1)
 						    				{
 						    					alertify.success("Access was successfully added.");
@@ -144,6 +146,7 @@ $(".grant-access").click(function(e){
 
 $(".delete-user").click(function(e){
 	var id = $(this).data('pk');
+	var emp= $(this).data('id');
 	$.confirm({
 			    title: 'Warning!',
 			    content: 'Delete this user?',
@@ -160,7 +163,7 @@ $(".delete-user").click(function(e){
 					            {
 						            Pace.restart();
 									Pace.track(function(){
-						    			$.post("userList", {id:id, delete_user:'true'}, function(r){
+						    			$.post("userList", {id:id, delete_user:'true', emp_id:emp}, function(r){
 						    				if(r == 1)
 						    				{
 						    					alertify.success("User was successfully deleted.");
@@ -213,7 +216,8 @@ $("#user-list").change(function(e){
 $(document).on('ifChecked','.module-ssg',function(e){
 	var module_id = $(this).data('pk');
 	var user_id   = $("#user-list").val();
-	$.post("userModules", {add_module: 'true', module_id:module_id, user_id: user_id}, function(r){
+	var name      = $("#user-list").children("option:selected").text();
+	$.post("userModules", {add_module: 'true', module_id:module_id, user_id: user_id, name:name}, function(r){
 		if(r == 1)
 			alertify.success("Module added");
 		else
@@ -223,7 +227,9 @@ $(document).on('ifChecked','.module-ssg',function(e){
 
 $(document).on('ifUnchecked', '.module-ssg', function(event){
 	var id = $(this).data('id');
-	$.post("userModules", {remove_module: 'true', id:id}, function(r){
+	var module_id = $(this).data('pk');
+	var name      = $("#user-list").children("option:selected").text();
+	$.post("userModules", {remove_module: 'true', id:id, name:name, module_id:module_id}, function(r){
 		if(r == 1)
 			alertify.success("Module removed");
 		else
@@ -236,7 +242,9 @@ $(document).on('ifUnchecked', '.module-ssg', function(event){
 $(document).on('ifChecked','.update-access',function(e){
 	var id   = $(this).data('pk');
 	var type = $(this).data('value');
-	$.post("userModules", {update_access: 'true', id:id, type: type, access:'true'}, function(r){
+	var mod  = $(this).data('module');
+	var name = $(this).data('emp');
+	$.post("userModules", {update_access: 'true', id:id, type: type, access:'true', module:mod, name:name}, function(r){
 		if(r == 1)
 			alertify.success("Access granted");
 		else
@@ -247,7 +255,9 @@ $(document).on('ifChecked','.update-access',function(e){
 $(document).on('ifUnchecked', '.update-access', function(event){
 	var id   = $(this).data('pk');
 	var type = $(this).data('value');
-	$.post("userModules", {update_access: 'true', id:id, type: type, access:'false'}, function(r){
+	var mod  = $(this).data('module');
+	var name = $(this).data('emp');
+	$.post("userModules", {update_access: 'true', id:id, type: type, access:'false', module:mod, name:name}, function(r){
 		if(r == 1)
 			alertify.success("Access removed");
 		else

@@ -39,16 +39,16 @@
                                                     <td class='text-center'>".$row->infinit_email."</td>
                                                     <td class='text-center'>".$row->work_location."</td>
                                                     <td class='text-center'>".(($row->status == 1)? "<span class='badge bg-green'>Active</span>" : "<span class='badge bg-red'>Inactive</span>")."</td>";
-                                                    if($row->emp_id == $session['emp_id'])
+                                                    if($row->emp_id == $session[md5('emp_id')])
                                                         echo"<td class='text-center'></td>";
                                                     else if($row->status == 0)
-                                                        echo"<td class='text-center'><button data-pk='".$row->auth_id."' title='Grant access' class='btn btn-sm btn-primary grant-access'><i class='fa fa-check'></i></button></td>";
+                                                        echo"<td class='text-center'><button data-pk='".$row->auth_id."'  data-id='".$row->emp_id."' title='Grant access' class='btn btn-sm btn-primary grant-access'><i class='fa fa-check'></i></button></td>";
                                                     else 
-                                                        echo"<td class='text-center'><button data-pk='".$row->auth_id."' title='Remove access' class='remove-grant btn btn-sm btn-danger'><i class='fa fa-close' ></i></button></td>";
-                                                    if($row->emp_id == $session['emp_id'])
+                                                        echo"<td class='text-center'><button data-pk='".$row->auth_id."'  data-id='".$row->emp_id."' title='Remove access' class='remove-grant btn btn-sm btn-danger'><i class='fa fa-close' ></i></button></td>";
+                                                    if($row->emp_id == $session[md5('emp_id')])
                                                         echo"<td class='text-center'></td>";
                                                     else
-                                                        echo"<td class='text-center'><i class='fa fa-trash text-danger delete-user' data-pk='".$row->auth_id."'></i></td>";
+                                                        echo"<td class='text-center'><i class='fa fa-trash text-danger delete-user' data-pk='".$row->auth_id."' data-id='".$row->emp_id."'></i></td>";
                                             echo"</tr>";
                                         }
                                     }

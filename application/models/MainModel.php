@@ -8,9 +8,14 @@ class MainModel extends CI_Model
 		$username = htmlspecialchars(trim($this->input->post('username')), TRUE);
 		$password = htmlspecialchars(trim(md5($this->input->post('password'))), TRUE);
 
-		$query = $this->db->query("SELECT p.emp_id, p.first_name, p.last_name, e.date_hired, e.position, e.work_location FROM profile p LEFT JOIN employment e ON p.emp_id = e.emp_id WHERE p.emp_id = '$username' AND p.password = '$password' AND p.login_status='enabled' AND p.emp_id IN (SELECT emp_id FROM ssg_auth_login WHERE status = '1')");
+		$query = $this->db->query("SELECT p.emp_id, p.first_name, p.last_name, e.date_hired, e.position, e.work_location, sl.is_admin FROM profile p LEFT JOIN employment e ON p.emp_id = e.emp_id LEFT JOIN ssg_auth_login sl ON sl.emp_id = p.emp_id WHERE p.emp_id = '$username' AND p.password = '$password' AND p.login_status='enabled' AND p.emp_id IN (SELECT emp_id FROM ssg_auth_login WHERE status = '1')");
 		return $query->result();
 	}
 
-
+	public function addActivityModel($data)
+	{
+		if($this->db->insert('ssg_user_logs', $data) === true)
+			return 1;
+		return 0;
+	}
 }

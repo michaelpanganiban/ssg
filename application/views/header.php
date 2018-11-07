@@ -42,16 +42,16 @@
                             <li class="dropdown user user-menu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                     <img src="<?php echo base_url('assets/dist/img/user2-160x160.jpg'); ?>" class="user-image" alt="User Image">
-                                    <span class="hidden-xs"><?php echo $session['fullname']; ?></span>
+                                    <span class="hidden-xs"><?php echo $session[md5('fullname')]; ?></span>
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li class="user-header">
                                         <img src="<?php echo base_url('assets/dist/img/user2-160x160.jpg'); ?>" class="img-circle" alt="User Image">
                                         <p>
-                                            <?php echo $session['fullname']." - ".$session['position']."<br>".$session['location'];
+                                            <?php echo $session[md5('fullname')]." - ".$session[md5('position')]."<br>".$session[md5('location')];
 
                                             ?>
-                                            <small><?php echo "Member since ".@date_format(@date_create($session['hired_date']), 'M d, Y'); ?></small>
+                                            <small><?php echo "Member since ".@date_format(@date_create($session[md5('hired_date')]), 'M d, Y'); ?></small>
                                         </p>
                                     </li>
                                     <!-- <li class="user-body">
@@ -91,7 +91,7 @@
                           <img src="<?php echo base_url('assets/dist/img/user2-160x160.jpg'); ?>" class="img-circle" alt="User Image">
                         </div>
                         <div class="pull-left info">
-                            <p><?php echo $session['fullname']; ?></p>
+                            <p><?php echo $session[md5('fullname')]; ?></p>
                             <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
                         </div>
                     </div>
@@ -135,22 +135,19 @@
                                     <li <?php echo ($this->uri->segment(2) == "targetsAndActuals")? "class='active'" : "" ?>><a href="<?php echo site_url('ClientController/targetsAndActuals'); ?>"><i class="fa fa-circle-o"></i>Targets and Actuals</a></li>
                                 </ul>
                             </li>
-                            <!-- <li class="treeview">
+                            <li <?php echo ($this->uri->segment(2) == "userActivityLogs")? "class='active treeview'" : "class='treeview'" ?>>
                                 <a href="#">
                                     <i class="fa fa-files-o"></i>
-                                    <span>Layout Options</span>
+                                    <span><?php echo ($this->uri->segment(2) == "userActivityLogs")? "<b style='color:#00c0ef;'>Reports</b>" : "Reports" ?></span>
                                     <span class="pull-right-container">
-                                      <span class="label label-primary pull-right">4</span>
+                                        <i class="fa fa-angle-left pull-right"></i>
                                     </span>
                                 </a>
                                 <ul class="treeview-menu">
-                                    <li><a href="pages/layout/top-nav.html"><i class="fa fa-circle-o"></i> Top Navigation</a></li>
-                                    <li><a href="pages/layout/boxed.html"><i class="fa fa-circle-o"></i> Boxed</a></li>
-                                    <li><a href="pages/layout/fixed.html"><i class="fa fa-circle-o"></i> Fixed</a></li>
-                                    <li><a href="pages/layout/collapsed-sidebar.html"><i class="fa fa-circle-o"></i> Collapsed Sidebar</a></li>
+                                    <li <?php echo ($this->uri->segment(2) == "userActivityLogs")? "class='active'" : "" ?>><a href="<?php echo base_url("AdminReportsController/userActivityLogs"); ?>"><i class="fa fa-circle-o"></i>User Activity Logs</a></li>
                                 </ul>
                             </li>
-                            <li>
+                            <!-- <li>
                                 <a href="pages/widgets.html">
                                     <i class="fa fa-th"></i> <span>Widgets</span>
                                     <span class="pull-right-container">
