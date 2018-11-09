@@ -44,7 +44,7 @@ $("#add-user").click(function(e){
 				        		{
 					        		Pace.restart();
 									Pace.track(function(){
-					        			$.post("userList", {grant_user: 'true', emp_id:emp_id}, function(r){
+					        			$.post("userList", {grant_user: 'true', emp_id:emp_id, name:fullname}, function(r){
 					        				if(r == 1)
 					        				{
 					        					alertify.success("Access granted to " + fullname);
@@ -68,8 +68,9 @@ $("#add-user").click(function(e){
 }); //add grant access to employees
 
 $(".remove-grant").click(function(e){
-	var id = $(this).data('pk');
-	var emp= $(this).data('id');
+	var id  = $(this).data('pk');
+	var emp = $(this).data('id');
+	var name= $(this).data('name');
 	$.confirm({
 			    title: 'Warning!',
 			    content: 'Remove access to this user?',
@@ -86,7 +87,7 @@ $(".remove-grant").click(function(e){
 					            {
 						            Pace.restart();
 									Pace.track(function(){
-						    			$.post("userList", {id:id, remove_grant:'true', emp_id:emp}, function(r){
+						    			$.post("userList", {id:id, remove_grant:'true', emp_id:emp, name:name}, function(r){
 						    				if(r == 1)
 						    				{
 						    					alertify.success("Access was successfully removed.");
@@ -107,8 +108,9 @@ $(".remove-grant").click(function(e){
 }); //remove access to ssg
 
 $(".grant-access").click(function(e){
-	var id = $(this).data('pk');
-	var emp= $(this).data('id');
+	var id  = $(this).data('pk');
+	var emp = $(this).data('id');
+	var name= $(this).data('name');
 	$.confirm({
 			    content: 'Grant access to this user?',
 			    icon: 'fa fa-check',
@@ -124,7 +126,7 @@ $(".grant-access").click(function(e){
 					            {
 						            Pace.restart();
 									Pace.track(function(){
-						    			$.post("userList", {id:id, grant_access:'true', emp_id:emp}, function(r){
+						    			$.post("userList", {id:id, grant_access:'true', emp_id:emp, name:name}, function(r){
 						    				if(r == 1)
 						    				{
 						    					alertify.success("Access was successfully added.");
@@ -145,8 +147,9 @@ $(".grant-access").click(function(e){
 });	
 
 $(".delete-user").click(function(e){
-	var id = $(this).data('pk');
-	var emp= $(this).data('id');
+	var id  = $(this).data('pk');
+	var emp = $(this).data('id');
+	var name= $(this).data('name');
 	$.confirm({
 			    title: 'Warning!',
 			    content: 'Delete this user?',
@@ -163,7 +166,7 @@ $(".delete-user").click(function(e){
 					            {
 						            Pace.restart();
 									Pace.track(function(){
-						    			$.post("userList", {id:id, delete_user:'true', emp_id:emp}, function(r){
+						    			$.post("userList", {id:id, delete_user:'true', emp_id:emp, name:name}, function(r){
 						    				if(r == 1)
 						    				{
 						    					alertify.success("User was successfully deleted.");
@@ -199,9 +202,9 @@ $("#user-list").change(function(e){
 			$.each(data, function(key, val){
 				html += "<tr><td>"+this.parent_module.toUpperCase()+"</td><td>"+this.module_name.toUpperCase()+"</td>";
 				if(this.is_set == 1)
-					html +="<td class='text-center'><input type='checkbox' data-id='"+this.id+"' data-pk='"+this.module_id+"' class='flat-blue module-ssg' checked></td></tr>";
+					html +="<td class='text-center'><input type='checkbox' data-id='"+this.id+"' data-pk='"+this.module_id+"' data-mod='"+this.module_name+"' class='flat-blue module-ssg' checked></td></tr>";
 				else
-					html +="<td class='text-center'><input type='checkbox' data-pk='"+this.module_id+"' class='flat-blue module-ssg' ></td></tr>";
+					html +="<td class='text-center'><input type='checkbox' data-pk='"+this.module_id+"' data-mod='"+this.module_name+"' class='flat-blue module-ssg' ></td></tr>";
 			});
 			$("#append-modules").html(html);
 			$('.flat-blue').iCheck({
@@ -217,7 +220,8 @@ $(document).on('ifChecked','.module-ssg',function(e){
 	var module_id = $(this).data('pk');
 	var user_id   = $("#user-list").val();
 	var name      = $("#user-list").children("option:selected").text();
-	$.post("userModules", {add_module: 'true', module_id:module_id, user_id: user_id, name:name}, function(r){
+	var module_nm = $(this).data('mod');
+	$.post("userModules", {add_module: 'true', module_id:module_id, user_id: user_id, name:name, module:module_nm}, function(r){
 		if(r == 1)
 			alertify.success("Module added");
 		else
@@ -226,10 +230,11 @@ $(document).on('ifChecked','.module-ssg',function(e){
 });
 
 $(document).on('ifUnchecked', '.module-ssg', function(event){
-	var id = $(this).data('id');
+	var id 		  = $(this).data('id');
 	var module_id = $(this).data('pk');
 	var name      = $("#user-list").children("option:selected").text();
-	$.post("userModules", {remove_module: 'true', id:id, name:name, module_id:module_id}, function(r){
+	var module_nm = $(this).data('mod');
+	$.post("userModules", {remove_module: 'true', id:id, name:name, module_id:module_id, module:module_nm}, function(r){
 		if(r == 1)
 			alertify.success("Module removed");
 		else

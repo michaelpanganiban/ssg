@@ -53,7 +53,7 @@ $("#proceed-add-client").click(function(e){
 							'address'			  : $("#client-address").val()
 						}
 			waitingDialog.show('Processing data...', {dialogSize: 'sm', progressType: 'success'});
-			$.post("addClient", {client: data, client_line: client_line, add: 'true'}, function(r){
+			$.post("addClient", {client: data, client_line: client_line, add: 'true', client_name:$("#client-name").val()}, function(r){
 				if(r == 0)
 					alertify.success("Client was successfully added.");
 				else
@@ -109,7 +109,7 @@ $("#proceed-update-client").click(function(e){
 							'address'			  : $("#client-address").val(),
 							'ref_no'			  : $("#client-name").data('ref')
 						}
-			$.post("editClient", {client: data, client_line: client_line, edit: 'true', team_id:team_id}, function(r){
+			$.post("editClient", {client: data, client_line: client_line, edit: 'true', team_id:team_id, client_name:$("#client-name").val()}, function(r){
 				if(r == 1)
 					alertify.success("Client was successfully updated.");
 				else
@@ -376,7 +376,8 @@ $(".add-target").click(function(e){
 			        								'year' 	 : (parseInt($("#year").val()) - 1),
 			        								'action' : ""
 			        							  }; 
-			        				$.post("targetsAndActuals", {add:'true', client:client, line: data_target, client2:client2, id:$("#client").val()}, function(r){
+			        				var client_name = $("#client").children("option:selected").text();
+			        				$.post("targetsAndActuals", {add:'true', client:client, line: data_target, client2:client2, id:$("#client").val(), client_name:client_name}, function(r){
 			        					if(r == 1)
 			        					{
 			        						alertify.success("Target was successfully added.");

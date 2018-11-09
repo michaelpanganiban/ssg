@@ -43,9 +43,10 @@ class ClientController extends MY_Controller
 	        	//--------------------- LOGS --------------------
 	        	$logs = array(
 	        					'emp_id' 		=> $data['session'][md5('emp_id')],
-	        					'log_details'	=> "Client added",
+	        					'log_details'	=> ucwords(strtolower($this->input->post('client_name')))." client has been added.",
 	        					'particulars'	=> "",
 	        					'module'		=> 'Client list',
+	        					'action'		=> 'Add',
 	        					'ip_address'	=> $this->get_client_ip(),
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
@@ -81,9 +82,10 @@ class ClientController extends MY_Controller
 	        	//--------------------- LOGS --------------------
 		        	$logs = array(
 		        					'emp_id' 		=> $data['session'][md5('emp_id')],
-		        					'log_details'	=> "Client has been edited",
+		        					'log_details'	=> ucwords(strtolower($this->input->post('client_name')))." client has been edited",
 		        					'particulars'	=> htmlspecialchars(trim($this->input->post('team_id'))),
 		        					'module'		=> 'Client list',
+		        					'action'		=> 'edit',
 		        					'ip_address'	=> $this->get_client_ip(),
 		        				);
 		        	$this->MainModel->addActivityModel($logs);
@@ -144,9 +146,10 @@ class ClientController extends MY_Controller
 		    	//--------------------- LOGS --------------------
 		        	$logs = array(
 		        					'emp_id' 		=> $data['session'][md5('emp_id')],
-		        					'log_details'	=> "Added new function",
+		        					'log_details'	=> ucwords(strtolower($this->input->post('new_function')))." has been added to jobs",
 		        					'particulars'	=> "",
 		        					'module'		=> 'Targets and actuals',
+		        					'action'		=> 'Add',
 		        					'ip_address'	=> $this->get_client_ip(),
 		        				);
 		        	$this->MainModel->addActivityModel($logs);
@@ -158,9 +161,10 @@ class ClientController extends MY_Controller
 		    	//--------------------- LOGS --------------------
 		        	$logs = array(
 		        					'emp_id' 		=> $data['session'][md5('emp_id')],
-		        					'log_details'	=> "Added new target",
+		        					'log_details'	=> "Added new target to client ".ucwords(strtolower($this->input->post('client_name'))),
 		        					'particulars'	=> "",
 		        					'module'		=> 'Targets and actuals',
+		        					'action'		=> 'Add',
 		        					'ip_address'	=> $this->get_client_ip(),
 		        				);
 		        	$this->MainModel->addActivityModel($logs);

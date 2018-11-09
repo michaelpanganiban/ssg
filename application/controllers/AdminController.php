@@ -28,10 +28,11 @@ class AdminController extends MY_Controller
 	        	//--------------------- LOGS --------------------
 	        	$logs = array(
 	        					'emp_id' 		=> $data['session'][md5('emp_id')],
-	        					'log_details'	=> 'Access granted to user ',
+	        					'log_details'	=> 'Access granted to '.ucwords(strtolower($this->input->post('name'))),
 	        					'module'		=> 'Users',
 	        					'particulars'	=> htmlspecialchars(trim($this->input->post('emp_id'))),
-	        					'ip_address'	=> $this->get_client_ip(),
+	        					'action'		=> 'Add',
+	        					'ip_address'	=> $this->get_client_ip()
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
 	        	//--------------------- LOGS --------------------
@@ -44,9 +45,10 @@ class AdminController extends MY_Controller
 	        	//--------------------- LOGS --------------------
 	        	$logs = array(
 	        					'emp_id' 		=> $data['session'][md5('emp_id')],
-	        					'log_details'	=> 'Access removed to user ',
+	        					'log_details'	=> 'Access removed to '.ucwords(strtolower($this->input->post('name'))),
 	        					'particulars'	=> htmlspecialchars(trim($this->input->post('emp_id'))),
 	        					'module'		=> 'Users',
+	        					'action'		=> 'delete',
 	        					'ip_address'	=> $this->get_client_ip(),
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
@@ -58,9 +60,10 @@ class AdminController extends MY_Controller
 	        	//--------------------- LOGS --------------------
 	        	$logs = array(
 	        					'emp_id' 		=> $data['session'][md5('emp_id')],
-	        					'log_details'	=> 'Access granted to user ',
+	        					'log_details'	=> 'Access granted to '.ucwords(strtolower($this->input->post('name'))),
 	        					'particulars'	=> htmlspecialchars(trim($this->input->post('emp_id'))),
 	        					'module'		=> 'Users',
+	        					'action'		=> 'Add',
 	        					'ip_address'	=> $this->get_client_ip(),
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
@@ -73,9 +76,10 @@ class AdminController extends MY_Controller
 	        	//--------------------- LOGS --------------------
 	        	$logs = array(
 	        					'emp_id' 		=> $data['session'][md5('emp_id')],
-	        					'log_details'	=> "User has been removed to the system.",
+	        					'log_details'	=> ucwords(strtolower($this->input->post('name')))." has been removed to the system.",
 	        					'particulars'	=> htmlspecialchars(trim($this->input->post('emp_id'))),
 	        					'module'		=> 'Users',
+	        					'action'		=> 'delete',
 	        					'ip_address'	=> $this->get_client_ip(),
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
@@ -117,9 +121,10 @@ class AdminController extends MY_Controller
 	        	//--------------------- LOGS --------------------
 	        	$logs = array(
 	        					'emp_id' 		=> $data['session'][md5('emp_id')],
-	        					'log_details'	=> "Module has been added to ".htmlspecialchars(trim($this->input->post('name'))),
+	        					'log_details'	=> ucwords(strtolower($this->input->post('module')))." module has been added to ".htmlspecialchars(trim(ucwords(strtolower($this->input->post('name'))))),
 	        					'particulars'	=> htmlspecialchars(trim($this->input->post('module_id'))),
 	        					'module'		=> 'User Modules',
+	        					'action'		=> 'Add',
 	        					'ip_address'	=> $this->get_client_ip(),
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
@@ -132,9 +137,10 @@ class AdminController extends MY_Controller
 	        	//--------------------- LOGS --------------------
 	        	$logs = array(
 	        					'emp_id' 		=> $data['session'][md5('emp_id')],
-	        					'log_details'	=> "Module has been removed to ".htmlspecialchars(trim($this->input->post('name'))),
+	        					'log_details'	=> ucwords(strtolower($this->input->post('module')))." module has been removed to ".htmlspecialchars(trim(ucwords(strtolower($this->input->post('name'))))),
 	        					'particulars'	=> htmlspecialchars(trim($this->input->post('module_id'))),
 	        					'module'		=> 'User Modules',
+	        					'action'		=> 'delete',
 	        					'ip_address'	=> $this->get_client_ip(),
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
@@ -145,14 +151,19 @@ class AdminController extends MY_Controller
 	        else if(!empty($this->input->post('update_access')))
 	        {
 	        	//--------------------- LOGS --------------------
-	        	$what = 'removed';
+	        	$what  = 'removed';
+	        	$action= 'delete';
 	        	if(htmlspecialchars(trim($this->input->post('access') == 'true')))
-	        		$what = 'added';
+	        	{
+	        		$what   = 'added';
+	        		$action = 'add';
+	        	}
 	        	$logs = array(
 	        					'emp_id' 		=> $data['session'][md5('emp_id')],
-	        					'log_details'	=> "Access has been ".$what." to ".htmlspecialchars(trim($this->input->post('name'))).", for module ".htmlspecialchars(trim($this->input->post('module'))),
+	        					'log_details'	=> ucwords(strtolower($this->input->post('type')))." access has been ".$what." to ".htmlspecialchars(trim($this->input->post('name'))).", for module ".htmlspecialchars(trim($this->input->post('module'))),
 	        					'particulars'	=> htmlspecialchars(trim($this->input->post('type'))),
 	        					'module'		=> 'User Access',
+	        					'action'		=> $action,
 	        					'ip_address'	=> $this->get_client_ip(),
 	        				);
 	        	$this->MainModel->addActivityModel($logs);

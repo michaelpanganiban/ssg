@@ -85,6 +85,12 @@
         <script src="<?php echo base_url('assets/alertifyjs/alertify.js'); ?>"></script> 
         <script src="<?php echo base_url('assets/jquery-confirm/dist/jquery-confirm.min.js'); ?>"></script>
         <script src="<?php echo base_url('assets/plugins/iCheck/icheck.min.js'); ?>"></script>
+        <!-- react -->
+        <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+        <script src="<?php echo base_url('assets/custom/Reports.js'); ?>"></script>
+        <!-- react -->
         <script src="<?php echo base_url('assets/custom/admin.js'); ?>"></script>
         <script src="<?php echo base_url('assets/custom/client.js'); ?>"></script>
         <script src="<?php echo base_url('assets/loading.js'); ?>"></script>
@@ -127,6 +133,10 @@
             });
 
             $(".data-table").DataTable({'ordering'    : false});
+        </script>
+
+        <script type="text/babel">
+                    
         </script>
     </body>
 </html>
