@@ -61,7 +61,7 @@
                                 </form>
                             </div>
                         </div>
-                    </div>
+                    </div> 
                 </div>
             </aside>
         </div>
@@ -86,10 +86,9 @@
         <script src="<?php echo base_url('assets/jquery-confirm/dist/jquery-confirm.min.js'); ?>"></script>
         <script src="<?php echo base_url('assets/plugins/iCheck/icheck.min.js'); ?>"></script>
         <!-- react -->
-        <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
-        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
-        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
-        <script src="<?php echo base_url('assets/custom/Reports.js'); ?>"></script>
+        <script src="http://localhost:3000/static/js/bundle.js"></script>
+        <script src="http://localhost:3000/static/js/main.chunk.js"></script>
+        <script src="http://localhost:3000/static/js/0.chunk.js"></script>
         <!-- react -->
         <script src="<?php echo base_url('assets/custom/admin.js'); ?>"></script>
         <script src="<?php echo base_url('assets/custom/client.js'); ?>"></script>

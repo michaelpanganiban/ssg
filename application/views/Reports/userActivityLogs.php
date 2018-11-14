@@ -10,7 +10,8 @@
             <div class="col-md-3">
                 <div class="box box-primary">
                     <div class="box-body box-profile">
-                        <img class="profile-user-img img-responsive img-circle" src="<?php echo base_url('assets/dist/img/user4-128x128.jpg');?>" alt="User profile picture">
+                       <!--  <img class="profile-user-img img-responsive img-circle" src="<?php echo base_url('assets/dist/img/carl.jpg');?>" alt="User profile picture"> -->
+                        <img class="profile-user-img img-responsive img-circle" src="<?php echo base_url('assets/dist/img/carl.jpg');?>" alt="User profile picture">
                         <h3 class="profile-username text-center"><?php echo $session[md5('fullname')]; ?></h3>
                         <p class="text-muted text-center"><?php echo $session[md5('position')]; ?></p>
                         <p class="text-muted text-center"><?php echo "Member since ".@date_format(@date_create($session[md5('hired_date')]), 'M d, Y'); ?></p>
@@ -56,20 +57,16 @@
                             <?php 
                                 if(!empty($logs))
                                 {
-                                    $date = @date('Y-m-d');
                                     foreach($logs['query1'] as $dates)
                                     {
-                                        if($date == $dates->created)
-                                        {
-                                            echo'<li class="time-label">
-                                                    <span class="bg-green">'.@date_format(@date_create($dates->created), 'd m. Y').'</span>
-                                                </li>';
-                                        }
+                                        echo'<li class="time-label appendme">
+                                                <span class="bg-green">'.@date_format(@date_create($dates->created), 'd M. Y').'</span>
+                                            </li>';
                                         foreach($logs['query2'] as $row)
                                         {
                                             if($row->created == $dates->created)
                                             {
-                                                echo'<li>';
+                                                echo'<li class="appendme">';
                                                     if(strtolower($row->action) == 'add')
                                                         echo'<i class="fa fa-plus bg-aqua"></i>';
                                                     else if(strtolower($row->action) == 'delete')
@@ -88,18 +85,17 @@
                                                         </div>
                                                     </li>';
                                             }
-                                            $date = $row->created;
                                         }
                                     }
                                 }
                             ?>
-                            <li>
+                            <li id="time">
                                 <i class="fa fa-clock-o bg-gray"></i>
                             </li>
                         </ul>
                         <br><hr>
-                        <div id="sample"></div>
-                        <p id="footer-logs"></p>
+                        <div id="footer-logs"></div>
+                        
                     </div>
                 </div>
             </div>

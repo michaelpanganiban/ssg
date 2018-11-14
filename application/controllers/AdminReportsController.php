@@ -17,30 +17,37 @@ class AdminReportsController extends MY_Controller
     	if($ssg_session_data = $this->session->userdata('ssg_set_session'))
         {
         	$data['session'] = $ssg_session_data;
-	        if(!empty($this->input->post('get_employees')))
-	        {
-	        	
-	        }
-	        else
-	        {
-	        	$cache = md5('users');
-				if(!$data['users'] = $this->cache->get($cache))
-				{
-					$data['users'] = $this->AdminModel->getUserList2();
-					$this->cache->save($cache, $data['users'], 3600);
-				}
-				$id = $data['session'][md5('emp_id')];
-				$data['logs'] = $this->AdminReportsModel->getUserLogs($id, 20, 0);
-	        	$this->load->view('title_container');
-	        	$this->load->view('header', $data);
-	        	$this->load->view('Reports/userActivityLogs');
-	        	$this->load->view('footer');
-	        }
+        	$id = $data['session'][md5('emp_id')];
+        	$cache = md5('users');
+			if(!$data['users'] = $this->cache->get($cache))
+			{
+				$data['users'] = $this->AdminModel->getUserList2();
+				$this->cache->save($cache, $data['users'], 3600);
+			}
+			$data['logs'] = $this->AdminReportsModel->getUserLogs($id, 20, 0);
+        	$this->load->view('title_container');
+        	$this->load->view('header', $data);
+        	$this->load->view('Reports/userActivityLogs');
+        	$this->load->view('footer');
         }
         else
         {
 			redirect('','refresh');
 		}
     }
-	
+
+    public function seeMoreLogs()
+    {
+    	if($ssg_session_data = $this->session->userdata('ssg_set_session'))
+        {
+        	$data['session'] = $ssg_session_data;
+        	$id = $data['session'][md5('emp_id')];
+        	$obj = json_decode(file_get_contents('php://input'), true);
+    		echo json_encode($this->AdminReportsModel->getUserLogs($id, 20, 0));
+        }
+        else
+        {
+			redirect('','refresh');
+		}
+    }
 }

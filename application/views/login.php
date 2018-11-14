@@ -34,23 +34,19 @@
 				        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
 			      	</div>
 			      	<div class="row">
-				        <!-- <div class="col-xs-8">
-					        <div class="checkbox icheck">
-					            <label>
-					              <input type="checkbox"> Remember Me
-					            </label>
-					        </div>
-				        </div> -->
 				        <div class="col-xs-4 pull-right">
 				          	<button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>
 				        </div>
 			    	</div>
 			    </form>
 			    <a href="#">I forgot my password</a><br>
-			    <!-- <a href="register.html" class="text-center">Register a new membership</a> -->
 		  	</div>
 		</div>
+
 	</body>
+	
+	
+	
 	<script src="<?php echo base_url('assets/bower_components/jquery/dist/jquery.min.js'); ?>"></script>
 	<script src="<?php echo base_url('assets/bower_components/bootstrap/dist/js/bootstrap.min.js'); ?>"></script>
 	<script src="<?php echo base_url('assets/plugins/iCheck/icheck.min.js'); ?>"></script>
