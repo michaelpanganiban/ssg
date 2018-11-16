@@ -40,6 +40,10 @@ class ClientController extends MY_Controller
         	$data['session'] = $ssg_session_data;
 	        if($this->input->post('add') == "true")
 	        {
+	        	error_reporting(0);
+	        	
+	        	$this->cache->delete(md5('clients'));
+	        	$res = $this->ClientModel->addClientModel();
 	        	//--------------------- LOGS --------------------
 	        	$logs = array(
 	        					'emp_id' 		=> $data['session'][md5('emp_id')],
@@ -51,19 +55,43 @@ class ClientController extends MY_Controller
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
 	        	//--------------------- LOGS --------------------
-	        	$this->cache->delete(md5('clients'));
-	        	$data = $this->ClientModel->addClientModel();
-	        	echo json_encode($data);
+	        	echo json_encode($res);
 	        }
 	        else
 	        {
 	        	$data['session'] = $ssg_session_data;
 	        	$data['division']= $this->ClientModel->getIndustries();
+	        	$data['function']= $this->ClientModel->getJobOrderList();
 	        	$this->load->view('title_container');
 		    	$this->load->view('header', $data);
 		    	$this->load->view('client/addNewClient');
 		    	$this->load->view('footer');
         	}
+        }
+        else
+        {
+			redirect('','refresh');
+		}
+    }
+
+    public function uploadDoc()
+    {
+    	if($ssg_session_data = $this->session->userdata('ssg_set_session'))
+        {
+        	if(!empty($_FILES['sup_doc']['type']))
+	    	{
+	    		$dir   = "./assets/uploads/";
+	    		
+	    		if($_FILES['sup_doc']['type'] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	    			$name = @date('Ymdhsi').".xlsx";
+	    		else if($_FILES['sup_doc']['type'] == "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+	    			$name = @date('Ymdhsi').".docx";
+	    		else
+	    			$name  = @date('Ymdhsi').".".basename($_FILES['sup_doc']['type']);
+	    		$file = $dir.$name;
+    			if(move_uploaded_file($_FILES['sup_doc']['tmp_name'], $file));
+    				echo $this->ClientModel->updateDoc($name);
+    		}
         }
         else
         {
@@ -94,16 +122,11 @@ class ClientController extends MY_Controller
 	        	$data = $this->ClientModel->editClientModel();
 	        	echo json_encode($data);
 	        }
-	        else if($this->input->post('remove_line') == "true")
+	        else if($this->input->post('remove_doc') == "true")
 	        {
-	        	$this->cache->delete(md5('clients'));
-	        	$data = $this->ClientModel->removeColumn();
-	        	echo $data;
-	        }
-	        else if($this->input->post('add_column') == "true")
-	        {
-	        	$this->cache->delete(md5('clients'));
-	        	$data = $this->ClientModel->addColumnModel();
+	        	$filename = FCPATH.'assets/uploads/'.$this->input->post('filename');
+	        	unlink($filename);
+	        	$data = $this->ClientModel->removeDoc();
 	        	echo $data;
 	        }
 	        else
@@ -116,6 +139,23 @@ class ClientController extends MY_Controller
 		    	$this->load->view('client/editClient');
 		    	$this->load->view('footer');
         	}
+        }
+        else
+        {
+			redirect('','refresh');
+		}
+    }
+
+    public function manageContract()
+    {
+    	if($ssg_session_data = $this->session->userdata('ssg_set_session'))
+        {
+        	$data['session'] = $ssg_session_data;
+        	if($this->input->post('get_each') == 'true')
+        	{
+        		echo json_encode($this->ClientModel->getContractById());
+        	}
+
         }
         else
         {

@@ -5,7 +5,6 @@
     $back_office = "";
     $fa          = "";
     $headquarter = "";
-    $auth_hc     = "";
     $tier        = "";
     $case_study  = "";
     $visit       = "";
@@ -26,7 +25,6 @@
             $back_office = $row->back_office;
             $fa          = $row->F_and_a;
             $headquarter = $row->hq;
-            $auth_hc     = $row->auth_hc;
             $tier        = $row->tier;
             $case_study  = $row->case_study;
             $visit       = $row->visit;
@@ -112,12 +110,6 @@
                                 </div>
                             </div>
                             <div class='form-group col-md-6'>
-                                <label class='control-label col-md-4'>Auth HC:</label>
-                                <div class='col-md-8'>
-                                    <input type="number" class="form-control" id="hc" placeholder="Auth Head Count" value="<?php echo $auth_hc; ?>">
-                                </div>
-                            </div>
-                            <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Tier:</label>
                                 <div class='col-md-8'>
                                     <select class='select2 col-md-12' id="tier" data-live-search='true'>
@@ -153,78 +145,52 @@
                                 </div>
                             </div>
                             <div class='form-group col-md-6'>
-                                <label class='control-label col-md-4'>Job Description:</label>
+                                <label class='control-label col-md-4'>What you do:</label>
                                 <div class='col-md-8'>
                                     <textarea id='job-desc' class='form-control' rows='5' placeholder="Describe what you do.."><?php echo $job_desc; ?></textarea>
                                 </div>
                             </div>
                         </div>
                     </div><hr>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th class="text-center">Annex</th>
-                                <th class="text-center">Start Date</th>
-                                <th class="text-center">Expiry Date</th>
-                                <th class="text-center">Remaining Months</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Next Step</th>
-                                <th class="text-center">Remarks</th>
-                                <th><span class="fa fa-2x fa-plus text-primary" style="cursor: pointer;" title="add set" id="table-add-update" data-pk="<?php echo $client_id; ?>"></span></th>
-                            </tr>
-                        </thead>
-                        <tbody id="append-client-line">
-                            <?php 
-                                if(!empty($client_data))
-                                {
-                                    foreach($client_data as $row)
+                    <div class="scrollit">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Contract</th>
+                                    <th class="text-center">Start Date</th>
+                                    <th class="text-center">Expiry Date</th>
+                                    <th class="text-center">Headcount</th>
+                                    <th class="text-center">Remarks</th>
+                                    <th class="text-center">Attachment</th>
+                                    <th><span class="fa fa-2x fa-plus-circle text-success col-md-offset-5" style="cursor: pointer;" title="add set" id="table-add-update" data-pk="<?php echo $client_id; ?>"></span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                    if(!empty($client_data))
                                     {
-                                        $date1 = @date('m', @strtotime($row->start_date));
-                                        $date2 = @date('m', @strtotime($row->expiry_date));
-                                        $year1 = @date('Y', @strtotime($row->start_date));
-                                        $year2 = @date('Y', @strtotime($row->expiry_date));
-
-                                        $diff  = (($year2 - $year1) * 12) + ($date2 - $date1);
-                                        echo'<tr class="client-line c-line-'.$row->team_line_id.'">
-                                                <td>
-                                                    <input type="text" name="annex[]" class="form-control col-md-4" placeholder="Annex" value="'.$row->annex.'" data-pk="'.$row->team_line_id.'">
-                                                </td>
-                                                <td>
-                                                    <input type="text" name="s_date[]" data-pk="'.$row->team_line_id.'" class="start-date form-control col-md-4 date-picker" placeholder="Start Date" value="'.@date_format(@date_create($row->start_date), 'Y-m-d').'">
-                                                </td>
-                                                <td>
-                                                    <input type="text" name="e_date[]" data-pk="'.$row->team_line_id.'" class="expiry-date form-control col-md-4 date-picker" placeholder="Expiry Date" value="'.@date_format(@date_create($row->expiry_date), 'Y-m-d').'">
-                                                </td>
-                                                <td>
-                                                    <input type="text" readOnly class="form-control col-md-4 remaining-months-'.$row->team_line_id.'" value="'.$diff.'">
-                                                </td>
-                                                <td>
-                                                    <select class="form-control" name="status[]">
-                                                        <option value="Signed" '.(($row->status == "Signed") ? "selected" : "").'>Signed</option>
-                                                        <option value="Renewed on time" '.(($row->status == "Renewed on time") ? "selected" : "").'>Renewed on time</option>
-                                                        <option value="Contract expired during this month" '.(($row->status == "Contract expired during this month") ? "selected" : "").'>Contract expired during this month</option>
-                                                        <option value="Contract expired for more than a month" '.(($row->status == "Contract expired for more than a month") ? "selected" : "").'>Contract expired for more than a month</option>
-                                                        <option value="Contract terminated during this month" '.(($row->status == "Contract terminated during this month") ? "selected" : "").'>Contract terminated during this month</option>
-                                                    </select>
-                                                </td>
-                                                <td>
-                                                    <input type="text" name="next-step[]" class="form-control col-md-4" placeholder="Next Step"  value="'.$row->next_step.'">
-                                                </td>
-                                                <td>
-                                                    <input type="text" name="remarks[]" class="form-control col-md-4" placeholder="Remarks"  value="'.$row->remarks.'">
-                                                </td>
-                                                <td><span class="fa fa-2x fa-close text-danger remove-line-edit remove-line" style="cursor: pointer;" data-pk="'.$row->team_line_id.'"></span></td>
-                                            </tr>';
+                                        foreach($client_data as $row)
+                                        {
+                                            echo"<tr class='pointer hover-tbl'>
+                                                    <td class='text-center'>".$row->contract."</td>
+                                                    <td class='text-center'>".@date_format(@date_create($row->start_date), 'd M, Y')."</td>
+                                                    <td class='text-center'>".@date_format(@date_create($row->expiry_date), 'd M, Y')."</td>
+                                                    <td class='text-center'>".$row->headcount."</td>
+                                                    <td class='text-center'>".$row->remarks."</td>
+                                                    <td class='text-center'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;<a href='".base_url('assets/uploads/'.$row->document)."' download><u>".$row->document."</u></a></td>
+                                                    <td class='text-center'><button class='btn btn-sm btn-primary view-contract' data-pk='".$row->team_line_id."' data-contract='".$row->contract."' data-start_date='".@date_format(@date_create($row->start_date), 'd M, Y')."' data-expiry_date='".@date_format(@date_create($row->expiry_date), 'd M, Y')."' data-headcount='".$row->headcount."' data-remarks='".$row->remarks."' data-document='".$row->document."'><i class='fa fa-plus'></i>&nbsp;&nbsp; View contract</td>";
+                                            echo"</tr>";
+                                        }
                                     }
-                                }
-                            ?>
-                        </tbody>
-                        <tfoot>
-                            <td colspan="7">
-                                <button class="btn btn-md btn-primary pull-right" id="proceed-update-client"><i class="fa fa-save"></i>&nbsp;&nbsp;&nbsp; Save Changes</button>
-                            </td>
-                        </tfoot>
-                    </table><hr>
+                                ?>
+                            </tbody>
+                            <tfoot>
+                                <td colspan="9">
+                                    <button class="btn btn-md btn-primary pull-right" id="proceed-update-client"><i class="fa fa-save"></i>&nbsp;&nbsp;&nbsp; Save Changes</button>
+                                </td>
+                            </tfoot>
+                        </table><hr>
+                    <div class="scrollit">
                 </div>
             </div>
         </div>

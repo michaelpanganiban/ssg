@@ -24,6 +24,14 @@
             {
                 text-align: center;
             }
+            .pointer {
+                cursor: pointer;
+            }
+            .scrollit 
+            {
+                width:100%;  
+                overflow:auto;
+            }
         </style>
     </head>
     <body class="hold-transition skin-blue sidebar-mini">

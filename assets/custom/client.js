@@ -18,7 +18,9 @@ $(document).on('click', '.remove-line', function(e){
 	var count = $(this).data('count');
 	$("#client-line"+count).remove();
 }); //remove line
-
+$("#attachment").change(function(e){
+	$("#file-name").html($("#attachment").val().replace(/^.*\\/, ""));
+});
 $("#proceed-add-client").click(function(e){
 	var error = 0;
 	if(checkFields() == 1)
@@ -26,24 +28,24 @@ $("#proceed-add-client").click(function(e){
 		alertify.error("Fields marked red are required.");
 		error = 1;
 	}
-	if(checkFieldsLine() == 1)
+	if(getTargetData() == 1)
 	{
-		alertify.error("Annex field cannot be empty.");
 		error = 1;
 	}
+
 	if(error == 0)
 	{
+		$("#proceed-add-client").attr('disabled', 'true');
 		Pace.restart();
 		Pace.track(function(){
-			var client_line = checkFieldsLine();
-			var data = {
+			var functions = getTargetData(); //functions information
+			var data 	= {
 							'team_name' 		  : $("#client-name").val(),
 							'division_id'		  : $("#industry").val(),
 							'customer_experience' : $("#customer-exp").val(),
 							'back_office' 		  : $("#back-office").val(),
 							'F_and_a' 			  : $("#fa").val(),
 							'hq' 				  : $("#hq").val(),
-							'auth_hc' 			  : $("#hc").val(),
 							'tier' 			      : $("#tier").val(),
 							'case_study' 		  : $("#case-study").val(),
 							'visit' 			  : $("#visit").val(),
@@ -51,17 +53,64 @@ $("#proceed-add-client").click(function(e){
 							'segment'			  : $("#segment").val(),
 							'job_desc' 			  : $("#job-desc").val(),
 							'address'			  : $("#client-address").val()
-						}
+						} // basic information
+			var contract= {
+							'contract' 		  	  : $("#contract").val(),
+							'start_date'	  	  : $("#s_date").val(),
+							'expiry_date'		  : $("#e_date").val(),
+							'headcount' 		  : $("#headcount").val(),
+							'remarks' 			  : $("#remarks").val(),
+							'type'				  : 'main',
+							'MSA'			  	  : 'main'
+						} //contract information
 			waitingDialog.show('Processing data...', {dialogSize: 'sm', progressType: 'success'});
-			$.post("addClient", {client: data, client_line: client_line, add: 'true', client_name:$("#client-name").val()}, function(r){
-				if(r == 0)
-					alertify.success("Client was successfully added.");
+			$.post("addClient", {client: data, functions: functions, contract:contract, add: 'true', client_name:$("#client-name").val(), document:$("#attachment").val().replace(/^.*\\/, "")}, function(r){
+				if(r != 0)
+				{
+					document.cookie = "contract_id=" + r + "; path = /";
+					if($("#attachment").val() != undefined && $("#attachment").val() != "")
+					{
+						var data = new FormData();
+						$.each($("#attachment")[0].files, function(i, file){
+							data.append("sup_doc", file);
+						});
+						$.ajax({
+									url: "uploadDoc",
+									type: "POST",
+									processData: false,
+									data: data,
+									contentType: false,
+									success:function(res)
+									{
+										if(res == 1)
+										{
+											alertify.success("Client was successfully added.");
+											setTimeout(function(){
+												                	location.reload();
+												                }, 1500);
+										}
+										else
+										{
+											alertify.success("Client was successfully added.");
+											alertify.message("Failed to upload the document. Please reupload the document in the edit module.");
+										}
+									}
+								});
+					}	
+					else
+					{
+						alertify.success("Client was successfully added.");
+						alertify.message("Supporting document was not provided.");
+					}				
+				}
 				else
+				{
 					alertify.error("Error adding client. Please try again.");
-				waitingDialog.hide();
-				setTimeout(function(e){
-					location.reload();
-				}, 1500);
+				}
+					waitingDialog.hide();
+					setTimeout(function(e){
+						location.reload();
+					}, 5000);
 			});
 		});
 	}
@@ -99,7 +148,6 @@ $("#proceed-update-client").click(function(e){
 							'back_office' 		  : $("#back-office").val(),
 							'F_and_a' 			  : $("#fa").val(),
 							'hq' 				  : $("#hq").val(),
-							'auth_hc' 			  : $("#hc").val(),
 							'tier' 			      : $("#tier").val(),
 							'case_study' 		  : $("#case-study").val(),
 							'visit' 			  : $("#visit").val(),
@@ -122,6 +170,106 @@ $("#proceed-update-client").click(function(e){
 		});
 	}
 }); //edit client info 
+
+$(".view-contract").click(function(e){
+	var id 			= $(this).data('pk');
+	var contract 	= $(this).data('contract');
+	var start_date 	= $(this).data('start_date');
+	var expiry_date = $(this).data('expiry_date');
+	var headcount 	= $(this).data('headcount');
+	var remarks 	= $(this).data('remarks');
+	var documents 	= $(this).data('document');
+
+	var html = '<section class="content"><div class="row"><div class="form-group col-md-12"><label class="control-label col-sm-1">Contract:</label><div class="col-md-3"><input type="text" class="form-control" id="contract"></div><label class="control-label col-md-1">Headcount:</label><div class="col-md-3"><input readOnly type="number" class="form-control" id="headcount"></div><div class="row"><label class="control-label col-md-1">Document: </label><div class="col-md-3" id="append-doc"></div></div></div><div class="form-group col-md-12"><label class="control-label col-md-1">Start Date:</label><div class="col-md-3"><input type="text" class="form-control date-picker" id="s_date" ></div><label class="control-label col-md-1">End Date:</label><div class="col-md-3"><input type="text" class="form-control date-picker" id="e_date" ></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Remarks: </label><div class="col-md-5"><textarea id="remarks" class="form-control" placeholder="Write something here.."></textarea></div></div></div><hr>';
+	html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><i class="fa fa-2x fa-plus-circle text-success" style="cursor:pointer;" id="add-column-target"></i></th></tr></thead>';
+	html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" id="func-1" data-pk="1" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control billed"></td><td class="cost-td"><input type="number" class="form-control cost" name="cost[]"></td><td><input type="number" class="form-control ttl-cost" readOnly name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
+	BootstrapDialog.show({
+        title: 'Manage Contract',
+		size: BootstrapDialog.SIZE_WIDE,
+        message: html,
+        onshown: function(e)
+        {
+        	$(".modal-dialog").css('width', '90%');
+        	$(".date-picker").datepicker({
+                autoclose: true,
+                format: 'yyyy-m-dd'
+            });
+
+            $("#contract").val(contract);
+    		$("#headcount").val(headcount);
+    		$("#s_date").val(start_date);
+    		$("#e_date").val(expiry_date);
+    		$("#remarks").val(remarks);
+    		if(documents != "")
+    		{
+    			$("#append-doc").append(
+    									'<a href="'+window.location.hostname+'/ssg/assets/uploads/'+documents+'" download><i class="fa fa-paperclip" ></i>&nbsp; &nbsp;<u>'+documents+'</u></a>'+
+    									'&nbsp;&nbsp;&nbsp;<i id="remove-doc" class="fa fa-remove text-danger" title="remove document" style="cursor:pointer;" data-doc="'+documents+'"></i>'
+    									);
+    		}
+    		else
+    		{
+    			$("#append-doc").append('<input type="file" class="form-control" id="document" >');
+    		}
+
+    		$(document).on('click', '#remove-doc', function(e){
+    			var file = $(this).data('doc');
+    			$.confirm({
+						    title: 'Warning!',
+						    content: 'Are you sure you want to remove this document?',
+						    type: 'error',
+						    icon: 'fa fa-warning',
+						    theme:'dark',
+						    buttons: {
+						    			close: function () {
+								        },
+								        tryAgain: {
+								            text: 'Confirm',
+								            btnClass: 'btn-red',
+								            action: function()
+								            {
+									            Pace.restart();
+												Pace.track(function(){
+									    			$.post("../editClient", {id:id, remove_doc:'true', filename:file}, function(r){
+									    				if(r == 1)
+									    				{
+									    					alertify.success("Document was successfully removed.");
+									    					setTimeout(function(e){
+									    						location.reload();
+									    					}, 1500);
+									    				}
+									    				else
+									    				{
+									    					alertify.error("Error removing document.");
+									    				}
+													});
+												});
+											}
+								        }						        
+						    		}
+				});
+    		});
+        },
+        buttons: [
+        			{
+        				label: '<i class="fa fa-close"></i>&nbsp;&nbsp;Close',
+			            cssClass: 'btn btn-sm btn-default pull-left',
+			            action: function(dialog) {
+			               dialog.close();
+			               location.reload();
+			            }
+        			},
+        			{
+        				label: '<i class="fa fa-plus"></i>&nbsp;&nbsp;Proceed',
+			            cssClass: 'btn btn-sm btn-primary pull-right',
+			            action: function(dialog) {
+			               
+			            }
+        			}
+        ]
+
+	});
+});
 
 $(".start-date").change(function(e){
 	var s_date = $(this).val().split("-");
@@ -185,12 +333,258 @@ $(".remove-line-edit").click(function(e){
 }); //delete annex in update client info
 
 $("#table-add-update").click(function(e){
-	var id = $(this).data('pk');
-	$.post("../editClient", {id:id, add_column:'true'}, function(r){
-		location.reload();
-	});
-}); //add new column 
+	if($(this).data('pk') == 'add-new')
+		var title = "Add New Client";
+	else
+		var title = "Manage Contract";
+	var html = '<section class="content"><div class="row"><div class="form-group col-md-12"><label class="control-label col-sm-1">Contract:</label><div class="col-md-2"><input type="text" class="form-control" id="contract"></div><label class="control-label col-sm-1">Type:</label><div class="col-md-2"><select class="form-control" id="type"><option value="">Select contract type..</option><option value="main">Main</option><option value="annex">Annex</option></select></div><label class="control-label col-md-1 type-label" hidden>MSA:</label><div class="col-md-2 type-div" hidden><select class="form-control" id="msa"></select></div><label class="control-label col-md-1">Headcount:</label><div class="col-md-2"><input readOnly type="number" class="form-control" id="headcount"></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Start Date:</label><div class="col-md-2"><input type="text" class="form-control date-picker" id="s_date" ></div><label class="control-label col-md-1">End Date:</label><div class="col-md-2"><input type="text" class="form-control date-picker" id="e_date" ></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Remarks: </label><div class="col-md-5"><textarea id="remarks" class="form-control" placeholder="Write something here.."></textarea></div><label class="control-label col-md-1">Document: </label><div class="col-md-3"><input type="file" class="form-control" id="document" ></div></div></div><hr>';
+	html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><i class="fa fa-2x fa-plus-circle text-success" style="cursor:pointer;" id="add-column-target"></i></th></tr></thead>';
+	html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" id="func-1" data-pk="1" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control billed"></td><td class="cost-td"><input type="number" class="form-control cost" name="cost[]"></td><td><input type="number" class="form-control ttl-cost" readOnly name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
+	BootstrapDialog.show({
+        title: title,
+		size: BootstrapDialog.SIZE_WIDE,
+        message: html,
+        onshown: function(e)
+        {
+        	$(".modal-dialog").css('width', '90%');
+        	$(".date-picker").datepicker({
+                autoclose: true,
+                format: 'yyyy-m-dd'
+            });
 
+        	$(document).on('change','#type', function(e){
+        		var type = $(this).val();
+        		if(type == 'annex')
+        		{
+        			$(".type-div").removeAttr('hidden');
+        			$(".type-label").removeAttr('hidden');
+        		}
+        		else
+        		{
+        			$(".type-div").attr('hidden','true');
+        			$(".type-label").attr('hidden','true');
+        		}
+        	});
+
+        	$.post("../manageContract",{get_msa:'true'}, function(r){
+        		var data   = jQuery.parseJSON(r);
+        		var option = "<option value=''>Select MSA..</option>";
+        		$.each(data, function(key, val){
+        			option += "<option value='"+this.team_line_id+"' data-start='"+this.start_date+"' data-end='"+this.expiry_date+"'>"+this.contract+"</option>";
+        		});
+        		$("#msa").append(option);
+        	}); //get msa
+	        
+
+        	$.post("../targetsAndActuals", {joborder_list:"true"}, function(r){
+        		var data = jQuery.parseJSON(r);
+        		var functions = "<option value=''>Select Current Function...</option><option value='add'>Add Function</option>";
+        		$.each(data, function(key, val){
+        			functions += "<option value='"+this.joborder_id+"'>"+this.title+"</option>";
+        		});
+        		functions+="<option value=''>"
+        		$(".functions").html(functions);
+        	}); //get jobs
+        	
+        	$("#add-column-target").click(function(e){
+	        	var count = $(".target-clone").length;
+	        	var clone_target = $(".target-clone:first").clone();
+	        	clone_target.attr('id', 'remove-tr-'+(count+1));
+	        	clone_target.find('i').attr('id', 'remove-'+ (count + 1));
+	        	clone_target.find('.functions').attr('data-pk', (count + 1));
+	        	clone_target.find('.functions').attr('id', 'func-'+ (count + 1));
+	        	clone_target.find('i').attr('data-pk', count + 1);
+	        	$("#target-data").append(clone_target);
+	        	clearData(clone_target);
+	        }); //add column function
+
+	       	$(document).on('click', '.remove-target', function(e){
+	       		var count = $(this).data('pk');
+	        	$("#remove-tr-" + count).remove();
+	        	var billed = 0;
+				$("input[name^='billed[]'").each(function(e){
+					if($(this).val() != "")
+					{
+						billed += parseFloat($(this).val());
+					}
+				});
+				$("#headcount").val(billed);
+	        }); //remove function
+
+			$(document).on('change','.functions', function(e){
+	        	if($(this).val() == "add")
+	        	{
+	        		var count_id = $(this).data('pk');
+	        		BootstrapDialog.show({
+	        			title: 'Add Function',
+	        			message: '<center><input type="text" class="form-control" placeholder="Add new function" id="add-function-input"></center>',
+	        			closable: false,
+	        			buttons: [
+	        						{
+	        							label: '<i class="fa fa-close"></i>&nbsp;&nbsp;Close',
+								            cssClass: 'btn btn-sm btn-default pull-left',
+								            action: function(dialog) {
+								               dialog.close();
+								               $("#func-"+count_id).val("");
+								            }
+	        					 	},
+	        					 	{
+	        					 		label: '<i class="fa fa-plus-circle"></i>&nbsp;&nbsp; Add',
+							            cssClass: 'btn btn-sm btn-primary pull-right',
+							            id: 'proceed-add-func-btn',
+							            action: function(dialog) 
+							            {
+							            	var new_function = $("#add-function-input").val();
+								            if(new_function != "")
+								            {
+								            	$("#proceed-add-func-btn").attr('disabled', 'true');
+								            	$.post("targetsAndActuals", {new_function:new_function, add_function:'true'}, function(r){
+								            		if(r != 0)
+								            		{
+								            			$("#func-"+count_id).append("<option selected value='"+r+"'>"+new_function+"</option>");
+								            			dialog.close();
+								            		}
+								            		else
+								            			alertify.error("Error adding new function.");
+								            	});
+							            	}
+							            	else
+							            	{
+							            		alertify.error("Job name cannot be empty.");
+							            	}
+							            }
+	        					 	}
+	        					 ],
+	        		});
+	        	}
+	        }); // adding new function
+	        $(document).on('keyup', '.billed', function(e){
+				var billed = 0;
+				var cost = $(this).closest('tr').find('.cost').val();
+				$("input[name^='billed[]']").each(function(e){
+					if($(this).val() != "")
+					{
+						billed += parseFloat($(this).val());
+					}
+				});
+				$("#headcount").val(billed);
+				$(this).closest('tr').find('.ttl-cost').val((parseFloat($(this).val()) * parseFloat(cost)));
+	        }); //get total billed count
+	        $(document).on('keyup','.cost', function(e){
+	        	var billed = $(this).closest('tr').find('.billed').val();
+	        	$(this).closest('tr').find('.ttl-cost').val((parseFloat($(this).val()) * parseFloat(billed)));
+	        });
+        },
+        buttons: [
+        			{
+        				label: '<i class="fa fa-close"></i>&nbsp;&nbsp;Close',
+			            cssClass: 'btn btn-sm btn-default pull-left',
+			            action: function(dialog) {
+			               dialog.close();
+			               location.reload();
+			            }
+        			},
+        			{
+        				label: '<i class="fa fa-plus"></i>&nbsp;&nbsp;Proceed',
+			            cssClass: 'btn btn-sm btn-primary pull-right',
+			            action: function(dialog) {
+			               
+			            }
+        			}
+        ]
+
+	});
+}); //add new contract 
+
+$("#add-column-target").click(function(e){
+	var count = $(".target-clone").length;
+	var clone_target = $(".target-clone:first").clone();
+	clone_target.attr('id', 'remove-tr-'+(count+1));
+	clone_target.find('i').attr('id', 'remove-'+ (count + 1));
+	clone_target.find('.functions').attr('data-pk', (count + 1));
+	clone_target.find('.functions').attr('id', 'func-'+ (count + 1));
+	clone_target.find('i').attr('data-pk', count + 1);
+	$("#target-data").append(clone_target);
+	clearData(clone_target);
+}); //add column function
+
+$(document).on('click', '.remove-target', function(e){
+	var count = $(this).data('pk');
+	$("#remove-tr-" + count).remove();
+	var billed = 0;
+	$("input[name^='billed[]'").each(function(e){
+		if($(this).val() != "")
+		{
+			billed += parseFloat($(this).val());
+		}
+	});
+	$("#headcount").val(billed);
+}); //remove function
+
+$(document).on('keyup', '.billed', function(e){
+	var billed = 0;
+	var cost = $(this).closest('tr').find('.cost').val();
+	$("input[name^='billed[]']").each(function(e){
+		if($(this).val() != "")
+		{
+			billed += parseFloat($(this).val());
+		}
+	});
+	$("#headcount").val(billed);
+	$(this).closest('tr').find('.ttl-cost').val((parseFloat($(this).val()) * parseFloat(cost)));
+}); //get total billed count
+$(document).on('keyup','.cost', function(e){
+	var billed = $(this).closest('tr').find('.billed').val();
+	$(this).closest('tr').find('.ttl-cost').val((parseFloat($(this).val()) * parseFloat(billed)));
+});//get total cost count
+
+$(document).on('change','.functions', function(e){
+	if($(this).val() == "add")
+	{
+		var count_id = $(this).data('pk');
+		BootstrapDialog.show({
+			title: 'Add Function',
+			message: '<center><input type="text" class="form-control" placeholder="Add new function" id="add-function-input"></center>',
+			closable: false,
+			buttons: [
+						{
+							label: '<i class="fa fa-close"></i>&nbsp;&nbsp;Close',
+					            cssClass: 'btn btn-sm btn-default pull-left',
+					            action: function(dialog) {
+					               dialog.close();
+					               $("#func-"+count_id).val("");
+					            }
+					 	},
+					 	{
+					 		label: '<i class="fa fa-plus-circle"></i>&nbsp;&nbsp; Add',
+				            cssClass: 'btn btn-sm btn-primary pull-right',
+				            id: 'proceed-add-func-btn',
+				            action: function(dialog) 
+				            {
+				            	var new_function = $("#add-function-input").val();
+					            if(new_function != "")
+					            {
+					            	$("#proceed-add-func-btn").attr('disabled', 'true');
+					            	$.post("./targetsAndActuals", {new_function:new_function, add_function:'true'}, function(r){
+					            		if(r != 0)
+					            		{
+					            			$("#func-"+count_id).append("<option selected value='"+r+"'>"+new_function+"</option>");
+					            			dialog.close();
+					            		}
+					            		else
+					            			alertify.error("Error adding new function.");
+					            	});
+				            	}
+				            	else
+				            	{
+				            		alertify.error("Job name cannot be empty.");
+				            	}
+				            }
+					 	}
+					 ],
+		});
+	}
+}); // adding new function
 //-------------------------------------------END OF UPDATE CLIENT / START TARGETS AND ACTUALS-------------------------------------------------------->
 
 $(".add-target").click(function(e){
@@ -472,18 +866,6 @@ function checkFields()
 		error = 1;
 	}
 
-	if($("#hc").val() == "" || $("#hc").val() == undefined)
-	{
-		$("#hc").css('border', '1px solid red');
-		error = 1;
-	}
-
-	if($("#hq").val() == "" || $("#hq").val() == undefined)
-	{
-		$("#hq").css('border', '1px solid red');
-		error = 1;
-	}
-
 	if($("#tier").val() == "" || $("#tier").val() == undefined)
 	{
 		$("#tier").siblings(".select2-container").css('border', '1px solid red');
@@ -501,65 +883,45 @@ function checkFields()
 		$("#job-desc").css('border', '1px solid red');
 		error = 1;
 	}
+
+	if($("#contract").val() == "" || $("#contract").val() == undefined)
+	{
+		$("#contract").css('border', '1px solid red');
+		error = 1;
+	}
+
+	if($("#s_date").val() == "" || $("#s_date").val() == undefined)
+	{
+		$("#s_date").css('border', '1px solid red');
+		error = 1;
+	}
+
+	if($("#e_date").val() == "" || $("#e_date").val() == undefined)
+	{
+		$("#e_date").css('border', '1px solid red');
+		error = 1;
+	}
+
+	if($("#headcount").val() == "" || $("#headcount").val() == undefined)
+	{
+		$("#headcount").css('border', '1px solid red');
+		error = 1;
+	}
+
+	if($("#remarks").val() == "" || $("#remarks").val() == undefined)
+	{
+		$("#remarks").css('border', '1px solid red');
+		error = 1;
+	}
+
+	if($("#attachment").val() == "" || $("#attachment").val() == undefined)
+	{
+		$(".btn-file").css('border', '1px solid red');
+		error = 1;
+	}
 	return error;
 }
 
-function checkFieldsLine()
-{
-	var annex = Array();
-	var s_date= Array();
-	var e_date= Array();
-	var status= Array();
-	var next  = Array();
-	var remark= Array();
-	var data  = Array();
-	var id    = Array();
-	var error = 0;
-	$("input[name^='annex']").each(function(e){
-		if($(this).val() != "")
-		{
-			annex.push($(this).val());
-			id.push($(this).data('pk'));
-		}
-		else
-		{
-			error = 1;
-			$(this).css('border', '1px solid red');
-		}
-	});
-	$("input[name^='s_date']").each(function(e){
-		s_date.push($(this).val());
-	});
-	$("input[name^='e_date']").each(function(e){
-		e_date.push($(this).val());
-	});
-	$("select[name^='status']").each(function(e){
-		status.push($(this).val());
-	});
-	$("input[name^='next-step']").each(function(e){
-		next.push($(this).val());
-	});
-	$("input[name^='remarks']").each(function(e){
-		remark.push($(this).val());
-	});
-	for(var i = 0; i < annex.length; i++)
-	{
-		data.push(
-					{
-						'annex' 	  : annex[i],
-						'start_date'  : s_date[i],
-						'expiry_date' : e_date[i],
-						'status'	  : status[i],
-						'next_step'	  : next[i],
-						'remarks'	  : remark[i],
-						'team_line_id': id[i]
-					}
-				);
-	}
-	if(error == 1)
-		return error;
-	return data;
-}
 
 function checkFieldsTarget()
 {
@@ -690,14 +1052,14 @@ function getTargetData()
 		{
 			data.push(
 						{
-							'function' : functions[i],
-							'billed'   : billed[i],
-							'cost'     : cost[i],
-							'ttl_cost' : ttl_cost[i],
-							'hours'    : hours[i],
-							'timezone' : timezone[i],
-							'shift'    : shift[i],
-							'location' : location[i]
+							'function' 			 : functions[i],
+							'billed_hc'			 : billed[i],
+							'cost_per_title'     : cost[i],
+							'ttl_cost' 			 : ttl_cost[i],
+							'hours_work'    	 : hours[i],
+							'timezone' 			 : timezone[i],
+							'shift'    			 : shift[i],
+							'location' 			 : location[i]
 						}
 					);
 		}

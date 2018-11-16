@@ -14,22 +14,38 @@ class ClientModel extends CI_Model
 		$data = $this->db->query("SELECT MAX(team_id) as MAX FROM team")->result_array();
 		$team_id = $data[0]['MAX'] + 1;
 
-		$ref_no  = @date('Ymd').$team_id;
-		$client  = $this->input->post('client');
-		$client += ['ref_no' => $ref_no];
-
-		$client_line = $this->input->post('client_line');
-		for($i = 0; $i < sizeof($client_line); $i++)
+		$ref_no    = @date('Ymd').$team_id;
+		$client    = $this->input->post('client');
+		$client   += ['ref_no' => $ref_no];
+		$contract  = $this->input->post('contract');
+		$contract += ['team_id' => $team_id];
+		$functions = $this->input->post('functions');
+		for($i = 0; $i < sizeof($functions); $i++)
 		{
-			$client_line[$i] += ['team_id' => $team_id];
+			$functions[$i] += ['team_id' => $team_id];
 		}
+		
+		$this->db->trans_start();
+			$this->db->insert('team', $client);
+			$this->db->insert('ssg_team_line', $contract);
+			$id = $this->db->insert_id();
+			$this->db->insert_batch('ssg_targets_and_actuals_line', $functions);
+		$this->db->trans_complete();
+		if($this->db->trans_status() === FALSE)
+			return 0;
+		return $id;
+	}
 
-		if($this->db->insert('team', $client) != true)
-			$error = 1;
-
-		if($this->db->insert_batch('ssg_team_line', $client_line) != true)
-			$error = 1;
-		return $error;
+	public function updateDoc($name)
+	{
+		$contract_id = htmlspecialchars(trim($this->input->cookie('contract_id', TRUE)));
+		$this->db->trans_start();
+			$this->db->where('team_line_id', $contract_id);
+			$this->db->update('ssg_team_line', array('document' => $name));
+		$this->db->trans_complete();
+		if($this->db->trans_status() === FALSE)
+			return 0;
+		return 1;		
 	}
 
 	public function getClientList()
@@ -40,7 +56,7 @@ class ClientModel extends CI_Model
 	public function getParticularClient()
 	{
 		$id = htmlspecialchars(trim($this->uri->segment(3)));
-		return $this->db->query("CALL particularclient($id)")->result();
+		return $this->db->query("SELECT t.*, st.team_line_id, st.start_date, st.team_line_id, st.contract, st.expiry_date, st.document, st.type, st.remarks, st.MSA, st.headcount FROM team t LEFT JOIN ssg_team_line st ON st.team_id = t.team_id WHERE t.team_id = '$id'")->result();
 	}
 
 	public function editClientModel()
@@ -77,20 +93,16 @@ class ClientModel extends CI_Model
 		return 1;
 	}
 
-	public function removeColumn()
+	public function removeDoc()
 	{
-		$id = htmlspecialchars(trim($this->input->post('line_id')));
-		$this->db->where('team_line_id', $id);
-		if($this->db->delete('ssg_team_line') === true)
-			return 1;
-		return 0;
-	}
-
-	public function addColumnModel()
-	{
-		if($this->db->insert('ssg_team_line', array('team_id' => htmlspecialchars(trim($this->input->post('id'))))) === true)
-			return $this->db->insert_id();
-		return 0;
+		$id = htmlspecialchars(trim($this->input->post('id')));
+		$this->db->trans_start();
+			$this->db->where('team_line_id', $id);
+			$this->db->update('ssg_team_line', array('document' => ""));
+		$this->db->trans_complete();	
+		if($this->db->trans_status() === FALSE)
+			return 0;
+		return 1;
 	}
 
 	public function getJobOrderList()
@@ -156,5 +168,10 @@ class ClientModel extends CI_Model
 			return $this->db->insert_id();
 		return 0;
 	}
+	// public function getContractById()
+	// {
+	// 	$id = htmlspecialchars(trim($this->input->post('id', TRUE)));
+	// 	return $this->db->query("SELECT contract, headcount, document, DATE_FORMAT(start_date, '%Y-%m-%d'), DATE_FORMAT(expiry_date, '%Y-%m-%d'), remarks,  FROM ssg_team_line WHERE team_line_id = '$id'")->result();
+	// }
 }
 

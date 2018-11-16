@@ -10,7 +10,7 @@
             <div class="col-xs-12">
                 <div class="box box-primary" >
                     <div class="box-header">
-                        <button class="btn btn-sm btn-success pull-right" id="add-client"><i class="fa fa-plus-circle"></i>&nbsp;&nbsp;Add Client</button>
+                        <button class="btn btn-sm btn-success pull-right" id="add-client" data-pk="add-new"><i class="fa fa-plus-circle"></i>&nbsp;&nbsp;Add Client</button>
                     </div>
                     <div class="box-body">
                         <table id="example1" class="table table-bordered table-striped" >
@@ -23,7 +23,7 @@
                                     <th class="text-center">Auth HC</th>
                                     <th class="text-center">F&A</th>
                                     <th class="text-center">HQ</th>
-                                    <th class="text-center"></th>
+                                    <!-- <th class="text-center"></th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -39,11 +39,11 @@
                                                     <td class='client-each' data-pk='".$row->team_id."'>".$row->back_office."</td>
                                                     <td class='client-each' data-pk='".$row->team_id."'>".$row->auth_hc."</td>
                                                     <td class='client-each' data-pk='".$row->team_id."'>".$row->F_and_a."</td>
-                                                    <td class='client-each' data-pk='".$row->team_id."'>".$row->hq."</td>
-                                                    <td class='text-center'><button  data-pk='".$row->team_id."' class='add-target btn btn-sm btn-primary'><i class='fa fa-plus'></i>&nbsp; &nbsp; Add Target</button></td>";
+                                                    <td class='client-each' data-pk='".$row->team_id."'>".$row->hq."</td>";
                                             echo"</tr>";
                                         }
                                     }
+                                    // <td class='text-center'><button  data-pk='".$row->team_id."' class='add-target btn btn-sm btn-primary'><i class='fa fa-plus'></i>&nbsp; &nbsp; Add Target</button></td>
                                 ?>
                             </tbody>
                         </table>
