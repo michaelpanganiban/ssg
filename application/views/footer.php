@@ -120,7 +120,7 @@
             });
 
             // $("").datePicker();
-             $('.date-picker').datepicker({
+            $('.date-picker').datepicker({
                 autoclose: true,
                 format: 'yyyy-m-d'
             });

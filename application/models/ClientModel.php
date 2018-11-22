@@ -33,19 +33,36 @@ class ClientModel extends CI_Model
 		$this->db->trans_complete();
 		if($this->db->trans_status() === FALSE)
 			return 0;
-		return $id;
+		return array('contract_id' =>$id, 'team_id' => $team_id);
 	}
 
-	public function updateDoc($name)
+	public function updateDoc($data)
 	{
-		$contract_id = htmlspecialchars(trim($this->input->cookie('contract_id', TRUE)));
 		$this->db->trans_start();
-			$this->db->where('team_line_id', $contract_id);
-			$this->db->update('ssg_team_line', array('document' => $name));
+			$this->db->insert_batch('ssg_msa_uploads', $data);
 		$this->db->trans_complete();
 		if($this->db->trans_status() === FALSE)
 			return 0;
 		return 1;		
+	}
+
+	public function updateDocNew($data, $counter)
+	{
+		$id = htmlspecialchars(trim($this->input->cookie('contract_id', TRUE)));
+		$this->db->trans_start();
+			$this->db->insert_batch('ssg_uploads_child', $data);
+			$this->db->where('contract_line_id', $id);
+			$this->db->update('ssg_contract_line', array('document' => $counter));
+		$this->db->trans_complete();
+		if($this->db->trans_status() === FALSE)
+			return 0;
+		return 1;		
+	}
+
+	public function getContractList()
+	{
+		$id = htmlspecialchars(trim($this->input->post('id', TRUE)));
+		return $this->db->query("SELECT contract_line_id, contract, DATE_FORMAT(start_date, '%Y-%m-%d') AS start_date, DATE_FORMAT(expiry_date, '%Y-%m-%d') as expiry_date, type, headcount, remarks, document FROM ssg_contract_line WHERE MSA = '$id'")->result();
 	}
 
 	public function getClientList()
@@ -59,51 +76,140 @@ class ClientModel extends CI_Model
 		return $this->db->query("SELECT t.*, st.team_line_id, st.start_date, st.team_line_id, st.contract, st.expiry_date, st.document, st.type, st.remarks, st.MSA, st.headcount FROM team t LEFT JOIN ssg_team_line st ON st.team_id = t.team_id WHERE t.team_id = '$id'")->result();
 	}
 
+	public function getFilesMSA()
+	{
+		$and = "";
+		if($this->input->post('get_files') == "true")
+		{
+			$id 	  = htmlspecialchars(trim($this->input->post('team_id', TRUE)));
+			$contract = htmlspecialchars(trim($this->input->post('contract_id', TRUE)));
+			$and = " AND contract_no = '$contract'";
+		}
+		else
+		{
+			$id = htmlspecialchars(trim($this->uri->segment(3)));
+		}
+		return $this->db->query("SELECT * FROM ssg_msa_uploads WHERE team_id = '$id' $and")->result();
+	}
+
+	public function getFilesChild()
+	{
+		$id 	  = htmlspecialchars(trim($this->input->post('team_id', TRUE)));
+		$contract = htmlspecialchars(trim($this->input->post('contract_id', TRUE)));
+		return $this->db->query("SELECT * FROM ssg_uploads_child WHERE team_id = '$id' AND contract_no = '$contract'")->result();
+	}
+
+	public function sumHeadCount()
+	{
+		$id = htmlspecialchars(trim($this->uri->segment(3)));
+		return $this->db->query("SELECT SUM(billed_hc) AS headcount FROM ssg_targets_and_actuals_line WHERE team_id = '$id'")->result();
+	}
+
 	public function editClientModel()
 	{
 		$client = $this->input->post('client');
 		$team_id= $this->input->post('team_id');
-		$check  = $this->db->query("SELECT COUNT(team_line_id) AS COUNT FROM ssg_team_line WHERE team_id = '$team_id'")->result_array();
-		
 		$this->db->where("team_id", $team_id);
-		$this->db->update('team', $client);
-		$client_line = $this->input->post('client_line');
-		if($check[0]['COUNT'] == 0)
-		{
-			$data = array();
-			for($i = 0; $i < sizeof($client_line); $i++)
-			{
-				$temp = array(	
-								'annex' 	 => $client_line[$i]['annex'],
-								'start_date' => $client_line[$i]['start_date'],
-								'expiry_date'=> $client_line[$i]['expiry_date'],
-								'status' 	 => $client_line[$i]['status'],
-								'next_step'  => $client_line[$i]['next_step'],
-								'remarks' 	 => $client_line[$i]['remarks'],
-								'team_id'	 => $team_id
-							 );
-				array_push($data, $temp);
-			}
-			$this->db->insert_batch('ssg_team_line', $data);
-		}
-		else
-		{
-			$this->db->update_batch('ssg_team_line', $client_line, 'team_line_id');
-		}
-		return 1;
+		if($this->db->update('team', $client))
+			return 1;
+		return 0;
 	}
 
 	public function removeDoc()
 	{
-		$id = htmlspecialchars(trim($this->input->post('id')));
+		$id    = htmlspecialchars(trim($this->input->post('id')));
+		$table = "ssg_msa_uploads";
+		$pk    = "file_no";
+		if(!empty(htmlspecialchars(trim($this->input->post('remove2')))))
+		{
+			$count 	 = htmlspecialchars(trim($this->input->post('count_doc')), TRUE);
+			$line_id = htmlspecialchars(trim($this->input->post('line_id')), TRUE);
+			$table 	 = "ssg_uploads_child";
+		}
+
 		$this->db->trans_start();
-			$this->db->where('team_line_id', $id);
-			$this->db->update('ssg_team_line', array('document' => ""));
+			$this->db->where($pk, $id);
+			$this->db->delete($table);
+			if(!empty(htmlspecialchars(trim($this->input->post('remove2')))))
+			{
+				$this->db->where('contract_line_id', $line_id);
+				$this->db->update('ssg_contract_line', array('document'=> $count));
+			}
 		$this->db->trans_complete();	
 		if($this->db->trans_status() === FALSE)
 			return 0;
 		return 1;
 	}
+
+	public function getAnnex()
+	{
+		$id = htmlspecialchars(trim($this->input->post('id')));
+		return $this->db->query("SELECT * FROM contract_line WHERE MSA = '$id'")->result();
+	}
+
+	public function addNewContract()
+	{
+		$contract = $this->input->post('contract', TRUE);
+		$functions= $this->input->post('functions', TRUE);
+		$action   = $this->input->post('action', TRUE);
+		$team_id  = htmlspecialchars(trim($this->input->post('team_id', TRUE)));
+		for($i = 0; $i < sizeof($functions); $i++)
+		{
+			$functions[$i] += ['team_id' => htmlspecialchars(trim($this->input->post('team_id', TRUE)))];
+			if($action == 'deduct')
+			{
+				$functions[$i]['billed_hc'] = ($functions[$i]['billed_hc'] * -1);
+				$functions[$i]['cost_per_title'] = ($functions[$i]['cost_per_title'] * -1);
+				$functions[$i]['ttl_cost'] = ($functions[$i]['ttl_cost'] * -1);
+			}
+		}
+		$this->db->trans_start();
+			$this->db->insert('ssg_contract_line', $contract);
+			$id = $this->db->insert_id();
+			$this->db->insert_batch('ssg_targets_and_actuals_line', $functions);
+		$this->db->trans_complete();
+		if($this->db->trans_status() === FALSE)
+			return 0;
+		return array('contract_id' => $id, 'team_id' => $team_id);
+	}
+
+	public function updateContract()
+	{
+		$child 	= $this->input->post('child', TRUE);
+		$mother = $this->input->post('mother', TRUE);
+		$id 	= $this->input->post('id', TRUE);
+		$this->db->trans_start();
+			$this->db->where('team_line_id', $id);
+			$this->db->update('ssg_team_line', $mother);
+			if(!empty($child))
+				$this->db->update_batch('ssg_contract_line', $child, 'contract_line_id');
+		$this->db->trans_complete();
+		if($this->db->trans_status() === FALSE)
+			return 0;
+		return 1;
+	}
+
+	public function addMSA()
+	{
+		$contract = $this->input->post('contract', TRUE);
+		$functions= $this->input->post('function', TRUE);
+		$team_id  = htmlspecialchars(trim($this->input->post('id', TRUE)));
+		for($i = 0; $i < sizeof($functions); $i++)
+		{
+			$functions[$i] += ['team_id' => htmlspecialchars(trim($this->input->post('id', TRUE)))];
+		}
+
+		$this->db->trans_start();
+			$this->db->insert('ssg_team_line', $contract);
+			$id = $this->db->insert_id();
+			$this->db->insert_batch('ssg_targets_and_actuals_line', $functions);
+		$this->db->trans_complete();
+		if($this->db->trans_status() === FALSE)
+			return 0;
+		return array('contract_id' => $id, 'team_id'=>$team_id);
+	}
+
+
 
 	public function getJobOrderList()
 	{
@@ -159,7 +265,7 @@ class ClientModel extends CI_Model
 	public function getDetailed()
 	{
 		$id = htmlspecialchars(trim($this->input->post('id')));
-		return $this->db->query("SELECT sl.*, SUM(sl.billed_hc) AS billed_hc, j.jobtitle as title FROM ssg_targets_and_actuals sg LEFT JOIN ssg_targets_and_actuals_line sl ON sg.t_a_id = sl.t_a_id LEFT JOIN jobs j ON sl.function = j.id WHERE sg.team_id = '$id' AND sl.function IS NOT NULL GROUP BY sl.function")->result();
+		return $this->db->query("SELECT sl.*, SUM(sl.billed_hc) AS billed_hc, j.jobtitle as title FROM  ssg_targets_and_actuals_line sl LEFT JOIN jobs j ON sl.function = j.id WHERE sl.team_id = '$id' AND sl.function IS NOT NULL GROUP BY sl.function")->result();
 	}
 
 	public function addFunction()

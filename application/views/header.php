@@ -140,10 +140,10 @@
                                 </a>
                                 <ul class="treeview-menu">
                                     <li <?php echo ($this->uri->segment(2) == "client" || $this->uri->segment(2) == "editClient"  || $this->uri->segment(2) == "addClient")? "class='active'" : "" ?>><a href="<?php echo site_url('ClientController/client'); ?>"><i class="fa fa-circle-o"></i> Client List</a></li>
-                                    <li <?php echo ($this->uri->segment(2) == "targetsAndActuals")? "class='active'" : "" ?>><a href="<?php echo site_url('ClientController/targetsAndActuals'); ?>"><i class="fa fa-circle-o"></i>Targets and Actuals</a></li>
+                                    <!-- <li <?php echo ($this->uri->segment(2) == "targetsAndActuals")? "class='active'" : "" ?>><a href="<?php echo site_url('ClientController/targetsAndActuals'); ?>"><i class="fa fa-circle-o"></i>Targets and Actuals</a></li> -->
                                 </ul>
                             </li>
-                            <li <?php echo ($this->uri->segment(2) == "userActivityLogs")? "class='active treeview'" : "class='treeview'" ?>>
+                            <!-- <li <?php echo ($this->uri->segment(2) == "userActivityLogs")? "class='active treeview'" : "class='treeview'" ?>>
                                 <a href="#">
                                     <i class="fa fa-files-o"></i>
                                     <span><?php echo ($this->uri->segment(2) == "userActivityLogs")? "<b style='color:#00c0ef;'>Reports</b>" : "Reports" ?></span>
@@ -154,7 +154,7 @@
                                 <ul class="treeview-menu">
                                     <li <?php echo ($this->uri->segment(2) == "userActivityLogs")? "class='active'" : "" ?>><a href="<?php echo base_url("AdminReportsController/userActivityLogs"); ?>"><i class="fa fa-circle-o"></i>User Activity Logs</a></li>
                                 </ul>
-                            </li>
+                            </li> -->
                             <!-- <li>
                                 <a href="pages/widgets.html">
                                     <i class="fa fa-th"></i> <span>Widgets</span>

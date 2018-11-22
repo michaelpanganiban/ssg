@@ -142,11 +142,12 @@
                                     <td  class="text-center">
                                         <textarea class="form-control" id="remarks" rows="1" placeholder="Say something about this.."></textarea>
                                     </td>
-                                    <td class="text-center">
+                                    <td class="text-center" id="button-change">
                                         <div class="btn btn-default btn-file">
                                             <i class="fa fa-paperclip"></i> <medium id="file-name">Supporting Document</medium>
-                                            <input type="file" name="sup_doc" id="attachment">
+                                            <input type="file" name="sup_doc[]" id="attachment" multiple>
                                         </div>
+                                        <!-- <button class="btn btn-sm btn-info" data-attached="false" id="attach-files"><i class="fa fa-paperclip"></i>&nbsp; &nbsp; Attach Files</button> -->
                                     </td>
                                 </tr>
                             </tbody>

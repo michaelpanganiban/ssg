@@ -52,7 +52,8 @@
                 <div class="box box-primary" >
                     <div class="box-header">
                         <h4><?php echo "Client ID: <b>".$client_id."</b>"; ?></h4>
-                        <h4><?php echo "Reference #: <b>".$ref_no."</b>"; ?></h4>
+                        <h4><?php echo "Reference #: <b>".$ref_no."</b>"; ?><button class="btn btn-sm btn-warning pull-right" id="view-headcount" data-pk="<?php echo $client_id; ?>" data-name="<?php echo $client_name; ?>"><i class="fa fa-user"></i>&nbsp;&nbsp;View headcount</button></h4>
+                        
                     </div><hr>
                     <div class="box-body">
                         <div class='row'>
@@ -127,6 +128,12 @@
                                 </div>
                             </div>
                             <div class='form-group col-md-6'>
+                                <label class='control-label col-md-4'>Auth HC:</label>
+                                <div class='col-md-8'>
+                                    <input type="text" class="form-control" disabled placeholder="Headcount"  value="<?php echo $headcount[0]->headcount; ?>">
+                                </div>
+                            </div>
+                            <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Visit:</label>
                                 <div class='col-md-8'>
                                     <input type="text" class="form-control" id="visit" placeholder="Visit"  value="<?php echo $visit; ?>">
@@ -159,10 +166,10 @@
                                     <th class="text-center">Contract</th>
                                     <th class="text-center">Start Date</th>
                                     <th class="text-center">Expiry Date</th>
-                                    <th class="text-center">Headcount</th>
+                                    <!-- <th class="text-center">Headcount</th> -->
                                     <th class="text-center">Remarks</th>
                                     <th class="text-center">Attachment</th>
-                                    <th><span class="fa fa-2x fa-plus-circle text-success col-md-offset-5" style="cursor: pointer;" title="add set" id="table-add-update" data-pk="<?php echo $client_id; ?>"></span></th>
+                                    <th><span class="fa fa-2x fa-plus-circle text-success col-md-offset-5" style="cursor: pointer;" id="add-master-contract" data-pk="<?php echo $client_id; ?>" title="Add master contract"></span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -171,15 +178,37 @@
                                     {
                                         foreach($client_data as $row)
                                         {
-                                            echo"<tr class='pointer hover-tbl'>
-                                                    <td class='text-center'>".$row->contract."</td>
-                                                    <td class='text-center'>".@date_format(@date_create($row->start_date), 'd M, Y')."</td>
-                                                    <td class='text-center'>".@date_format(@date_create($row->expiry_date), 'd M, Y')."</td>
-                                                    <td class='text-center'>".$row->headcount."</td>
-                                                    <td class='text-center'>".$row->remarks."</td>
-                                                    <td class='text-center'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;<a href='".base_url('assets/uploads/'.$row->document)."' download><u>".$row->document."</u></a></td>
-                                                    <td class='text-center'><button class='btn btn-sm btn-primary view-contract' data-pk='".$row->team_line_id."' data-contract='".$row->contract."' data-start_date='".@date_format(@date_create($row->start_date), 'd M, Y')."' data-expiry_date='".@date_format(@date_create($row->expiry_date), 'd M, Y')."' data-headcount='".$row->headcount."' data-remarks='".$row->remarks."' data-document='".$row->document."'><i class='fa fa-plus'></i>&nbsp;&nbsp; View contract</td>";
-                                            echo"</tr>";
+                                            $count = 0;
+                                            if($row->contract != "")
+                                            {
+                                                echo"<tr class='pointer hover-tbl'>
+                                                        <td class='text-center'>".$row->contract."</td>
+                                                        <td class='text-center'>".@date_format(@date_create($row->start_date), 'd M, Y')."</td>
+                                                        <td class='text-center'>".@date_format(@date_create($row->expiry_date), 'd M, Y')."</td>
+                                                        <td class='text-center'>".$row->remarks."</td>";
+                                                    if(!empty($files))
+                                                    {
+                                                        foreach($files as $row_files)
+                                                        {
+                                                            if($row->team_line_id == $row_files->contract_no)
+                                                                $count++;
+                                                        }
+                                                        if($count > 0)
+                                                        {
+                                                            echo "<td class='text-center'><button data-contract='".$row->team_line_id."' data-team='".$client_id."' class='btn btn-sm btn-info attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;".$count." attached documents</button></td>";
+                                                        }
+                                                        else
+                                                        {
+                                                            echo "<td class='text-center'><button  data-contract='".$row->team_line_id."' data-team='".$client_id."' class='btn btn-sm btn-warning attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;Attachment is not available</button></td>";
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        echo "<td class='text-center'><button  data-contract='".$row->team_line_id."' data-team='".$client_id."' class='btn btn-sm btn-warning attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;Attachment is not available</button></td>";
+                                                    }
+                                                    echo"<td class='text-center'><button class='btn btn-sm btn-primary view-contract' data-pk='".$row->team_line_id."' data-contract='".$row->contract."' data-start_date='".@date_format(@date_create($row->start_date), 'Y-m-d')."' data-expiry_date='".@date_format(@date_create($row->expiry_date), 'Y-m-d')."' data-headcount='".$row->headcount."' data-remarks='".$row->remarks."' data-document='".$count."' data-client-id='".$client_id."'><i class='fa fa-plus'></i>&nbsp;&nbsp; View contract</td>";
+                                                echo"</tr>";
+                                            }
                                         }
                                     }
                                 ?>
@@ -189,7 +218,7 @@
                                     <button class="btn btn-md btn-primary pull-right" id="proceed-update-client"><i class="fa fa-save"></i>&nbsp;&nbsp;&nbsp; Save Changes</button>
                                 </td>
                             </tfoot>
-                        </table><hr>
+                        </table>
                     <div class="scrollit">
                 </div>
             </div>
