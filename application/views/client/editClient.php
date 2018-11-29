@@ -39,7 +39,31 @@
         }
     }
 ?>
+<?php 
+    if(!empty($user_modules))
+    {
+        foreach($user_modules as $row)
+        {
+            if($row->module_name == 'edit client')
+            {
+                $view   = $row->view;
+                $add    = $row->add;
+                $edit   = $row->edit;
+                $delete = $row->delete;
+            }
+        }
+    }
+?>
+
 <div class="content-wrapper">
+    <?php 
+        if($view == 0)
+        {
+            include APPPATH.'/views/notAllowed.php'; 
+        }
+        else
+        {
+    ?>
     <section class="content-header" style="background-color: white; min-height: 55px;">
         <h1 style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">
             Update Client Info
@@ -52,7 +76,7 @@
                 <div class="box box-primary" >
                     <div class="box-header">
                         <h4><?php echo "Client ID: <b>".$client_id."</b>"; ?></h4>
-                        <h4><?php echo "Reference #: <b>".$ref_no."</b>"; ?><button class="btn btn-sm btn-warning pull-right" id="view-headcount" data-pk="<?php echo $client_id; ?>" data-name="<?php echo $client_name; ?>"><i class="fa fa-user"></i>&nbsp;&nbsp;View headcount</button></h4>
+                        <h4><?php echo "Reference #: <b>".$ref_no."</b>"; ?><button class="btn btn-sm btn-warning pull-right" id="view-headcount" data-pk="<?php echo $client_id; ?>" data-name="<?php echo $client_name; ?>"><i class="fa fa-users"></i>&nbsp;&nbsp;View headcount</button></h4>
                         
                     </div><hr>
                     <div class="box-body">
@@ -86,24 +110,24 @@
                                     <input type='text' class='form-control' id='client-address' placeholder="Client Address" value="<?php echo $address; ?>">
                                 </div>
                             </div>
-                            <div class='form-group col-md-6'>
+                            <!-- <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Customer Experience:</label>
                                 <div class='col-md-8'>
                                     <input type='text' class='form-control' id='customer-exp' placeholder="Customer Experience" value="<?php echo $customer_exp; ?>">
                                 </div>
-                            </div>
-                            <div class='form-group col-md-6'>
+                            </div> -->
+                            <!-- <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Back Office:</label>
                                 <div class='col-md-8'>
                                     <input type='text' class='form-control' id='back-office' placeholder="Back Office" value="<?php echo $back_office; ?>"> 
                                 </div>
-                            </div>
-                            <div class='form-group col-md-6'>
+                            </div> -->
+                            <!-- <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>F&A:</label>
                                 <div class='col-md-8'>
                                     <input type="text" class="form-control" placeholder ="F&A" id="fa" value="<?php echo $fa; ?>">
                                 </div>
-                            </div>
+                            </div> -->
                             <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Headquarter:</label>
                                 <div class='col-md-8'>
@@ -136,7 +160,7 @@
                             <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Visit:</label>
                                 <div class='col-md-8'>
-                                    <input type="text" class="form-control" id="visit" placeholder="Visit"  value="<?php echo $visit; ?>">
+                                    <input type="text" class="form-control date-picker" id="visit" placeholder="Visit"  value="<?php echo $visit; ?>">
                                 </div>
                             </div>
                             <div class='form-group col-md-6'>
@@ -166,10 +190,10 @@
                                     <th class="text-center">Contract</th>
                                     <th class="text-center">Start Date</th>
                                     <th class="text-center">Expiry Date</th>
-                                    <!-- <th class="text-center">Headcount</th> -->
+                                    <th class="text-center">Remaining Months</th>
                                     <th class="text-center">Remarks</th>
                                     <th class="text-center">Attachment</th>
-                                    <th><span class="fa fa-2x fa-plus-circle text-success col-md-offset-5" style="cursor: pointer;" id="add-master-contract" data-pk="<?php echo $client_id; ?>" title="Add master contract"></span></th>
+                                    <th class="text-center"><button data-pk="<?php echo $client_id; ?>"  title="Add master contract" style="cursor: pointer;" id="add-master-contract" class="btn btn-sm btn-success"><span class="fa fa-plus"></span>&nbsp; &nbsp;Add Contract</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -181,10 +205,18 @@
                                             $count = 0;
                                             if($row->contract != "")
                                             {
+                                                $date1 = @date('m', @strtotime(@date('Y-m-d')));
+                                                $date2 = @date('m', @strtotime($row->expiry_date));
+                                                $year1 = @date('Y', @strtotime(@date('Y-m-d')));
+                                                $year2 = @date('Y', @strtotime($row->expiry_date));
+                                                $diff  = (($year2 - $year1) * 12) + ($date2 - $date1);
+                                                if($diff <= 0)
+                                                    $diff = "<i class='text-danger'>Contract Expired</i>";
                                                 echo"<tr class='pointer hover-tbl'>
                                                         <td class='text-center'>".$row->contract."</td>
                                                         <td class='text-center'>".@date_format(@date_create($row->start_date), 'd M, Y')."</td>
                                                         <td class='text-center'>".@date_format(@date_create($row->expiry_date), 'd M, Y')."</td>
+                                                        <td class='text-center'>".$diff."</td>
                                                         <td class='text-center'>".$row->remarks."</td>";
                                                     if(!empty($files))
                                                     {
@@ -206,7 +238,7 @@
                                                     {
                                                         echo "<td class='text-center'><button  data-contract='".$row->team_line_id."' data-team='".$client_id."' class='btn btn-sm btn-warning attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;Attachment is not available</button></td>";
                                                     }
-                                                    echo"<td class='text-center'><button class='btn btn-sm btn-primary view-contract' data-pk='".$row->team_line_id."' data-contract='".$row->contract."' data-start_date='".@date_format(@date_create($row->start_date), 'Y-m-d')."' data-expiry_date='".@date_format(@date_create($row->expiry_date), 'Y-m-d')."' data-headcount='".$row->headcount."' data-remarks='".$row->remarks."' data-document='".$count."' data-client-id='".$client_id."'><i class='fa fa-plus'></i>&nbsp;&nbsp; View contract</td>";
+                                                    echo"<td class='text-center'><button class='btn btn-sm btn-primary view-contract' data-pk='".$row->team_line_id."' data-contract='".$row->contract."' data-start_date='".@date_format(@date_create($row->start_date), 'Y-m-d')."' data-expiry_date='".@date_format(@date_create($row->expiry_date), 'Y-m-d')."' data-headcount='".$row->headcount."' data-remarks='".$row->remarks."' data-document='".$count."' data-client-id='".$client_id."'><i class='fa fa-eye'></i>&nbsp;&nbsp; View contract</td>";
                                                 echo"</tr>";
                                             }
                                         }
@@ -225,3 +257,5 @@
         </div>
     </section>
 </div>
+
+<?php } ?>

@@ -16,6 +16,20 @@ class MY_Controller extends CI_Controller
 		//restrict login of users here
     }
 
+    public function restrict()
+    {
+    	$ssg_session_data = $this->session->userdata('ssg_set_session');
+    	$data['session'] = $ssg_session_data;
+    	$id = $data['session'][md5('emp_id')];
+    	$cache = md5($id.'user_modules');
+		if(!$data['user_modules'] = $this->cache->get($cache))
+		{
+			$data['user_modules'] = $this->MainModel->getModuleList($id);
+			$this->cache->save($cache, $data['user_modules'], 3600);
+		}
+		return $data['user_modules'];
+    }
+
     public function get_client_ip() 
     {
 	    $ipaddress = '';

@@ -22,6 +22,9 @@ class ClientController extends MY_Controller
 				$data['clients'] = $this->ClientModel->getClientList();
 				$this->cache->save($cache, $data['clients'], 3600);
 			}
+
+			$data['headcount'] = $this->ClientModel->getHeadCount();
+			$data['user_modules'] = $this->restrict();
         	$this->load->view('title_container');
 	    	$this->load->view('header', $data);
 	    	$this->load->view('client/ClientList');
@@ -62,6 +65,7 @@ class ClientController extends MY_Controller
 	        	$data['session'] = $ssg_session_data;
 	        	$data['division']= $this->ClientModel->getIndustries();
 	        	$data['function']= $this->ClientModel->getJobOrderList();
+	        	$data['user_modules'] = $this->restrict();
 	        	$this->load->view('title_container');
 		    	$this->load->view('header', $data);
 		    	$this->load->view('client/addNewClient');
@@ -210,6 +214,7 @@ class ClientController extends MY_Controller
 	        	$data['client_data']= $this->ClientModel->getParticularClient();
 	        	$data['headcount']  = $this->ClientModel->sumHeadCount();
 	        	$data['files']		= $this->ClientModel->getFilesMSA();
+	        	$data['user_modules'] = $this->restrict();
 	        	$this->load->view('title_container');
 		    	$this->load->view('header', $data);
 		    	$this->load->view('client/editClient');

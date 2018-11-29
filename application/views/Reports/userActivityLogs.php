@@ -1,3 +1,25 @@
+<?php 
+    $data_array = array();
+    if(!empty($logs['query1']))
+    {
+        foreach($logs['query1'] as $row1)
+        {
+            $temp = "";
+            foreach($logs['query2'] as $row2)
+            {
+                if($row1->created == $row2->created)
+                {
+                    $temp = $row1->created;
+                }
+            }
+            if($temp != "")
+            {
+                array_push($data_array, $temp);
+            }
+        }
+    }
+?>
+
 <div class="content-wrapper">
     <section class="content-header" style="background-color: white; min-height: 55px;">
         <h1 style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">
@@ -39,7 +61,7 @@
                                         {
                                             for($i = 0; $i < 6; $i++)
                                             {
-                                                echo'<div data-pk="'.$users[$i]->emp_id.'"><strong><i class="fa fa-user"> '.ucfirst(strtolower($users[$i]->last_name)).", ".ucfirst(strtolower($users[$i]->first_name)).'</i></strong>
+                                                echo'<div data-pk="'.$users[$i]->emp_id.'" class="get-user"><strong><i class="fa fa-user"> '.ucfirst(strtolower($users[$i]->last_name)).", ".ucfirst(strtolower($users[$i]->first_name)).'</i></strong>
                                                     <p class="text-muted">'.ucfirst(strtolower($users[$i]->position)).'</p>
                                                     <hr></div>';
                                             }
@@ -57,14 +79,14 @@
                             <?php 
                                 if(!empty($logs))
                                 {
-                                    foreach($logs['query1'] as $dates)
+                                    for($i = 0; $i < sizeof($data_array); $i++)
                                     {
                                         echo'<li class="time-label appendme">
-                                                <span class="bg-green">'.@date_format(@date_create($dates->created), 'd M. Y').'</span>
+                                                <span class="bg-green">'.@date_format(@date_create($data_array[$i]), 'd F Y').'</span>
                                             </li>';
                                         foreach($logs['query2'] as $row)
                                         {
-                                            if($row->created == $dates->created)
+                                            if($row->created == $data_array[$i])
                                             {
                                                 echo'<li class="appendme">';
                                                     if(strtolower($row->action) == 'add')
@@ -83,13 +105,13 @@
                                                                 <h5><i class="fa  fa-home"></i>  <b>IP Address: </b>'.$row->ip_address.'</h5>
                                                             </div>
                                                         </div>
-                                                    </li>';
+                                                    </li>'; 
                                             }
                                         }
                                     }
                                 }
                             ?>
-                            <li id="time">
+                            <li class="time-end">
                                 <i class="fa fa-clock-o bg-gray"></i>
                             </li>
                         </ul>

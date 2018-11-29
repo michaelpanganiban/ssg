@@ -5,12 +5,12 @@ class AdminModel extends CI_Model
 {
 	public function getEmployeesList()
 	{
-		return $this->db->query("CALL getemployees()")->result();
+		return $this->db->query("SELECT p.emp_id, last_name, first_name FROM profile p WHERE p.emp_id NOT IN (SELECT sl.emp_id FROM ssg_auth_login sl)")->result();
 	}
 
 	public function getUserList()
 	{
-		return $this->db->query("CALL getuserlist()")->result();
+		return $this->db->query("SELECT sl.auth_id, sl.emp_id, sl.status, p.first_name, p.last_name, e.position, e.infinit_email, e.work_location FROM ssg_auth_login sl LEFT JOIN profile p ON sl.emp_id = p.emp_id LEFT JOIN employment e ON sl.emp_id = e.emp_id")->result();
 	}
 
 	public function getUserList2()
@@ -67,7 +67,7 @@ class AdminModel extends CI_Model
 
 	public function getUserAccess()
 	{
-		return $this->db->query("SELECT sl.id, p.first_name, p.last_name, e.position, sl.view, sl.edit, sl.delete, sl.add, sm.module_name FROM ssg_user_modules sl LEFT JOIN ssg_modules sm ON sl.module_id = sm.module_id LEFT JOIN profile p ON sl.user_id = p.emp_id LEFT JOIN employment e ON sl.user_id = e.emp_id ORDER BY sl.user_id DESC")->result();
+		return $this->db->query("SELECT sl.id, p.first_name, p.last_name, e.position, sl.view, sl.edit, sl.delete, sl.add, sm.module_name, p.emp_id FROM ssg_user_modules sl LEFT JOIN ssg_modules sm ON sl.module_id = sm.module_id LEFT JOIN profile p ON sl.user_id = p.emp_id LEFT JOIN employment e ON sl.user_id = e.emp_id ORDER BY sl.user_id DESC")->result();
 	}
 
 	public function updateAccess()

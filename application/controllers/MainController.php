@@ -16,6 +16,7 @@ class MainController extends MY_Controller
 		if($ssg_session_data = $this->session->userdata('ssg_set_session'))
         {
         	$data['session'] = $ssg_session_data;
+        	$data['user_modules'] = $this->restrict();
         	$this->load->view('title_container');
         	$this->load->view('header', $data);
         	$this->load->view('home');
@@ -29,6 +30,10 @@ class MainController extends MY_Controller
 
 	public function logout()
 	{
+		$ssg_session_data = $this->session->userdata('ssg_set_session');
+		$data['session'] = $ssg_session_data;
+        $id = $data['session'][md5('emp_id')];
+		$this->cache->delete(md5($id.'user_modules'));
 		session_destroy();
 		redirect('','refresh');
 	}
@@ -71,6 +76,7 @@ class MainController extends MY_Controller
 		if($ssg_session_data = $this->session->userdata('ssg_set_session'))
         {
         	$data['session'] = $ssg_session_data;
+        	$data['user_modules'] = $this->restrict();
         	$this->load->view('title_container');
         	$this->load->view('header', $data);
         	$this->load->view('home');
@@ -80,5 +86,20 @@ class MainController extends MY_Controller
         {
 			redirect('','refresh');
 		}
+	}
+
+	public function forgotPassword()
+	{
+		$this->load->library('email');
+
+		$this->email->from('johnmichaelpanganiban.its@gmail.com', 'John Michael Panganiban');
+		$this->email->to('johnmichaelpanganiban.its@gmail.com');
+		// $this->email->cc('another@another-example.com');
+		// $this->email->bcc('them@their-example.com');
+
+		$this->email->subject('Email Test');
+		$this->email->message('Testing the email class.');
+
+		$this->email->send();
 	}
 }

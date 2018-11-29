@@ -86,7 +86,7 @@
         <script src="<?php echo base_url('assets/jquery-confirm/dist/jquery-confirm.min.js'); ?>"></script>
         <script src="<?php echo base_url('assets/plugins/iCheck/icheck.min.js'); ?>"></script>
         <!-- react -->
-   <!--      <script src="http://localhost:3000/static/js/bundle.js"></script>
+        <!-- <script src="http://localhost:3000/static/js/bundle.js"></script>
         <script src="http://localhost:3000/static/js/main.chunk.js"></script>
         <script src="http://localhost:3000/static/js/0.chunk.js"></script> -->
         <!-- react -->

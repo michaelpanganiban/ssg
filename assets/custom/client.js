@@ -19,8 +19,51 @@ $(document).on('click', '.remove-line', function(e){
 	$("#client-line"+count).remove();
 }); //remove line
 
+
+$("#add-column-target").click(function(e){
+	var count = $(".target-clone").length;
+	var clone_target = $(".target-clone:first").clone();
+	clone_target.attr('id', 'remove-tr-'+(count+1));
+	clone_target.find('i').attr('id', 'remove-'+ (count + 1));
+	clone_target.find('.functions').attr('data-pk', (count + 1));
+	clone_target.find('.functions').attr('id', 'func-'+ (count + 1));
+	clone_target.find('i').attr('data-pk', count + 1);
+	$("#target-data").append(clone_target);
+	clearData(clone_target);
+}); //add column function
+
+$(document).on('click', '.remove-target', function(e){
+	var count = $(this).data('pk');
+	$("#remove-tr-" + count).remove();
+	var billed = 0;
+	$("input[name^='billed[]'").each(function(e){
+		if($(this).val() != "")
+		{
+			billed += parseFloat($(this).val());
+		}
+	});
+	$("#headcount-new").val(billed);
+}); //remove function
+
+$(document).on('keyup change', '.billed', function(e){
+	var billed = 0;
+	var cost = $(this).closest('tr').find('.cost').val();
+	$("input[name^='billed[]'").each(function(e){
+		if($(this).val() != "")
+		{
+			billed += parseFloat($(this).val());
+		}
+	});
+	$("#headcount").val(billed);
+	$(this).closest('tr').find('.ttl-cost').val((parseFloat($(this).val()) * parseFloat(cost)));
+}); //get total billed count
+$(document).on('keyup change','.cost', function(e){
+	var billed = $(this).closest('tr').find('.billed').val();
+	$(this).closest('tr').find('.ttl-cost').val((parseFloat($(this).val()) * parseFloat(billed)));
+});
 //--------------------------------------------------- Attach Files ------------------------------------------------------>
 $(document).on('click', '.attach-file',function(e){
+	var kulit 		= 0;
 	var contract_id = $(this).data('contract');
 	var team_id     = $(this).data('team');
 	var html = '<center><div class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> <medium id="file-name">Add Supporting Documents</medium><input type="file" name="sup_doc[]" id="attachment" multiple></div><hr><div id="append-here"></div>';
@@ -33,43 +76,7 @@ $(document).on('click', '.attach-file',function(e){
 		onshown: function()
 		{
 			getDocuments(contract_id, team_id);
-			$(document).on('click', '.remove-file', function(e){
-				var id 		 = $(this).data('contract');
-				var filename = $(this).data('filename');
-				$.confirm({
-						    title: 'Warning!',
-						    content: 'Are you sure you want to remove this document?',
-						    type: 'error',
-						    icon: 'fa fa-warning',
-						    theme:'dark',
-						    buttons: {
-						    			close: function () {
-								        },
-								        tryAgain: {
-								            text: 'Confirm',
-								            btnClass: 'btn-red',
-								            action: function()
-								            {
-									            Pace.restart();
-												Pace.track(function(){
-									    			$.post("../editClient", {id:id, remove_doc:'true', filename:filename}, function(r){
-									    				if(r == 1)
-									    				{
-									    					alertify.success("Document was successfully removed.");
-									    					getDocuments(contract_id, team_id);
-									    				}
-									    				else
-									    				{
-									    					alertify.error("Error removing document.");
-									    				}
-													});
-												});
-											}
-								        }						        
-						    		}
-				});
-			}); //removes file
-
+			removeAttachedFile(contract_id, team_id);
 			$(document).on('change', '#attachment', function(e){
 				var count = 0;
 				$.each($("#attachment")[0].files, function(i, file){
@@ -92,34 +99,52 @@ $(document).on('click', '.attach-file',function(e){
 						label: '<i class="fa fa-anchor"></i>&nbsp;&nbsp;Attach',
 			            cssClass: 'btn btn-sm btn-info pull-right attach-me',
 			            action: function(dialog) {
-			            	document.cookie = "team_id=" + team_id + "; path = /";
-							document.cookie = "contract_id=" + contract_id + "; path = /";
-			            	var data = new FormData();
-							$.each($("#attachment")[0].files, function(i, file){
-								data.append("sup_doc[]", file);
-							});
-							
-							$.ajax({
-										url: "../uploadDoc",
-										type: "POST",
-										processData: false,
-										data: data,
-										contentType: false,
-										success:function(res)
-										{
-											if(res == 1)
+			            	if($("#attachment").val() != "" && $("#attachment").val() != undefined)
+				            {
+				            	document.cookie = "team_id=" + team_id + "; path = /";
+								document.cookie = "contract_id=" + contract_id + "; path = /";
+				            	var data = new FormData();
+								$.each($("#attachment")[0].files, function(i, file){
+									data.append("sup_doc[]", file);
+								});
+								
+								$.ajax({
+											url: "../uploadDoc",
+											type: "POST",
+											processData: false,
+											data: data,
+											contentType: false,
+											success:function(res)
 											{
-												$(".attach-me").attr('disabled','true');
-												alertify.success("Document was successfully added.");
-												getDocuments(contract_id, team_id);
-												$("#file-name").html('<medium id="file-name">Add Supporting Documents</medium>');
+												if(res == 1)
+												{
+													$(".attach-me").attr('disabled','true');
+													alertify.success("Document was successfully added.");
+													getDocuments(contract_id, team_id);
+													$("#file-name").html('<medium id="file-name">Add Supporting Documents</medium>');
+												}
+												else
+												{
+													alertify.error("Failed to upload the document.");
+												}
 											}
-											else
-											{
-												alertify.error("Failed to upload the document. Please reupload the document in the edit module.");
-											}
-										}
-									});
+										});
+							}
+							else
+							{
+								kulit = kulit + 1;
+								if(kulit > 5)
+								{
+									for(var i = 0; i < 20; i++)
+									{
+										alertify.error("ANG KULIT MO.");
+									}
+								}
+								else
+								{
+									alertify.error("There are no files attached.");
+								}
+							}
 			            }
 					}
 		]
@@ -280,6 +305,7 @@ $("#proceed-update-client").click(function(e){
 }); //edit client info 
 //---------------------------------------------- ALL IN MODAL (Manage Contract) ------------------------------------------->
 $(".view-contract").click(function(e){
+	waitingDialog.show('Fetching data...', {dialogSize: 'sm', progressType: 'success'});
 	var id 			= $(this).data('pk');
 	var contract 	= $(this).data('contract');
 	var start_date 	= $(this).data('start_date');
@@ -289,9 +315,9 @@ $(".view-contract").click(function(e){
 	var documents 	= $(this).data('document');
 	var client_id 	= $(this).data('client-id');
 
-	var html = '<section class="content"><div class="row"><div class="form-group col-md-12"><label class="control-label col-sm-1">Contract:</label><div class="col-md-3"><input type="text" class="form-control" id="contract"></div><label class="control-label col-md-1">Headcount:</label><div class="col-md-3"><input readOnly type="number" class="form-control" id="headcount-view"></div><label class="control-label col-md-1">Total HC:</label><div class="col-md-3"><input readOnly type="number" class="form-control" id="total-hc"></div></div><div class="form-group col-md-12"><label class="control-label col-md-1">Start Date:</label><div class="col-md-3"><input type="text" class="form-control date-picker" id="s_date" ></div><label class="control-label col-md-1">End Date:</label><div class="col-md-3"><input type="text" class="form-control date-picker" id="e_date" ></div><label class="control-label col-md-1">Document: </label><div class="col-md-3" id="append-doc"></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Remarks: </label><div class="col-md-3"><textarea id="remarks" class="form-control" placeholder="Write something here.."></textarea></div></div></div><hr>';
-	html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Contract</th><th class="text-center">Start Date</th><th class="text-center">Expiry Date</th><th>Type</th><th class="text-center">Headcount</th><th class="text-center">Remarks</th><th class="text-center">Attachment</th><th><i class="fa fa-2x fa-plus-circle text-success" style="cursor:pointer;" id="add-annex"></i></th></tr></thead>';
-	html += '<tbody id="append-tbody"></tbody></table></div></div></section>';
+	var html = '<section class="content" style="overflow:auto;"><div  style="width:99%;"><div class="row"><div class="form-group col-md-12"><label class="control-label col-sm-1">Contract:</label><div class="col-md-3"><input type="text" class="form-control" id="contract"></div><label class="control-label col-md-1">Headcount:</label><div class="col-md-3"><input readOnly type="number" class="form-control" id="headcount-view"></div><label class="control-label col-md-1">Total HC:</label><div class="col-md-3"><input readOnly type="number" class="form-control" id="total-hc"></div></div><div class="form-group col-md-12"><label class="control-label col-md-1">Start Date:</label><div class="col-md-3"><input type="text" class="form-control date-picker" id="s_date" ></div><label class="control-label col-md-1">End Date:</label><div class="col-md-3"><input type="text" class="form-control date-picker" id="e_date" ></div><label class="control-label col-md-1">Document: </label><div class="col-md-3" id="append-doc"></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Remarks: </label><div class="col-md-3"><textarea id="remarks" class="form-control" placeholder="Write something here.."></textarea></div></div></div><hr>';
+	html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Contract</th><th class="text-center">Start Date</th><th class="text-center">Expiry Date</th><th>Remaining Months</th><th  class="text-center">Type</th><th class="text-center">Headcount</th><th class="text-center">Remarks</th><th class="text-center">Attachment</th><th class="text-center"><button class="btn btn-sm btn-success" style="cursor:pointer;"  id="add-annex"><i class="fa fa-plus">&nbsp;&nbsp;Add annex</button></i></th></tr></thead>';
+	html += '<tbody id="append-tbody"></tbody></table></div></div></div></section>';
 	BootstrapDialog.show({
         title: 'Manage Contract',
 		size: BootstrapDialog.SIZE_WIDE,
@@ -325,13 +351,22 @@ $(".view-contract").click(function(e){
     									"<button  data-contract='"+id+"' data-team='"+client_id+"' class='btn btn-sm btn-warning attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;Attachment is not available</button></div>"
     									);
     		} //append document     
+
+    		$(document).on('change', '.expiry_date', function(e){
+    			var expiry_date = $(this).val();
+    			var id 			= $(this).data('id');
+    			var remaining = getRemainingMonths(expiry_date);
+    			$("#"+id).html(remaining);
+    		});
     		$.post("../editClient", {contract_list:'true', id:id}, function(r){
     			var data   		= jQuery.parseJSON(r);
     			var append 		= "";
     			var total_hc = headcount;
     			$.each(data, function(key, val){
     				total_hc += parseInt(this.headcount);
-    				append += '<tr><td><input type="text" class="form-control contract" name="contract[]" data-pk="'+this.contract_line_id+'" value="'+this.contract+'"></td><td><input type="text" name="start_date[]" class="form-control start_date date-picker"  value="'+this.start_date+'"></td><td><input type="text" class="form-control expiry_date date-picker" name="expiry_date[]"  value="'+this.expiry_date+'"></td><td>';
+    				var remaining = getRemainingMonths(this.expiry_date);
+
+    				append += '<tr><td><input type="text" class="form-control contract" name="contract[]" data-pk="'+this.contract_line_id+'" value="'+this.contract+'"></td><td><input type="text" name="start_date[]" class="form-control start_date date-picker"  value="'+this.start_date+'"></td><td><input type="text" class="form-control expiry_date date-picker" name="expiry_date[]"  value="'+this.expiry_date+'" data-id="'+this.contract_line_id+'"></td><td  class="text-center" id="'+this.contract_line_id+'">'+remaining+'</td><td>';
     				if(this.type=="annex")
     				{
     					append +='<select class="form-control type" name="type[]"><option value="annex" selected>annex</option><option value="document">Document</option></select></td>';
@@ -349,7 +384,6 @@ $(".view-contract").click(function(e){
     				{
     					append +='<td class="text-center"  id="'+this.contract_line_id+'"><button class="btn btn-sm btn-info attach-files-child" data-contract="'+this.contract_line_id+'" data-team="'+client_id+'" data-count="'+this.document+'"><i class="fa fa-paperclip"></i>&nbsp;&nbsp; '+this.document+'&nbsp; attached documents</button></td>';
     				}
-    				// append += '<td><i class="fa fa-plus-circle fa-2x text-primary add-headcount pointer" title="Add headcount" data-pk="'+this.contract_line_id+'" data-headcount="'+this.headcount+'" data-name="'+this.contract+'"></i>&nbsp;&nbsp;<i title="Deduct headcount" class="fa fa-trash fa-2x text-danger remove-headcount pointer"  data-name="'+this.contract+'" data-pk="'+this.contract_line_id+'" data-headcount="'+this.headcount+'"></i></td></tr>';
     				append += '<td></td></tr>';
     			});
     			$("#append-tbody").html(append);
@@ -405,6 +439,7 @@ $(".view-contract").click(function(e){
         ]
 
 	});
+	waitingDialog.hide();
 });
 
 $(document).on('click', '.attach-files-child', function(e){
@@ -422,7 +457,7 @@ $(document).on('click', '.attach-files-child', function(e){
 		onshown: function()
 		{
 			getDocumentsChild(contract_id, team_id);
-			$(document).on('click', '.remove-file', function(e){
+			$(document).on('click', '.remove-file-child', function(e){
 				var counter  = returnCount() - 1;
 				var id 		 = $(this).data('contract');
 				var filename = $(this).data('filename');
@@ -518,179 +553,6 @@ $(document).on('click', '.attach-files-child', function(e){
 		]
 	});
 }); //attach files annex 
-
-
-$(document).on('click', '.remove-doc2', function(e){
-	var file = $(this).data('doc');
-	var id   = $(this).data('pk');
-	$.confirm({
-			    title: 'Warning!',
-			    content: 'Are you sure you want to remove this document?',
-			    type: 'error',
-			    icon: 'fa fa-warning',
-			    theme:'dark',
-			    buttons: {
-			    			close: function () {
-					        },
-					        tryAgain: {
-					            text: 'Confirm',
-					            btnClass: 'btn-red',
-					            action: function()
-					            {
-						            Pace.restart();
-									Pace.track(function(){
-						    			$.post("../editClient", {id:id, remove_doc:'true', filename:file, 'remove2': "true"}, function(r){
-						    				if(r == 1)
-						    				{
-						    					alertify.success("Document was successfully removed.");
-						    					$("#"+id).html('<button class="btn btn-sm btn-success attach-files" data-id="'+id+'">Attach files</button>');
-						    				}
-						    				else
-						    				{
-						    					alertify.error("Error removing document.");
-						    				}
-										});
-									});
-								}
-					        }						        
-			    		}
-	});
-}); //remove document annex
-
-$(document).on('click', '#remove-doc', function(e){
-	var file = $(this).data('doc');
-	var id   = $(this).data('pk');
-	$.confirm({
-			    title: 'Warning!',
-			    content: 'Are you sure you want to remove this document?',
-			    type: 'error',
-			    icon: 'fa fa-warning',
-			    theme:'dark',
-			    buttons: {
-			    			close: function () {
-					        },
-					        tryAgain: {
-					            text: 'Confirm',
-					            btnClass: 'btn-red',
-					            action: function()
-					            {
-						            Pace.restart();
-									Pace.track(function(){
-						    			$.post("../editClient", {id:id, remove_doc:'true', filename:file}, function(r){
-						    				if(r == 1)
-						    				{
-						    					alertify.success("Document was successfully removed.");
-						    					$("#append-doc").html('<input type="file" name="sup_doc" data-set-doc="false" class="form-control" id="document" >');
-						    				}
-						    				else
-						    				{
-						    					alertify.error("Error removing document.");
-						    				}
-										});
-									});
-								}
-					        }						        
-			    		}
-	});
-}); //remove document main
-
-
-// $(document).on('click', '.add-headcount', function(e){
-// 	var id  = $(this).data('pk');
-// 	var hc  = $(this).data('headcount');
-// 	var name= $(this).data('name');
-// 	var html = '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Contract</th><th class="text-center">Headcount</th><th class="text-center">Additional Headcount</th><th class="text-center">Total Headcount</th></tr></thead>';
-// 	html += '<tbody><tr><td><input readOnly type="text" class="form-control" id="contract-new" placeholder="Contract Name"></td><td><input type="text" placeholder="Headcount" readOnly class="form-control" id="headcount-add"></td><td><input type="number" class="form-control" placeholder="Additional Headcount" id="additional"></td><td><input type="number" readOnly class="form-control" id="total-headcount" readOnly placeholder="Total Headcount"></td></tr></tbody></table></div></div></section><hr>';
-// 	html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><i class="fa fa-2x fa-plus-circle text-success" style="cursor:pointer;" id="add-column-target"></i></th></tr></thead>';
-// 	html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" id="func-1" data-pk="1" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control billed"></td><td class="cost-td"><input type="number" class="form-control cost" name="cost[]"></td><td><input type="number" class="form-control ttl-cost" readOnly name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
-// 	BootstrapDialog.show({
-//         title: 'Add Headcount',
-// 		size: BootstrapDialog.SIZE_WIDE,
-//         message: html,
-//         type: 'type-info',
-//         onshown: function()
-//         {
-//         	$.post("../targetsAndActuals", {joborder_list:"true"}, function(r){
-//         		var data = jQuery.parseJSON(r);
-//         		var functions = "<option value=''>Select Current Function...</option><option value='add'>Add Function</option>";
-//         		$.each(data, function(key, val){
-//         			functions += "<option value='"+this.joborder_id+"'>"+this.title+"</option>";
-//         		});
-//         		functions+="<option value=''>"
-//         		$(".functions").html(functions);
-//         	}); //get jobs
-//         	$(".modal-dialog").css('width', '90%');
-//         	$("#contract-new").val(name);
-//         	$("#headcount-add").val(hc);
-//         	$("#total-headcount").val(hc);
-//         	$(document).on('change keyup', '#additional', function(e){
-//         		var total = parseFloat($("#headcount-add").val()) + parseFloat($("#additional").val());
-//         		$("#total-headcount").val(total);
-//         		if($("#additional").val() == "" || $("#additional").val() == 0)
-//         			$("#total-headcount").val(hc);
-//         	});//compute for total headcount
-
-//         	$("#add-column-target").click(function(e){
-// 	        	var count = $(".target-clone").length;
-// 	        	var clone_target = $(".target-clone:first").clone();
-// 	        	clone_target.attr('id', 'remove-tr-'+(count+1));
-// 	        	clone_target.find('i').attr('id', 'remove-'+ (count + 1));
-// 	        	clone_target.find('.functions').attr('data-pk', (count + 1));
-// 	        	clone_target.find('.functions').attr('id', 'func-'+ (count + 1));
-// 	        	clone_target.find('i').attr('data-pk', count + 1);
-// 	        	$("#target-data").append(clone_target);
-// 	        	clearData(clone_target);
-// 	        }); //add column function
-
-// 	       	$(document).on('click', '.remove-target', function(e){
-// 	       		var count = $(this).data('pk');
-// 	        	$("#remove-tr-" + count).remove();
-// 	        }); //remove function
-//         },
-//         buttons: [
-//         			{
-//         				label: '<i class="fa fa-close"></i>&nbsp;&nbsp;Close',
-// 			            cssClass: 'btn btn-sm btn-default pull-left',
-// 			            action: function(dialog) {
-// 			               dialog.close();
-// 			            }
-//         			},
-//         			{
-//         				label: '<i class="fa fa-plus"></i>&nbsp;&nbsp;Proceed',
-// 			            cssClass: 'btn btn-sm btn-info pull-right',
-// 			            action: function(dialog) {
-// 			            	// if(getTargetData() == 1)
-// 			            	// 	alertify.error("All fields are required.");
-// 			            	// else if($("#additional").val() == "" || $("#additional").val() == 0)
-// 			            	// 	alertify.error("All fields are required.");
-// 			            	// else
-// 			            	// {
-// 			            		var total_hc = 0;
-// 				            	$("input[name^='billed[]'").each(function(e){
-// 									if($(this).val() != "")
-// 										total_hc += parseFloat($(this).val());
-// 								});	
-// 								if(total_hc != $("#additional").val())
-// 									alertify.error("Additional headcount does not match the function count.");
-// 								else
-// 								{
-// 				            		Pace.restart();
-// 									Pace.track(function(){
-// 										var functions = getTargetData(); //functions information
-
-// 									});
-// 								}
-// 			            // 	}
-// 			            }
-// 			        }
-//         		]
-//     });
-// }); //add headcount
-
-$(document).on('click', '.remove-headcount', function(e){
-	var id = $(this).data('pk');
-	var hc = $(this).data('headcount');
-}); //remove headcount
 //---------------------------------------------- ALL IN MODAL (Manage Contract) ----------------------------------------------------->
 
 //--------------------------------------------------- CHILD MODAL (Add new child Contract) ------------------------------------------>
@@ -703,8 +565,8 @@ $(document).on('click', '#add-annex', function(e){
 
 	var html = '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Contract</th><th class="text-center">Start Date</th><th class="text-center">Expiry Date</th><th class="text-center">Headcount</th><th class="text-center">Type</th><th class="text-center">Remarks</th><th class="text-center">Attachment</th><th class="text-center">Action</th></tr></thead>';
 	html += '<tbody><tr><td><input type="text" class="form-control" id="contract-new" placeholder="Contract Name"></td><td><input type="text" placeholder="Start Date" class="form-control date-picker" id="start_date_new"></td><td><input type="text" class="form-control  date-picker" placeholder="Expiry Date" id="expiry_date_new"></td><td><input type="number" class="form-control" id="headcount-new" readOnly placeholder="Headcount"></td><td><select class="form-control" id="type"><option value="annex">Annex</option><option value="Document">Document</option></select></td><td><input type="text" class="form-control" id="remarks-new" placeholder="Remarks"></td><td class="text-center"><div class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> <medium id="file-name-new">Supporting Document</medium><input type="file" name="sup_doc_new[]" id="attachment-new" multiple></div></td><td>Add:&nbsp;&nbsp;<input value="add" type="radio" name="action" class="action">&nbsp;&nbsp;Deduct: &nbsp;&nbsp;<input type="radio" name="action" class="action" value="deduct"></td></tr></tbody></table></div></div></section><hr>';
-	html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><i class="fa fa-2x fa-plus-circle text-success" style="cursor:pointer;" id="add-column-target"></i></th></tr></thead>';
-	html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" id="func-1" data-pk="1" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control billed"></td><td class="cost-td"><input type="number" class="form-control cost" name="cost[]"></td><td><input type="number" class="form-control ttl-cost" readOnly name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
+	html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Working Hours</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><button class="btn btn-sm btn-success" style="cursor:pointer;" id="add-column-target"><i class="fa fa-plus"></i>&nbsp;&nbsp;Add HC</button></th></tr></thead>';
+	html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" id="func-1" data-pk="1" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control billed"></td><td class="cost-td"><input type="number" class="form-control cost" name="cost[]"></td><td><input type="number" class="form-control ttl-cost" readOnly name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option><option value="Mid">Mid</option><option value="Graveyard">Graveyard</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
 	BootstrapDialog.show({
         title: 'Add New Contract',
 		size: BootstrapDialog.SIZE_WIDE,
@@ -720,7 +582,8 @@ $(document).on('click', '#add-annex', function(e){
 
         	$("#start_date_new").val(start_date);
         	$("#expiry_date_new").val(expiry_date);
-        	addRemoveColumn();
+
+        	addRemoveColumn('child');
             functionList();
 			$(document).on('keyup change', '.billed', function(e){
 				var billed = 0;
@@ -849,47 +712,6 @@ $(document).on('click', '#add-annex', function(e){
         		]
     });
 }); //adding child contract
-$("#add-column-target").click(function(e){
-	var count = $(".target-clone").length;
-	var clone_target = $(".target-clone:first").clone();
-	clone_target.attr('id', 'remove-tr-'+(count+1));
-	clone_target.find('i').attr('id', 'remove-'+ (count + 1));
-	clone_target.find('.functions').attr('data-pk', (count + 1));
-	clone_target.find('.functions').attr('id', 'func-'+ (count + 1));
-	clone_target.find('i').attr('data-pk', count + 1);
-	$("#target-data").append(clone_target);
-	clearData(clone_target);
-}); //add column function
-
-$(document).on('click', '.remove-target', function(e){
-	var count = $(this).data('pk');
-	$("#remove-tr-" + count).remove();
-	var billed = 0;
-	$("input[name^='billed[]'").each(function(e){
-		if($(this).val() != "")
-		{
-			billed += parseFloat($(this).val());
-		}
-	});
-	$("#headcount").val(billed);
-}); //remove function
-
-$(document).on('keyup change', '.billed', function(e){
-	var billed = 0;
-	var cost = $(this).closest('tr').find('.cost').val();
-	$("input[name^='billed[]']").each(function(e){
-		if($(this).val() != "")
-		{
-			billed += parseFloat($(this).val());
-		}
-	});
-	$("#headcount").val(billed);
-	$(this).closest('tr').find('.ttl-cost').val((parseFloat($(this).val()) * parseFloat(cost)));
-}); //get total billed count
-$(document).on('keyup change','.cost', function(e){
-	var billed = $(this).closest('tr').find('.billed').val();
-	$(this).closest('tr').find('.ttl-cost').val((parseFloat($(this).val()) * parseFloat(billed)));
-});//get total cost count
 
 $(document).on('change','.functions', function(e){
 	if($(this).val() == "add")
@@ -914,11 +736,16 @@ $(document).on('change','.functions', function(e){
 				            id: 'proceed-add-func-btn',
 				            action: function(dialog) 
 				            {
+				            	var url = window.location.href;
+				            	var url = url.split('/');
 				            	var new_function = $("#add-function-input").val();
 					            if(new_function != "")
 					            {
+					            	var link = '../targetsAndActuals';
+					            	if(url[5] == 'addClient')
+					            		var link = 'targetsAndActuals';
 					            	$("#proceed-add-func-btn").attr('disabled', 'true');
-					            	$.post("../targetsAndActuals", {new_function:new_function, add_function:'true'}, function(r){
+					            	$.post(link, {new_function:new_function, add_function:'true'}, function(r){
 					            		if(r != 0)
 					            		{
 					            			$("#func-"+count_id).append("<option selected value='"+r+"'>"+new_function+"</option>");
@@ -944,9 +771,9 @@ $(document).on('change','.functions', function(e){
 //--------------------------------------------------- Primary window (Update Client info) ------------------------------->
 $("#add-master-contract").click(function(e){
 	var id   = $(this).data('pk');
-	var html = '<section class="content"><div class="row"><div class="form-group col-md-12"><label class="control-label col-sm-1">Contract:</label><div class="col-md-3"><input placeholder="Contract Name" type="text" class="form-control" id="contract"></div><label class="control-label col-md-1">Headcount:</label><div class="col-md-3"><input readOnly type="number" class="form-control" id="headcount" placeholder="Headcount"></div><div class="row"><label class="control-label col-md-1">Document: </label><div class="col-md-3"><div class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> <medium id="file-name">Add Supporting Documents</medium><input type="file" name="sup_doc[]" id="document" multiple></div></div></div></div><div class="form-group col-md-12"><label class="control-label col-md-1">Start Date:</label><div class="col-md-3"><input type="text" placeholder="Start Date" class="form-control date-picker" id="s_date" ></div><label class="control-label col-md-1">End Date:</label><div class="col-md-3"><input type="text" placeholder="Expiry Date" class="form-control date-picker" id="e_date" ></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Remarks: </label><div class="col-md-3"><textarea id="remarks" class="form-control" placeholder="Write something here.."></textarea></div></div></div><hr>';
-	html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><i class="fa fa-2x fa-plus-circle text-success" style="cursor:pointer;" id="add-column-target"></i></th></tr></thead>';
-	html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" id="func-1" data-pk="1" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control billed"></td><td class="cost-td"><input type="number" class="form-control cost" name="cost[]"></td><td><input type="number" class="form-control ttl-cost" readOnly name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></section>';
+	var html = '<section class="content" style="overflow:auto;"><div  style="width:99%;"><div class="row" style="overflow:auto;"><div class="form-group col-md-12"><label class="control-label col-sm-1">Contract:</label><div class="col-md-3"><input placeholder="Contract Name" type="text" class="form-control" id="contract"></div><label class="control-label col-md-1">Headcount:</label><div class="col-md-3"><input readOnly type="number" class="form-control" id="headcount" placeholder="Headcount"></div><div class="row"><label class="control-label col-md-1">Document: </label><div class="col-md-3"><div class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> <medium id="file-name">Add Supporting Documents</medium><input type="file" name="sup_doc[]" id="document" multiple></div></div></div></div><div class="form-group col-md-12"><label class="control-label col-md-1">Start Date:</label><div class="col-md-3"><input type="text" placeholder="Start Date" class="form-control date-picker" id="s_date" ></div><label class="control-label col-md-1">End Date:</label><div class="col-md-3"><input type="text" placeholder="Expiry Date" class="form-control date-picker" id="e_date" ></div></div></div><div class="row"><div class="form-group col-md-12"><label class="control-label col-md-1">Remarks: </label><div class="col-md-3"><textarea id="remarks" class="form-control" placeholder="Write something here.."></textarea></div></div></div><hr>';
+	html += '<div class="row"><div class="form-group col-md-12"><table class="table"><thead><tr><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th class="text-center">Ttl Cost</th><th class="text-center">Working Hours</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th><th><button class="btn btn-sm btn-success" style="cursor:pointer;" id="add-column-target"><i class="fa fa-plus" ></i>&nbsp;&nbsp;Add HC</button></th></tr></thead>';
+	html += '<tbody id="target-data"><tr class="target-clone"><td><select class="form-control functions" id="func-1" data-pk="1" name="functions[]"><option value="">Select Current Function..</option></select></td><td><input type="number" name="billed[]" class="form-control billed"></td><td class="cost-td"><input type="number" class="form-control cost" name="cost[]"></td><td><input type="number" class="form-control ttl-cost" readOnly name="ttl-cost[]"></td><td><input type="text" class="form-control " name="hours[]"></td><td><select class="form-control" name="timezone[]"><option value="">Select timezone..</option><option value="US">US</option><option value="Manila">Manila</option></select></td><td><select class="form-control " name="shift[]"><option value="">Select shift..</option><option value="Night">Night</option><option value="Day">Day</option><option value="Mid">Mid</option><option value="Graveyard">Graveyard</option></select></td><td><select class="form-control" name="location[]"><option value="">Select Location..</option><option value="Makati">Makati</option><option value="Legazpi">Legazpi</option></select></td><td><i class="fa fa-close fa-2x remove-target text-danger" style="cursor:pointer;"></i></td></tr></tbody></table></div></div></div></section>';
 	BootstrapDialog.show({
         title: 'Add New MSA',
 		size: BootstrapDialog.SIZE_WIDE,
@@ -960,7 +787,7 @@ $("#add-master-contract").click(function(e){
                 autoclose: true,
                 format: 'yyyy-m-dd'
             });
-            addRemoveColumn();
+            addRemoveColumn('master');
             functionList();
             $("#document").change(function(e){
 				var counter = 0;
@@ -1025,7 +852,6 @@ $("#add-master-contract").click(function(e){
 				               				var result = jQuery.parseJSON(r);
 											document.cookie = "team_id=" + result['team_id'] + "; path = /";
 											document.cookie = "contract_id=" + result['contract_id'] + "; path = /";
-				               				// document.cookie = "contract_id=" + r + "; path = /";
 											var data = new FormData();
 											$.each($("#document")[0].files, function(i, file){
 												data.append("sup_doc[]", file);
@@ -1078,7 +904,7 @@ $("#add-master-contract").click(function(e){
 $("#view-headcount").click(function(e){
 	var id 	 = $(this).data('pk');
 	var name = $(this).data('name');
-	var html = '<section class="content"><div class="row"><h4 style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: light; text-align:center;">'+name+'</h4><br><table class="table table-bordered"><thead><tr style="background-color: #d7d7d8;" ><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th>TTL Cost</th><th class="text-center">Hours Worked</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th></tr></thead><tbody id="append-body"></tbody></table></div></section>';
+	var html = '<section class="content" style="overflow:auto;"><div  style="width:99%;"><div class="row"><h4 style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: light; text-align:center;">'+name+'</h4><br><table class="table table-bordered"><thead><tr style="background-color: #d7d7d8;" ><th class="text-center">Current Function</th><th class="text-center">Billed HC</th><th class="text-center">Cost per Title</th><th>TTL Cost</th><th class="text-center">Working Hours</th><th class="text-center">Timezone</th><th class="text-center">Shift</th><th class="text-center">Location</th></tr></thead><tbody id="append-body"></tbody></table></div></div></section>';
 		BootstrapDialog.show({
 			title: 'Headcount Detailed List',
 			message: html,
@@ -1446,7 +1272,7 @@ function checkManageContract()
 	}
 }
 
-function addRemoveColumn()
+function addRemoveColumn(type)
 {
 	$("#add-column-target").click(function(e){
     	var count = $(".target-clone").length;
@@ -1470,7 +1296,10 @@ function addRemoveColumn()
 				billed += parseFloat($(this).val());
 			}
 		});
-		$("#headcount-new").val(billed);
+		if(type == 'child')
+			$("#headcount-new").val(billed);
+		else
+			$("#headcount").val(billed);
     }); //remove function
 }
 
@@ -1541,7 +1370,7 @@ function getDocumentsChild(contract_id, team_id)
 		var attach= "";
 		var counter = 0;
 		$.each(data, function(key, val){
-			attach += "<p><a  class='pull-left' href='../../assets/uploads_child/"+this.filename+"' download><i class='fa fa-paperclip'></i>&nbsp; &nbsp;<u>"+this.filename+"</u></a>&nbsp;&nbsp;&nbsp;<i class='pull-right pointer fa-2x fa fa-remove text-danger remove-file' data-contract='"+this.file_no+"' data-filename='"+this.filename+"' title='remove file'></i></p><hr>";
+			attach += "<p><a  class='pull-left' href='../../assets/uploads_child/"+this.filename+"' download><i class='fa fa-paperclip'></i>&nbsp; &nbsp;<u>"+this.filename+"</u></a>&nbsp;&nbsp;&nbsp;<i class='pull-right pointer fa-2x fa fa-remove text-danger remove-file-child' data-contract='"+this.file_no+"' data-filename='"+this.filename+"' title='remove file'></i></p><hr>";
 			counter++;
 		});
 		
@@ -1555,3 +1384,64 @@ function returnCount()
 	return pakshitcounter;
 }
 
+function removeAttachedFile(contract_id, team_id)
+{
+	$(document).on('click', '.remove-file', function(e){
+		var id 		 = $(this).data('contract');
+		var filename = $(this).data('filename');
+		$.confirm({
+				    title: 'Warning!',
+				    content: 'Are you sure you want to remove this document?',
+				    type: 'error',
+				    icon: 'fa fa-warning',
+				    theme:'dark',
+				    buttons: {
+				    			close: function () {
+						        },
+						        tryAgain: {
+						            text: 'Confirm',
+						            btnClass: 'btn-red',
+						            action: function()
+						            {
+							            Pace.restart();
+										Pace.track(function(){
+							    			$.post("../editClient", {id:id, remove_doc:'true', filename:filename}, function(r){
+							    				if(r == 1)
+							    				{
+							    					alertify.success("Document was successfully removed.");
+							    					getDocuments(contract_id, team_id);
+							    				}
+							    				else
+							    				{
+							    					alertify.error("Error removing document.");
+							    				}
+											});
+										});
+									}
+						        }						        
+				    		}
+		});
+	}); //removes file
+}
+
+function getRemainingMonths(expiry_date)
+{
+	var date1  = new Date(expiry_date);
+	var year1  = date1.getYear();
+	var month1 = date1.getMonth();
+	var day1   = date1.getDay();
+
+	var date2  = new Date();
+	var year2  = date2.getYear();
+	var month2 = date2.getMonth();
+	var day2   = date2.getDay();
+
+	var dt1 = new Date(year1, month1, day1);
+	var dt2 = new Date(year2, month2, day2);
+	var diff=(dt2.getTime() - dt1.getTime()) / 1000;
+		diff /= (60 * 60 * 24 * 7 * 4);
+	if(Math.abs(Math.round(diff)) <= 0)
+		return "<i class='text-danger'>Contract Expired</i>";
+	else
+		return Math.abs(Math.round(diff));
+}

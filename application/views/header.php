@@ -1,5 +1,17 @@
-
+<?php 
+    $modules = array();
+    $parent  = array();
+    if(!empty($user_modules))
+    {
+        foreach($user_modules as $rows)
+        {
+            array_push($modules, $rows->module_name);
+            array_push($parent, $rows->parent_module);
+        }
+    }
+?>
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="shortcut icon" type="image/png" href="<?php echo base_url('assets/logo-infinit.png'); ?>"/>
         <link rel="stylesheet" href="<?php echo base_url('assets/bower_components/bootstrap/dist/css/bootstrap.min.css'); ?>">
         <link rel="stylesheet" href="<?php echo base_url('assets/select2/dist/css/select2.min.css'); ?>">
         <link rel="stylesheet" href="<?php echo base_url('assets/bower_components/font-awesome/css/font-awesome.min.css'); ?>">
@@ -114,11 +126,18 @@
                     </form>
                     <ul class="sidebar-menu" data-widget="tree">
                         <li class="header">MAIN NAVIGATION</li>
-                            <li <?php echo ($this->uri->segment(2) == "home" || $this->uri->segment(2) == "")? "class='active'" : "" ?>>
-                                <a href="<?php echo site_url(); ?>">
-                                    <i class="fa fa-th "></i> <span><?php echo ($this->uri->segment(2) == "home" || $this->uri->segment(2) == "")? "<b style='color:#00c0ef;'>Dashboard</b>" : "Dashboard" ?></span>
-                                </a>
-                            </li>
+                            <?php 
+                                if(in_array('dashboard', $modules)){
+                            ?>
+                                <li <?php echo ($this->uri->segment(2) == "home" || $this->uri->segment(2) == "")? "class='active'" : "" ?>>
+                                    <a href="<?php echo site_url(); ?>">
+                                        <i class="fa fa-th "></i> <span><?php echo ($this->uri->segment(2) == "home" || $this->uri->segment(2) == "")? "<b style='color:#00c0ef;'>Dashboard</b>" : "Dashboard" ?></span>
+                                    </a>
+                                </li>
+                            <?php } ?>
+                            <?php 
+                                if(in_array('admin', $parent)){
+                            ?>
                             <li <?php echo ($this->uri->segment(2) == "userList" || $this->uri->segment(2) == "userModules")? "class='treeview active'" : "class='treeview'" ?>>
                                 <a href="#">
                                     <i class="fa fa-user-secret"></i> <span><?php echo ($this->uri->segment(2) == "userList" || $this->uri->segment(2) == "userModules")? "<b style='color:#00c0ef;'>Admin</b>" : "Admin" ?></span>
@@ -127,10 +146,22 @@
                                     </span>
                                 </a>
                                 <ul class="treeview-menu">
+                                    <?php 
+                                        if(in_array('users', $modules)){
+                                    ?>
                                     <li <?php echo ($this->uri->segment(2) == "userList")? "class='active'" : "" ?>><a href="<?php echo site_url('AdminController/userList'); ?>"><i class="fa fa-circle-o"></i> Users</a></li>
+                                    <?php 
+                                        }
+                                        if(in_array('user modules', $modules)){
+                                    ?>
                                     <li <?php echo ($this->uri->segment(2) == "userModules")? "class='active'" : "" ?>><a href="<?php echo site_url('AdminController/userModules'); ?>"><i class="fa fa-circle-o"></i>User Modules</a></li>
+                                    <?php } ?>
                                 </ul>
                             </li>
+                            <?php } ?>
+                            <?php 
+                                if(in_array('client', $parent)){
+                            ?>
                             <li  <?php echo ($this->uri->segment(2) == "client" || $this->uri->segment(2) == "addClient"  || $this->uri->segment(2) == "editClient" || $this->uri->segment(2) == "targetsAndActuals")? "class='active treeview'" : "class='treeview'" ?>>
                                 <a href="#">
                                     <i class="fa fa-users"></i> <span><?php echo ($this->uri->segment(2) == "client"  || $this->uri->segment(2) == "addClient"  || $this->uri->segment(2) == "editClient" || $this->uri->segment(2) == "targetsAndActuals" )? "<b style='color:#00c0ef;'>Client</b>" : "Client" ?></span>
@@ -139,10 +170,15 @@
                                     </span>
                                 </a>
                                 <ul class="treeview-menu">
+                                    <?php 
+                                        if(in_array('client list', $modules)){
+                                    ?>
                                     <li <?php echo ($this->uri->segment(2) == "client" || $this->uri->segment(2) == "editClient"  || $this->uri->segment(2) == "addClient")? "class='active'" : "" ?>><a href="<?php echo site_url('ClientController/client'); ?>"><i class="fa fa-circle-o"></i> Client List</a></li>
+                                    <?php } ?>
                                     <!-- <li <?php echo ($this->uri->segment(2) == "targetsAndActuals")? "class='active'" : "" ?>><a href="<?php echo site_url('ClientController/targetsAndActuals'); ?>"><i class="fa fa-circle-o"></i>Targets and Actuals</a></li> -->
                                 </ul>
                             </li>
+                            <?php } ?>
                             <!-- <li <?php echo ($this->uri->segment(2) == "userActivityLogs")? "class='active treeview'" : "class='treeview'" ?>>
                                 <a href="#">
                                     <i class="fa fa-files-o"></i>

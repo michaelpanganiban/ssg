@@ -27,7 +27,7 @@ class ClientModel extends CI_Model
 		
 		$this->db->trans_start();
 			$this->db->insert('team', $client);
-			$this->db->insert('ssg_team_line', $contract);
+			$this->db->insert('ssg_contracts', $contract);
 			$id = $this->db->insert_id();
 			$this->db->insert_batch('ssg_targets_and_actuals_line', $functions);
 		$this->db->trans_complete();
@@ -67,13 +67,13 @@ class ClientModel extends CI_Model
 
 	public function getClientList()
 	{
-		return $this->db->query('CALL clientlist()')->result();
+		return $this->db->query("SELECT t.*, d.div_name FROM team t LEFT JOIN division d ON t.division_id = d.div_id WHERE t.is_enable = '0'")->result();
 	}
 
 	public function getParticularClient()
 	{
 		$id = htmlspecialchars(trim($this->uri->segment(3)));
-		return $this->db->query("SELECT t.*, st.team_line_id, st.start_date, st.team_line_id, st.contract, st.expiry_date, st.document, st.type, st.remarks, st.MSA, st.headcount FROM team t LEFT JOIN ssg_team_line st ON st.team_id = t.team_id WHERE t.team_id = '$id'")->result();
+		return $this->db->query("SELECT t.*, st.start_date, st.contract_id as team_line_id, st.contract, st.expiry_date, st.document, st.type, st.remarks, st.MSA, st.headcount FROM team t LEFT JOIN ssg_contracts st ON st.team_id = t.team_id WHERE t.team_id = '$id'")->result();
 	}
 
 	public function getFilesMSA()
@@ -103,6 +103,11 @@ class ClientModel extends CI_Model
 	{
 		$id = htmlspecialchars(trim($this->uri->segment(3)));
 		return $this->db->query("SELECT SUM(billed_hc) AS headcount FROM ssg_targets_and_actuals_line WHERE team_id = '$id'")->result();
+	}
+
+	public function getHeadCount()
+	{
+		return $this->db->query("SELECT SUM(billed_hc) AS headcount, team_id FROM ssg_targets_and_actuals_line GROUP BY team_id")->result();
 	}
 
 	public function editClientModel()
@@ -179,8 +184,8 @@ class ClientModel extends CI_Model
 		$mother = $this->input->post('mother', TRUE);
 		$id 	= $this->input->post('id', TRUE);
 		$this->db->trans_start();
-			$this->db->where('team_line_id', $id);
-			$this->db->update('ssg_team_line', $mother);
+			$this->db->where('contract_id', $id);
+			$this->db->update('ssg_contracts', $mother);
 			if(!empty($child))
 				$this->db->update_batch('ssg_contract_line', $child, 'contract_line_id');
 		$this->db->trans_complete();
@@ -200,7 +205,7 @@ class ClientModel extends CI_Model
 		}
 
 		$this->db->trans_start();
-			$this->db->insert('ssg_team_line', $contract);
+			$this->db->insert('ssg_contracts', $contract);
 			$id = $this->db->insert_id();
 			$this->db->insert_batch('ssg_targets_and_actuals_line', $functions);
 		$this->db->trans_complete();
@@ -213,7 +218,7 @@ class ClientModel extends CI_Model
 
 	public function getJobOrderList()
 	{
-		return $this->db->query("CALL joborderlist()")->result();
+		return $this->db->query("SELECT id as joborder_id, jobtitle as title FROM jobs")->result();
 	}
 
 	public function addTargets()
@@ -274,10 +279,5 @@ class ClientModel extends CI_Model
 			return $this->db->insert_id();
 		return 0;
 	}
-	// public function getContractById()
-	// {
-	// 	$id = htmlspecialchars(trim($this->input->post('id', TRUE)));
-	// 	return $this->db->query("SELECT contract, headcount, document, DATE_FORMAT(start_date, '%Y-%m-%d'), DATE_FORMAT(expiry_date, '%Y-%m-%d'), remarks,  FROM ssg_team_line WHERE team_line_id = '$id'")->result();
-	// }
 }
 

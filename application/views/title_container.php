@@ -17,6 +17,10 @@
 	else if($this->uri->segment(2) == "userActivityLogs")
 		$title = "User Activity Logs";
 
+
+
+
+
 ?>
 <!DOCTYPE html>
 <html>

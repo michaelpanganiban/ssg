@@ -1,4 +1,28 @@
+<?php 
+    if(!empty($user_modules))
+    {
+        foreach($user_modules as $row)
+        {
+            if($row->module_name == 'add client')
+            {
+                $view   = $row->view;
+                $add    = $row->add;
+                $edit   = $row->edit;
+                $delete = $row->delete;
+            }
+        }
+    }
+?>
+
 <div class="content-wrapper">
+    <?php 
+        if($view == 0)
+        {
+            include APPPATH.'/views/notAllowed.php'; 
+        }
+        else
+        {
+    ?>
     <section class="content-header" style="background-color: white; min-height: 55px;">
         <h1 style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">
             Add New Client
@@ -43,13 +67,13 @@
                                     <input type='text' class='form-control' id='client-address' placeholder="Client Address" >
                                 </div>
                             </div>
-                            <div class='form-group col-md-6'>
+                            <!-- <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Customer Experience:</label>
                                 <div class='col-md-8'>
                                     <input type='text' class='form-control' id='customer-exp' placeholder="Customer Experience">
                                 </div>
-                            </div>
-                            <div class='form-group col-md-6'>
+                            </div> -->
+                            <!-- <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Back Office:</label>
                                 <div class='col-md-8'>
                                     <input type='text' class='form-control' id='back-office' placeholder="Back Office">
@@ -60,7 +84,7 @@
                                 <div class='col-md-8'>
                                     <input type="text" class="form-control" placeholder ="F&A" id="fa">
                                 </div>
-                            </div>
+                            </div> -->
                             <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Headquarter:</label>
                                 <div class='col-md-8'>
@@ -87,7 +111,7 @@
                             <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Visit:</label>
                                 <div class='col-md-8'>
-                                    <input type="text" class="form-control" id="visit" placeholder="Visit">
+                                    <input type="text" class="form-control date-picker" id="visit" placeholder="Visit">
                                 </div>
                             </div>
                             <div class='form-group col-md-6'>
@@ -143,8 +167,8 @@
                                         <textarea class="form-control" id="remarks" rows="1" placeholder="Say something about this.."></textarea>
                                     </td>
                                     <td class="text-center" id="button-change">
-                                        <div class="btn btn-default btn-file">
-                                            <i class="fa fa-paperclip"></i> <medium id="file-name">Supporting Document</medium>
+                                        <div class="btn btn-warning btn-file">
+                                            <i class="fa fa-paperclip"></i> <medium id="file-name">Add Supporting Document</medium>
                                             <input type="file" name="sup_doc[]" id="attachment" multiple>
                                         </div>
                                         <!-- <button class="btn btn-sm btn-info" data-attached="false" id="attach-files"><i class="fa fa-paperclip"></i>&nbsp; &nbsp; Attach Files</button> -->
@@ -168,7 +192,7 @@
                                     <th class="text-center">Timezone</th>
                                     <th class="text-center">Shift</th>
                                     <th class="text-center">Location</th>
-                                    <th class="text-center"><i class="fa fa-plus-circle fa-2x text-success" style="cursor: pointer;" id="add-column-target"></i></th>
+                                    <th class="text-center"><button  id="add-column-target" class="btn btn-sm btn-success"><i class="fa fa-plus" style="cursor: pointer;"></i>&nbsp;&nbsp;Add HC</button></th>
                                 </tr>
                             </thead>
                             <tbody id="target-data">
@@ -212,6 +236,8 @@
                                             <option value="">Select shift..</option>
                                             <option value="Night">Night</option>
                                             <option value="Day">Day</option>
+                                            <option value="Mid">Mid</option>
+                                            <option value="Graveyard">Graveyard</option>
                                         </select>
                                     </td>
                                     <td>
@@ -240,3 +266,4 @@
         </div>
     </section>
 </div>
+<?php } ?>

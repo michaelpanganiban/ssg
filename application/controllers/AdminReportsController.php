@@ -43,7 +43,8 @@ class AdminReportsController extends MY_Controller
         	$data['session'] = $ssg_session_data;
         	$id = $data['session'][md5('emp_id')];
         	$obj = json_decode(file_get_contents('php://input'), true);
-    		echo json_encode($this->AdminReportsModel->getUserLogs($id, 20, 0));
+            $x = $obj['offset'] * 20;
+    		echo json_encode($this->AdminReportsModel->getUserLogs($id, 20, $x));
         }
         else
         {

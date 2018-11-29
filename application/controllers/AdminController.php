@@ -95,6 +95,8 @@ class AdminController extends MY_Controller
 					$data['users'] = $this->AdminModel->getUserList();
 					$this->cache->save($cache, $data['users'], 3600);
 				}
+
+				$data['user_modules'] = $this->restrict();
 	        	$this->load->view('title_container');
 	        	$this->load->view('header', $data);
 	        	$this->load->view('Admin/userList');
@@ -129,7 +131,12 @@ class AdminController extends MY_Controller
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
 	        	//--------------------- LOGS --------------------
-	        	$this->cache->delete('user_modules');
+	        	$this->cache->delete('user_modules_list');
+	        	if(htmlspecialchars(trim($this->input->post('user_id'))) == $data['session'][md5('emp_id')])
+	        	{
+	        		$id = $data['session'][md5('emp_id')];
+	        		$this->cache->delete(md5($id.'user_modules'));
+	        	}
 	        	echo $this->AdminModel->addModule();
 	        }
 	        else if(!empty($this->input->post('remove_module')))
@@ -145,7 +152,12 @@ class AdminController extends MY_Controller
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
 	        	//--------------------- LOGS --------------------
-	        	$this->cache->delete('user_modules');
+	        	$this->cache->delete('user_modules_list');
+	        	if(htmlspecialchars(trim($this->input->post('user_id'))) == $data['session'][md5('emp_id')])
+	        	{
+	        		$id = $data['session'][md5('emp_id')];
+	        		$this->cache->delete(md5($id.'user_modules'));
+	        	}
 	        	echo $this->AdminModel->removeModule();
 	        }
 	        else if(!empty($this->input->post('update_access')))
@@ -168,7 +180,12 @@ class AdminController extends MY_Controller
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
 	        	//--------------------- LOGS --------------------
-	        	$this->cache->delete('user_modules');
+	        	$this->cache->delete('user_modules_list');
+	        	if(htmlspecialchars(trim($this->input->post('user_id'))) == $data['session'][md5('emp_id')])
+	        	{
+	        		$id = $data['session'][md5('emp_id')];
+	        		$this->cache->delete(md5($id.'user_modules'));
+	        	}
 	        	echo $this->AdminModel->updateAccess();
 	        }
 	       	else
@@ -180,12 +197,14 @@ class AdminController extends MY_Controller
 					$this->cache->save($cache, $data['users'], 3600);
 				}
 
-				$cache = 'user_modules';
-				if(!$data['user_modules'] = $this->cache->get($cache))
+				$cache = 'user_modules_list';
+				if(!$data['user_modules_list'] = $this->cache->get($cache))
 				{
-					$data['user_modules'] = $this->AdminModel->getUserAccess();
-					$this->cache->save($cache, $data['user_modules'], 3600);
+					$data['user_modules_list'] = $this->AdminModel->getUserAccess();
+					$this->cache->save($cache, $data['user_modules_list'], 3600);
 				}
+
+				$data['user_modules'] = $this->restrict();
 	        	$this->load->view('title_container');
 	        	$this->load->view('header', $data);
 	        	$this->load->view('Admin/userModules');

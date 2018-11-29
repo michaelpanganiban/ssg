@@ -1,5 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Reports from './Reports';
+import ShowLogs from './ShowLogs';
 
-ReactDOM.render(<Reports />, document.getElementById('footer-logs'));
+ReactDOM.render(<ShowLogs />, document.getElementById('footer-logs'));

@@ -189,6 +189,7 @@ $(".delete-user").click(function(e){
 //------------------------------- USER MODULES ------------------------------------------------>
 
 $("#user-list").change(function(e){
+	var edit = $(this).data('1q2w31');
 	if($(this).val() == '')
 	{
 		$("#append-modules").html("<tr><td colspan='3' class='text-center'><i>Data not available..</i></td></tr>");
@@ -201,10 +202,13 @@ $("#user-list").change(function(e){
 			var data = jQuery.parseJSON(r);
 			$.each(data, function(key, val){
 				html += "<tr><td>"+this.parent_module.toUpperCase()+"</td><td>"+this.module_name.toUpperCase()+"</td>";
-				if(this.is_set == 1)
-					html +="<td class='text-center'><input type='checkbox' data-id='"+this.id+"' data-pk='"+this.module_id+"' data-mod='"+this.module_name+"' class='flat-blue module-ssg' checked></td></tr>";
-				else
-					html +="<td class='text-center'><input type='checkbox' data-pk='"+this.module_id+"' data-mod='"+this.module_name+"' class='flat-blue module-ssg' ></td></tr>";
+				if(edit == 1)
+				{
+					if(this.is_set == 1)
+						html +="<td class='text-center'><input type='checkbox' data-id='"+this.id+"' data-pk='"+this.module_id+"' data-mod='"+this.module_name+"' class='flat-blue module-ssg' checked></td></tr>";
+					else
+						html +="<td class='text-center'><input type='checkbox' data-pk='"+this.module_id+"' data-mod='"+this.module_name+"' class='flat-blue module-ssg' ></td></tr>";
+				}
 			});
 			$("#append-modules").html(html);
 			$('.flat-blue').iCheck({
@@ -234,7 +238,8 @@ $(document).on('ifUnchecked', '.module-ssg', function(event){
 	var module_id = $(this).data('pk');
 	var name      = $("#user-list").children("option:selected").text();
 	var module_nm = $(this).data('mod');
-	$.post("userModules", {remove_module: 'true', id:id, name:name, module_id:module_id, module:module_nm}, function(r){
+	var user_id   = $("#user-list").val();
+	$.post("userModules", {remove_module: 'true', id:id, name:name, module_id:module_id, module:module_nm, user_id:user_id}, function(r){
 		if(r == 1)
 			alertify.success("Module removed");
 		else
@@ -249,7 +254,8 @@ $(document).on('ifChecked','.update-access',function(e){
 	var type = $(this).data('value');
 	var mod  = $(this).data('module');
 	var name = $(this).data('emp');
-	$.post("userModules", {update_access: 'true', id:id, type: type, access:'true', module:mod, name:name}, function(r){
+	var user_id = $(this).data('user');
+	$.post("userModules", {update_access: 'true', id:id, type: type, access:'true', module:mod, name:name, user_id:user_id}, function(r){
 		if(r == 1)
 			alertify.success("Access granted");
 		else
@@ -262,7 +268,8 @@ $(document).on('ifUnchecked', '.update-access', function(event){
 	var type = $(this).data('value');
 	var mod  = $(this).data('module');
 	var name = $(this).data('emp');
-	$.post("userModules", {update_access: 'true', id:id, type: type, access:'false', module:mod, name:name}, function(r){
+	var user_id = $(this).data('user');
+	$.post("userModules", {update_access: 'true', id:id, type: type, access:'false', module:mod, name:name, user_id:user_id}, function(r){
 		if(r == 1)
 			alertify.success("Access removed");
 		else
