@@ -91,8 +91,13 @@ class AdminModel extends CI_Model
 
 	public function deleteUser()
 	{
-		$this->db->where('auth_id', htmlspecialchars(trim($this->input->post('id'))));
-		if($this->db->delete('ssg_auth_login'))
+		$this->db->trans_start();
+			$this->db->where('auth_id', htmlspecialchars(trim($this->input->post('id'))));
+			$this->db->delete('ssg_auth_login');
+			$this->db->where('user_id', htmlspecialchars(trim($this->input->post('emp_id'))));
+			$this->db->delete('ssg_user_modules');
+		$this->db->trans_complete();
+		if($this->db->trans_status() === TRUE)
 			return 1;
 		return 0;		
 	}

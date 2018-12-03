@@ -65,7 +65,7 @@ $(document).on('keyup change','.cost', function(e){
 $(document).on('click', '.attach-file',function(e){
 	var kulit 		= 0;
 	var contract_id = $(this).data('contract');
-	var team_id     = $(this).data('team');
+	var client_id   = $(this).data('client');
 	var html = '<center><div class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> <medium id="file-name">Add Supporting Documents</medium><input type="file" name="sup_doc[]" id="attachment" multiple></div><hr><div id="append-here"></div>';
 	BootstrapDialog.show({
 		title: 'Add Documents',
@@ -75,8 +75,8 @@ $(document).on('click', '.attach-file',function(e){
 		type: 'type-info',
 		onshown: function()
 		{
-			getDocuments(contract_id, team_id);
-			removeAttachedFile(contract_id, team_id);
+			getDocuments(contract_id, client_id);
+			removeAttachedFile(contract_id, client_id);
 			$(document).on('change', '#attachment', function(e){
 				var count = 0;
 				$.each($("#attachment")[0].files, function(i, file){
@@ -101,7 +101,7 @@ $(document).on('click', '.attach-file',function(e){
 			            action: function(dialog) {
 			            	if($("#attachment").val() != "" && $("#attachment").val() != undefined)
 				            {
-				            	document.cookie = "team_id=" + team_id + "; path = /";
+				            	document.cookie = "client_id=" + client_id + "; path = /";
 								document.cookie = "contract_id=" + contract_id + "; path = /";
 				            	var data = new FormData();
 								$.each($("#attachment")[0].files, function(i, file){
@@ -119,13 +119,13 @@ $(document).on('click', '.attach-file',function(e){
 												if(res == 1)
 												{
 													$(".attach-me").attr('disabled','true');
-													alertify.success("Document was successfully added.");
-													getDocuments(contract_id, team_id);
+													alertify.success("<i class='fa fa-check'></i> Document was successfully added.");
+													getDocuments(contract_id, client_id);
 													$("#file-name").html('<medium id="file-name">Add Supporting Documents</medium>');
 												}
 												else
 												{
-													alertify.error("Failed to upload the document.");
+													alertify.error("<i class='fa fa-remove'></i>Failed to upload the document.");
 												}
 											}
 										});
@@ -159,8 +159,86 @@ $("#attachment").change(function(e){
 	$("#file-name").html(counter + " files attached.");
 });
 
+$("#add-team").click(function(e){
+	var count = $(".clone-team").length;
+	var clone_target = $(".clone-team:first").clone();
+	clone_target.attr('id', 'remove-team-'+(count+1));
+	clone_target.find('button').attr('data-pk', count + 1);
+	$("#append-team").append(clone_target);
+	clearData(clone_target);
+}); //add team
+
+$(document).on('click', '.remove-team', function(e){
+	var count = $(this).data('pk');
+	$("#remove-team-" + count).remove();
+}); //remove function
+
+$(".remove-team-edit").click(function(e){
+	var id = $(this).data('pk');
+	Pace.restart();
+	Pace.track(function(e){
+		$.confirm({
+					title: 'Warning!',
+				    content: 'Are you sure you want to remove this team?',
+				    type: 'error',
+				    icon: 'fa fa-warning',
+				    theme:'dark',
+				    buttons: {
+				    			close: function () {
+						        },
+						        tryAgain: {
+						            text: 'Confirm',
+						            btnClass: 'btn-red',
+						            action: function()
+						            {
+							            Pace.restart();
+										Pace.track(function(){
+							    			$.post("../editClient", {id:id, remove_team:'true'}, function(r){
+							    				if(r == 1)
+							    				{
+							    					alertify.success("<i class='fa fa-check'></i>Team was successfully removed.");
+							    				}
+							    				else
+							    				{
+							    					alertify.error("<i class='fa fa-remove'></i>Error removing team.");
+							    				}
+											});
+										});
+									}
+						        }						        
+				    		}
+		});
+		setTimeout(function(){
+			location.reload();
+		}, 1500);
+	});
+});
 $("#proceed-add-client").click(function(e){
 	var error = 0;
+	var team = [];
+	if($(".team-name").val() == "" || $(".team-name").val() == undefined)
+	{
+		$(".team-name").css('border', '1px solid red');
+		error = 1;
+	}
+	else
+	{
+		var temp = [];
+		$("input[name='team_name[]']").each(function(e){
+			temp.push($(this).val());
+		});
+
+		for(var i = 0; i < temp.length; i++)
+		{
+			team.push(
+						{
+							division_id : $("#industry").val(),
+							team_name   : temp[i]
+						}
+					);
+		}
+	}
+
 	if(checkFields() == 1)
 	{
 		alertify.error("Fields marked red are required.");
@@ -177,7 +255,7 @@ $("#proceed-add-client").click(function(e){
 		Pace.track(function(){
 			var functions = getTargetData(); //functions information
 			var data 	= {
-							'team_name' 		  : $("#client-name").val(),
+							'client_name' 		  : $("#client-name").val(),
 							'division_id'		  : $("#industry").val(),
 							'customer_experience' : $("#customer-exp").val(),
 							'back_office' 		  : $("#back-office").val(),
@@ -199,7 +277,8 @@ $("#proceed-add-client").click(function(e){
 							'remarks' 			  : $("#remarks").val(),
 						} //contract information
 			waitingDialog.show('Processing data...', {dialogSize: 'sm', progressType: 'success'});
-			$.post("addClient", {client: data, functions: functions, contract:contract, add: 'true', client_name:$("#client-name").val()}, function(r){
+			$.post("addClient", {client: data, functions: functions, contract:contract, add: 'true', client_name:$("#client-name").val(), team:team}, function(r){
+				console.log(r);
 				if(r != 0)
 				{
 					if($("#attachment").val() != undefined && $("#attachment").val() != "")
@@ -223,11 +302,11 @@ $("#proceed-add-client").click(function(e){
 									{
 										if(res == 1)
 										{
-											alertify.success("Client was successfully added.");
+											alertify.success("<i class='fa fa-check'></i>Client was successfully added.");
 										}
 										else
 										{
-											alertify.success("Client was successfully added.");
+											alertify.success("<i class='fa fa-check'></i>Client was successfully added.");
 											alertify.message("Failed to upload the document. Please reupload the document in the edit module.");
 										}
 									}
@@ -235,16 +314,13 @@ $("#proceed-add-client").click(function(e){
 					}	
 					else
 					{
-						alertify.success("Client was successfully added.");
+						alertify.success("<i class='fa fa-check'></i>Client was successfully added.");
 						alertify.message("Supporting document was not provided.");
 					}			
-					setTimeout(function(){
-						                	location.reload();
-						                }, 1500);	
 				}
 				else
 				{
-					alertify.error("Error adding client. Please try again.");
+					alertify.error("<i class='fa fa-remove'></i>Error adding client. Please try again.");
 				}
 					waitingDialog.hide();
 					setTimeout(function(e){
@@ -261,8 +337,92 @@ $(".client-each").click(function(e){
 	window.open("editClient/"+id);
 });
 
+$("#edit-team").click(function(e){
+	waitingDialog.show('Adding team...', {dialogSize: 'sm', progressType: 'success'});
+	var client_id = $(this).data('client');
+	Pace.restart();
+	Pace.track(function(){
+		$.post('../editClient', {add_team:'true', client_id:client_id}, function(r){
+			if(r == 1)
+				setTimeout(function(){
+					location.reload();
+				}, 1000);
+			else
+				alertify.error("Error adding team");
+		});
+	});
+	waitingDialog.hide();
+});
+
+$("#proceed-delete-client").click(function(e){
+	var id = $("#client-name").data('id');
+	$.confirm({
+			    title: 'Warning!',
+			    content: 'Are you sure you want to delete this client?',
+			    type: 'error',
+			    icon: 'fa fa-warning',
+			    theme:'dark',
+			    buttons: {
+			    			close: function () {
+					        },
+					        tryAgain: {
+					            text: 'Confirm',
+					            btnClass: 'btn-red',
+					            action: function()
+					            {
+						            Pace.restart();
+									Pace.track(function(){
+						    			$.post("../editClient", {id:id, delete_client:'true'}, function(r){
+						    				if(r == 1)
+						    				{
+						    					alertify.success("<i class='fa fa-check'></i>Client was successfully deleted.");
+						    					setTimeout(function(){
+						    						window.location = "../client";
+						    					}, 1500);
+						    				}
+						    				else
+						    				{
+						    					alertify.error("<i class='fa fa-remove'></i>Error removing client.");
+						    				}
+										});
+									});
+								}
+					        }						        
+			    		}
+	});
+});
+
 $("#proceed-update-client").click(function(e){
 	var error = 0;
+	var team = [];
+	var temp = [];
+	$("input[name='team_name[]']").each(function(e){
+		if($(this).val() == "" || $(this).val() == undefined)
+		{
+			$(this).css('border', '1px solid red');
+			error = 1;
+		}
+		else
+		{
+			temp.push(
+						{
+							team_id     : $(this).data('pk'),
+							team_name   : $(this).val()
+						}
+					);
+		}
+	});
+	for(var i = 0; i < temp.length; i++)
+	{
+		team.push(
+					{
+						division_id : $("#industry").val(),
+						team_name   : temp[i]['team_name'],
+						team_id		: temp[i]['team_id']
+					}
+				);
+	}
+	
 	if(checkBasicInfo() == 1)
 	{
 		alertify.error("Fields marked red are required.");
@@ -275,7 +435,7 @@ $("#proceed-update-client").click(function(e){
 			waitingDialog.show('Processing data...', {dialogSize: 'sm', progressType: 'success'});
 			var team_id 	= $("#client-name").data('id');
 			var data = {
-							'team_name' 		  : $("#client-name").val(),
+							'client_name' 		  : $("#client-name").val(),
 							'division_id'		  : $("#industry").val(),
 							'customer_experience' : $("#customer-exp").val(),
 							'back_office' 		  : $("#back-office").val(),
@@ -290,17 +450,21 @@ $("#proceed-update-client").click(function(e){
 							'address'			  : $("#client-address").val(),
 							'ref_no'			  : $("#client-name").data('ref')
 						}
-			$.post("editClient", {client: data, edit: 'true', team_id:team_id, client_name:$("#client-name").val()}, function(r){
+			$.post("editClient", {client: data, edit: 'true', client_id:team_id, client_name:$("#client-name").val(), team:team}, function(r){
 				if(r == 1)
-					alertify.success("Client was successfully updated.");
+					alertify.success("<i class='fa fa-check'></i>   Client was successfully updated.");
 				else
-					alertify.error("Error updating client. Please try again.");
+					alertify.error("<i class='fa fa-remove'></i>   Error updating client. Please try again.");
 				waitingDialog.hide();
 				setTimeout(function(e){
 					location.reload();
 				}, 1500);
 			});
 		});
+	}
+	else
+	{
+		alertify.error("All fields are required.");
 	}
 }); //edit client info 
 //---------------------------------------------- ALL IN MODAL (Manage Contract) ------------------------------------------->
@@ -343,12 +507,12 @@ $(".view-contract").click(function(e){
     		$("#add-annex").attr('data-pk', id);
     		if(documents != 0)
     		{
-    			$("#append-doc").append("<button data-contract='"+id+"' data-team='"+client_id+"' class='btn btn-sm btn-info attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;"+documents+" attached documents</button>");
+    			$("#append-doc").append("<button data-contract='"+id+"' data-client='"+client_id+"' class='btn btn-sm btn-info attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;"+documents+" attached documents</button>");
     		}
     		else
     		{
     			$("#append-doc").append(
-    									"<button  data-contract='"+id+"' data-team='"+client_id+"' class='btn btn-sm btn-warning attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;Attachment is not available</button></div>"
+    									"<button  data-contract='"+id+"' data-client='"+client_id+"' class='btn btn-sm btn-warning attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;Attachment is not available</button></div>"
     									);
     		} //append document     
 
@@ -378,11 +542,11 @@ $(".view-contract").click(function(e){
     				append += '<td><input type="number" class="form-control" readOnly name="headcount[]" value="'+this.headcount+'"></td><td><input type="text" class="form-control remarks" name="remarks[]" value="'+this.remarks+'"></td>';
     				if(this.document == "" || this.document == null || this.document <= 0)
     				{
-    					append +='<td class="text-center" id="'+this.contract_line_id+'"><button class="btn btn-sm btn-warning attach-files-child" data-contract="'+this.contract_line_id+'" data-team="'+client_id+'" data-filename="'+this.filename+'">Attach documents</button></td>';
+    					append +='<td class="text-center" id="'+this.contract_line_id+'"><button class="btn btn-sm btn-warning attach-files-child" data-contract="'+this.contract_line_id+'" data-client="'+client_id+'" data-filename="'+this.filename+'">Attach documents</button></td>';
     				}
     				else
     				{
-    					append +='<td class="text-center"  id="'+this.contract_line_id+'"><button class="btn btn-sm btn-info attach-files-child" data-contract="'+this.contract_line_id+'" data-team="'+client_id+'" data-count="'+this.document+'"><i class="fa fa-paperclip"></i>&nbsp;&nbsp; '+this.document+'&nbsp; attached documents</button></td>';
+    					append +='<td class="text-center"  id="'+this.contract_line_id+'"><button class="btn btn-sm btn-info attach-files-child" data-contract="'+this.contract_line_id+'" data-client="'+client_id+'" data-count="'+this.document+'"><i class="fa fa-paperclip"></i>&nbsp;&nbsp; '+this.document+'&nbsp; attached documents</button></td>';
     				}
     				append += '<td></td></tr>';
     			});
@@ -422,11 +586,11 @@ $(".view-contract").click(function(e){
 			               			$.post("../editClient", {child:checkManageContract(), mother: contract, id:id, update_contract:'true'}, function(r){
 			               				if(r == 1)
 			               				{
-			               					alertify.success("Contract was successfully updated.");
+			               					alertify.success("<i class='fa fa-check'></i>  Contract was successfully updated.");
 			               				}
 			               				else
 			               				{
-			               					alertify.error("An error has occured.");
+			               					alertify.error("<i class='fa fa-remove'></i>   An error has occured.");
 			               				}
 			               				setTimeout(function(){
 			               					location.reload();
@@ -444,7 +608,7 @@ $(".view-contract").click(function(e){
 
 $(document).on('click', '.attach-files-child', function(e){
 	var contract_id = $(this).data('contract');
-	var team_id     = $(this).data('team');
+	var client_id     = $(this).data('client');
 	var count_doc   = parseFloat($(this).data('count'));
 	var count 		= 0;
 	var html = '<center><div class="btn btn-default btn-file"><i class="fa fa-paperclip"></i> <medium id="file-name">Add Supporting Documents</medium><input type="file" name="sup_doc_new[]" id="attachment" multiple></div><hr><div id="append-here-child"></div>';
@@ -456,7 +620,7 @@ $(document).on('click', '.attach-files-child', function(e){
 		type: 'type-info',
 		onshown: function()
 		{
-			getDocumentsChild(contract_id, team_id);
+			getDocumentsChild(contract_id, client_id);
 			$(document).on('click', '.remove-file-child', function(e){
 				var counter  = returnCount() - 1;
 				var id 		 = $(this).data('contract');
@@ -480,12 +644,12 @@ $(document).on('click', '.attach-files-child', function(e){
 									    			$.post("../editClient", {id:id, remove_doc2:'true', filename:filename, remove2:'true', count_doc:counter, line_id:contract_id}, function(r){
 									    				if(r == 1)
 									    				{
-									    					alertify.success("Document was successfully removed.");
-									    					getDocumentsChild(contract_id, team_id);
+									    					alertify.success("<i class='fa fa-check'></i>   Document was successfully removed.");
+									    					getDocumentsChild(contract_id, client_id);
 									    				}
 									    				else
 									    				{
-									    					alertify.error("Error removing document.");
+									    					alertify.error("<i class='fa fa-remove'></i>   Error removing document.");
 									    				}
 														// console.log(r);
 													});
@@ -518,8 +682,9 @@ $(document).on('click', '.attach-files-child', function(e){
 						label: '<i class="fa fa-anchor"></i>&nbsp;&nbsp;Attach',
 			            cssClass: 'btn btn-sm btn-info pull-right attach-me',
 			            action: function(dialog) {
+			            	$(".attach-me").attr('disabled','true');
 			            	var count_doc  = returnCount() + count;
-			            	document.cookie = "team_id=" + team_id + "; path = /";
+			            	document.cookie = "client_id=" + client_id + "; path = /";
 							document.cookie = "contract_id=" + contract_id + "; path = /";
 							document.cookie = "counter=" + count_doc + "; path = /";
 			            	var data = new FormData();
@@ -537,14 +702,13 @@ $(document).on('click', '.attach-files-child', function(e){
 										{
 											if(res == 1)
 											{
-												$(".attach-me").attr('disabled','true');
-												alertify.success("Document was successfully added.");
-												getDocumentsChild(contract_id, team_id);
+												alertify.success("<i class='fa fa-check'></i>Document was successfully added.");
+												getDocumentsChild(contract_id, client_id);
 												$("#file-name").html('<medium id="file-name">Add Supporting Documents</medium>');
 											}
 											else
 											{
-												alertify.error("Failed to upload the document. Please reupload the document in the edit module.");
+												alertify.error("<i class='fa fa-remove'></i>Failed to upload the document. Please reupload the document in the edit module.");
 											}
 										}
 									});
@@ -654,16 +818,16 @@ $(document).on('click', '#add-annex', function(e){
 													'remarks' 			  : $("#remarks-new").val(),
 													'type'				  : $("#type").val(),
 													'MSA'			  	  : id,
-													'team_id'			  : client_id,
+													'client_id'			  : client_id,
 													'document'			  : counter
 												} //contract information
-								$.post("../editClient", {contract:contract, functions: getTargetData(), new_contract: 'true', team_id: client_id, action:action}, function(r){
+								$.post("../editClient", {contract:contract, functions: getTargetData(), new_contract: 'true', client_id: client_id, action:action}, function(r){
 									if(r != 0)
 									{
 										if($("#attachment-new").val() != "")
 										{
 											var result = jQuery.parseJSON(r);
-											document.cookie = "team_id=" + result['team_id'] + "; path = /";
+											document.cookie = "client_id=" + result['client_id'] + "; path = /";
 											document.cookie = "contract_id=" + result['contract_id'] + "; path = /";
 											var data = new FormData();
 											$.each($("#attachment-new")[0].files, function(i, file){
@@ -679,12 +843,12 @@ $(document).on('click', '#add-annex', function(e){
 														{
 															if(res != 0)
 															{
-																alertify.success("Contract was successfully added.");
+																alertify.success("<i class='fa fa-check'></i>Contract was successfully added.");
 																dialog.close();
 															}
 															else
 															{
-																alertify.success("Contract was successfully added.");
+																alertify.success("<i class='fa fa-check'></i>Contract was successfully added.");
 																alertify.message("Failed to upload the document. Please reupload the document in the edit module.");
 																dialog.close();
 															}
@@ -693,14 +857,14 @@ $(document).on('click', '#add-annex', function(e){
 										}	
 										else
 										{
-											alertify.success("Contract has been successfully added.");
+											alertify.success("<i class='fa fa-check'></i>Contract has been successfully added.");
 											dialog.close();
 										}
 									}
 									else
 									{
 										$(".new-contract-btn").removeAttr('disabled');
-										alertify.error("An error has occured");
+										alertify.error("<i class='fa fa-remove'></i>An error has occured");
 									}
 									setTimeout(function(){
 										location.reload();
@@ -749,16 +913,16 @@ $(document).on('change','.functions', function(e){
 					            		if(r != 0)
 					            		{
 					            			$("#func-"+count_id).append("<option selected value='"+r+"'>"+new_function+"</option>");
-					            			alertify.success("Function has been added.");
+					            			alertify.success("<i class='fa fa-check'></i>Function has been added.");
 					            			dialog.close();
 					            		}
 					            		else
-					            			alertify.error("Error adding new function.");
+					            			alertify.error("<i class='fa fa-remove'></i>Error adding new function.");
 					            	});
 				            	}
 				            	else
 				            	{
-				            		alertify.error("Job name cannot be empty.");
+				            		alertify.error("<i class='fa fa-remove'></i>Job name cannot be empty.");
 				            	}
 				            }
 					 	}
@@ -841,7 +1005,7 @@ $("#add-master-contract").click(function(e){
 			               					start_date  : $("#s_date").val(),
 			               					expiry_date : $("#e_date").val(),
 			               					remarks 	: $("#remarks").val(),
-			               					team_id 	: id,
+			               					client_id 	: id,
 			               					headcount 	: $("#headcount").val()
 			               		}
 			               		$.post("../editClient", {contract: contract, function:getTargetData(), add_msa: 'true', id:id}, function(r){
@@ -850,7 +1014,7 @@ $("#add-master-contract").click(function(e){
 				               			if($("#document").val() != "")
 				               			{
 				               				var result = jQuery.parseJSON(r);
-											document.cookie = "team_id=" + result['team_id'] + "; path = /";
+											document.cookie = "client_id=" + result['client_id'] + "; path = /";
 											document.cookie = "contract_id=" + result['contract_id'] + "; path = /";
 											var data = new FormData();
 											$.each($("#document")[0].files, function(i, file){
@@ -866,14 +1030,14 @@ $("#add-master-contract").click(function(e){
 														{
 															if(res == 1)
 															{
-																alertify.success("Contract was successfully added.");
+																alertify.success("<i class='fa fa-check'></i>Contract was successfully added.");
 																setTimeout(function(){
 																	                	location.reload();
 																	                }, 1500);
 															}
 															else
 															{
-																alertify.success("Contract was successfully added.");
+																alertify.success("<i class='fa fa-check'></i>Contract was successfully added.");
 																alertify.message("Failed to upload the document. Please reupload the document in the edit module.");
 															}
 														}
@@ -881,7 +1045,7 @@ $("#add-master-contract").click(function(e){
 										}
 										else
 										{
-											alertify.success("Contract was successfully added.");
+											alertify.success("<i class='fa fa-check'></i>Contract was successfully added.");
 											setTimeout(function(){
 												                	location.reload();
 												                }, 1500);
@@ -890,7 +1054,7 @@ $("#add-master-contract").click(function(e){
 			               			else
 			               			{
 			               				$(".new-msa").removeAttr('disabled');
-			               				alertify.error("Error in adding contract");
+			               				alertify.error("<i class='fa fa-remove'></i> Error in adding contract");
 			               			}
 			               		});
 			            	}
@@ -908,6 +1072,7 @@ $("#view-headcount").click(function(e){
 		BootstrapDialog.show({
 			title: 'Headcount Detailed List',
 			message: html,
+			closable: false,
 			size: BootstrapDialog.SIZE_WIDE,
 			onshown: function()
 			{
@@ -938,6 +1103,7 @@ $("#view-headcount").click(function(e){
 				            cssClass: 'btn btn-sm btn-default pull-left',
 				            action: function(dialog) {
 				               dialog.close();
+				               location.reload();
 				            }
 						}
 					]
@@ -980,17 +1146,17 @@ function checkFields() //check for client basic info and contract info
 		error = 1;
 	}
 
-	if($("#segment").val() == "" || $("#segment").val() == undefined)
-	{
-		$("#segment").css('border', '1px solid red');
-		error = 1;
-	}
+	// if($("#segment").val() == "" || $("#segment").val() == undefined)
+	// {
+	// 	$("#segment").css('border', '1px solid red');
+	// 	error = 1;
+	// }
 
-	if($("#job-desc").val() == "" || $("#job-desc").val() == undefined)
-	{
-		$("#job-desc").css('border', '1px solid red');
-		error = 1;
-	}
+	// if($("#job-desc").val() == "" || $("#job-desc").val() == undefined)
+	// {
+	// 	$("#job-desc").css('border', '1px solid red');
+	// 	error = 1;
+	// }
 	if($("#contract").val() == "" || $("#contract").val() == undefined)
 	{
 		$("#contract").css('border', '1px solid red');
@@ -1015,11 +1181,11 @@ function checkFields() //check for client basic info and contract info
 		error = 1;
 	}
 
-	if($("#remarks").val() == "" || $("#remarks").val() == undefined)
-	{
-		$("#remarks").css('border', '1px solid red');
-		error = 1;
-	}
+	// if($("#remarks").val() == "" || $("#remarks").val() == undefined)
+	// {
+	// 	$("#remarks").css('border', '1px solid red');
+	// 	error = 1;
+	// }
 
 	// if($("#attachment").val() == "" || $("#attachment").val() == undefined)
 	// {
@@ -1351,9 +1517,9 @@ function checkBasicInfo()
 	return error;
 }
 
-function getDocuments(contract_id, team_id)
+function getDocuments(contract_id, client_id)
 {
-	$.post("../editClient", {contract_id:contract_id, team_id:team_id, get_files:'true'}, function(r){
+	$.post("../editClient", {contract_id:contract_id, client_id:client_id, get_files:'true'}, function(r){
 		var data  = jQuery.parseJSON(r);
 		var attach= "";
 		$.each(data, function(key, val){
@@ -1363,9 +1529,9 @@ function getDocuments(contract_id, team_id)
 	});
 }
 
-function getDocumentsChild(contract_id, team_id)
+function getDocumentsChild(contract_id, client_id)
 {
-	$.post("../editClient", {contract_id:contract_id, team_id:team_id, get_files_child:'true'}, function(r){
+	$.post("../editClient", {contract_id:contract_id, client_id:client_id, get_files_child:'true'}, function(r){
 		var data  = jQuery.parseJSON(r);
 		var attach= "";
 		var counter = 0;
@@ -1384,7 +1550,7 @@ function returnCount()
 	return pakshitcounter;
 }
 
-function removeAttachedFile(contract_id, team_id)
+function removeAttachedFile(contract_id, client_id)
 {
 	$(document).on('click', '.remove-file', function(e){
 		var id 		 = $(this).data('contract');
@@ -1408,12 +1574,12 @@ function removeAttachedFile(contract_id, team_id)
 							    			$.post("../editClient", {id:id, remove_doc:'true', filename:filename}, function(r){
 							    				if(r == 1)
 							    				{
-							    					alertify.success("Document was successfully removed.");
-							    					getDocuments(contract_id, team_id);
+							    					alertify.success("<i class='fa fa-check'></i>Document was successfully removed.");
+							    					getDocuments(contract_id, client_id);
 							    				}
 							    				else
 							    				{
-							    					alertify.error("Error removing document.");
+							    					alertify.error("<i class='fa fa-remove'></i>Error removing document.");
 							    				}
 											});
 										});

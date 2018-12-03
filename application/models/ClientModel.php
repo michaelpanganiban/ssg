@@ -11,29 +11,34 @@ class ClientModel extends CI_Model
 	public function addClientModel()
 	{
 		$error = 0;
-		$data = $this->db->query("SELECT MAX(team_id) as MAX FROM team")->result_array();
-		$team_id = $data[0]['MAX'] + 1;
+		$data = $this->db->query("SELECT MAX(client_id) as MAX FROM ssg_client")->result_array();
+		$client_id = $data[0]['MAX'] + 1;
 
-		$ref_no    = @date('Ymd').$team_id;
+		$ref_no    = @date('Ymd').$client_id;
 		$client    = $this->input->post('client');
 		$client   += ['ref_no' => $ref_no];
 		$contract  = $this->input->post('contract');
-		$contract += ['team_id' => $team_id];
+		$contract += ['client_id' => $client_id];
 		$functions = $this->input->post('functions');
 		for($i = 0; $i < sizeof($functions); $i++)
 		{
-			$functions[$i] += ['team_id' => $team_id];
+			$functions[$i] += ['client_id' => $client_id];
 		}
-		
+		$team = $this->input->post('team');
+		for($i = 0; $i < sizeof($team); $i++)
+		{
+			$team[$i] += ['client_id' => $client_id];
+		}
 		$this->db->trans_start();
-			$this->db->insert('team', $client);
+			$this->db->insert('ssg_client', $client);
 			$this->db->insert('ssg_contracts', $contract);
 			$id = $this->db->insert_id();
 			$this->db->insert_batch('ssg_targets_and_actuals_line', $functions);
+			$this->db->insert_batch('team', $team);
 		$this->db->trans_complete();
 		if($this->db->trans_status() === FALSE)
 			return 0;
-		return array('contract_id' =>$id, 'team_id' => $team_id);
+		return array('contract_id' =>$id, 'client_id' => $client_id);
 	}
 
 	public function updateDoc($data)
@@ -67,13 +72,37 @@ class ClientModel extends CI_Model
 
 	public function getClientList()
 	{
-		return $this->db->query("SELECT t.*, d.div_name FROM team t LEFT JOIN division d ON t.division_id = d.div_id WHERE t.is_enable = '0'")->result();
+		return $this->db->query("SELECT c.*, d.div_name FROM ssg_client c LEFT JOIN division d ON c.division_id = d.div_id WHERE c.status = '1'")->result();
 	}
 
 	public function getParticularClient()
 	{
 		$id = htmlspecialchars(trim($this->uri->segment(3)));
-		return $this->db->query("SELECT t.*, st.start_date, st.contract_id as team_line_id, st.contract, st.expiry_date, st.document, st.type, st.remarks, st.MSA, st.headcount FROM team t LEFT JOIN ssg_contracts st ON st.team_id = t.team_id WHERE t.team_id = '$id'")->result();
+		return $this->db->query("SELECT c.*, st.start_date, st.contract_id as team_line_id, st.contract, st.expiry_date, st.document, st.type, st.remarks, st.MSA, st.headcount FROM ssg_client c LEFT JOIN ssg_contracts st ON st.client_id = c.client_id WHERE c.client_id = '$id' AND c.status = '1'")->result();
+	}
+
+	public function deleteClient()
+	{
+		$id = htmlspecialchars(trim($this->input->post('id', TRUE)));
+		$this->db->where('client_id', $id);
+		if($this->db->update('ssg_client', array('status' => "0")))
+			return 1;
+		return 0;
+	}
+
+	public function removeTeamModel()
+	{
+		$id = htmlspecialchars(trim($this->input->post('id', TRUE)));
+		$this->db->where('team_id', $id);
+		if($this->db->delete('team'))
+			return 1;
+		return 0;
+	}
+
+	public function getParticularTeam()
+	{
+		$id = htmlspecialchars(trim($this->uri->segment(3)));
+		return $this->db->query("SELECT team_id, team_name FROM team WHERE client_id = '$id'")->result();
 	}
 
 	public function getFilesMSA()
@@ -81,7 +110,7 @@ class ClientModel extends CI_Model
 		$and = "";
 		if($this->input->post('get_files') == "true")
 		{
-			$id 	  = htmlspecialchars(trim($this->input->post('team_id', TRUE)));
+			$id 	  = htmlspecialchars(trim($this->input->post('client_id', TRUE)));
 			$contract = htmlspecialchars(trim($this->input->post('contract_id', TRUE)));
 			$and = " AND contract_no = '$contract'";
 		}
@@ -89,33 +118,45 @@ class ClientModel extends CI_Model
 		{
 			$id = htmlspecialchars(trim($this->uri->segment(3)));
 		}
-		return $this->db->query("SELECT * FROM ssg_msa_uploads WHERE team_id = '$id' $and")->result();
+		return $this->db->query("SELECT * FROM ssg_msa_uploads WHERE client_id = '$id' $and")->result();
 	}
 
 	public function getFilesChild()
 	{
-		$id 	  = htmlspecialchars(trim($this->input->post('team_id', TRUE)));
+		$id 	  = htmlspecialchars(trim($this->input->post('client_id', TRUE)));
 		$contract = htmlspecialchars(trim($this->input->post('contract_id', TRUE)));
-		return $this->db->query("SELECT * FROM ssg_uploads_child WHERE team_id = '$id' AND contract_no = '$contract'")->result();
+		return $this->db->query("SELECT * FROM ssg_uploads_child WHERE client_id = '$id' AND contract_no = '$contract'")->result();
 	}
 
 	public function sumHeadCount()
 	{
 		$id = htmlspecialchars(trim($this->uri->segment(3)));
-		return $this->db->query("SELECT SUM(billed_hc) AS headcount FROM ssg_targets_and_actuals_line WHERE team_id = '$id'")->result();
+		return $this->db->query("SELECT SUM(billed_hc) AS headcount FROM ssg_targets_and_actuals_line WHERE client_id = '$id'")->result();
 	}
 
 	public function getHeadCount()
 	{
-		return $this->db->query("SELECT SUM(billed_hc) AS headcount, team_id FROM ssg_targets_and_actuals_line GROUP BY team_id")->result();
+		return $this->db->query("SELECT SUM(billed_hc) AS headcount, client_id FROM ssg_targets_and_actuals_line GROUP BY client_id")->result();
 	}
 
 	public function editClientModel()
 	{
-		$client = $this->input->post('client');
-		$team_id= $this->input->post('team_id');
-		$this->db->where("team_id", $team_id);
-		if($this->db->update('team', $client))
+		$client   = $this->input->post('client');
+		$client_id= $this->input->post('client_id');
+		$team     = $this->input->post('team'); 
+		$this->db->trans_start();
+			$this->db->update_batch('team', $team, 'team_id');
+			$this->db->where("client_id", $client_id);
+			$this->db->update('ssg_client', $client);
+		$this->db->trans_complete();
+		if($this->db->trans_status() === FALSE)
+			return 0;
+		return 1;
+	}
+
+	public function addTeamModel()
+	{
+		if($this->db->insert('team', array('client_id' => htmlspecialchars(trim($this->input->post('client_id', TRUE))))))
 			return 1;
 		return 0;
 	}
@@ -157,10 +198,10 @@ class ClientModel extends CI_Model
 		$contract = $this->input->post('contract', TRUE);
 		$functions= $this->input->post('functions', TRUE);
 		$action   = $this->input->post('action', TRUE);
-		$team_id  = htmlspecialchars(trim($this->input->post('team_id', TRUE)));
+		$client_id  = htmlspecialchars(trim($this->input->post('client_id', TRUE)));
 		for($i = 0; $i < sizeof($functions); $i++)
 		{
-			$functions[$i] += ['team_id' => htmlspecialchars(trim($this->input->post('team_id', TRUE)))];
+			$functions[$i] += ['client_id' => htmlspecialchars(trim($this->input->post('client_id', TRUE)))];
 			if($action == 'deduct')
 			{
 				$functions[$i]['billed_hc'] = ($functions[$i]['billed_hc'] * -1);
@@ -175,7 +216,7 @@ class ClientModel extends CI_Model
 		$this->db->trans_complete();
 		if($this->db->trans_status() === FALSE)
 			return 0;
-		return array('contract_id' => $id, 'team_id' => $team_id);
+		return array('contract_id' => $id, 'client_id' => $client_id);
 	}
 
 	public function updateContract()
@@ -198,10 +239,10 @@ class ClientModel extends CI_Model
 	{
 		$contract = $this->input->post('contract', TRUE);
 		$functions= $this->input->post('function', TRUE);
-		$team_id  = htmlspecialchars(trim($this->input->post('id', TRUE)));
+		$client_id  = htmlspecialchars(trim($this->input->post('id', TRUE)));
 		for($i = 0; $i < sizeof($functions); $i++)
 		{
-			$functions[$i] += ['team_id' => htmlspecialchars(trim($this->input->post('id', TRUE)))];
+			$functions[$i] += ['client_id' => htmlspecialchars(trim($this->input->post('id', TRUE)))];
 		}
 
 		$this->db->trans_start();
@@ -211,7 +252,7 @@ class ClientModel extends CI_Model
 		$this->db->trans_complete();
 		if($this->db->trans_status() === FALSE)
 			return 0;
-		return array('contract_id' => $id, 'team_id'=>$team_id);
+		return array('contract_id' => $id, 'client_id'=>$client_id);
 	}
 
 
@@ -270,7 +311,7 @@ class ClientModel extends CI_Model
 	public function getDetailed()
 	{
 		$id = htmlspecialchars(trim($this->input->post('id')));
-		return $this->db->query("SELECT sl.*, SUM(sl.billed_hc) AS billed_hc, j.jobtitle as title FROM  ssg_targets_and_actuals_line sl LEFT JOIN jobs j ON sl.function = j.id WHERE sl.team_id = '$id' AND sl.function IS NOT NULL GROUP BY sl.function")->result();
+		return $this->db->query("SELECT sl.*, SUM(sl.billed_hc) AS billed_hc, j.jobtitle as title FROM  ssg_targets_and_actuals_line sl LEFT JOIN jobs j ON sl.function = j.id WHERE sl.client_id = '$id' AND sl.function IS NOT NULL GROUP BY sl.function")->result();
 	}
 
 	public function addFunction()

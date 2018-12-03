@@ -84,6 +84,7 @@ class AdminController extends MY_Controller
 	        				);
 	        	$this->MainModel->addActivityModel($logs);
 	        	//--------------------- LOGS --------------------
+	        	$this->cache->delete('user_modules_list');
 	        	$this->cache->delete(md5('users'));
 	        	echo $this->AdminModel->deleteUser();
 	        }

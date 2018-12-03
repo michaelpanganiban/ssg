@@ -18,8 +18,8 @@
     {
         foreach($client_data as $row)
         {
-            $client_id   = $row->team_id;
-            $client_name = $row->team_name;
+            $client_id   = $row->client_id;
+            $client_name = $row->client_name;
             $industry    = $row->division_id;
             $customer_exp= $row->customer_experience;
             $back_office = $row->back_office;
@@ -33,7 +33,7 @@
             $job_desc    = $row->job_desc;
             $address     = $row->address;
             if($row->ref_no == "")
-                $ref_no  = @date('Ymd').$row->team_id;
+                $ref_no  = @date('Ymd').$row->client_id;
             else
                 $ref_no  = $row->ref_no;
         }
@@ -145,12 +145,12 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class='form-group col-md-6'>
+                        <!--     <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Case Study:</label>
                                 <div class='col-md-8'>
                                     <input type="text" class="form-control" id="case-study" placeholder="Case Study"  value="<?php echo $case_study; ?>">
                                 </div>
-                            </div>
+                            </div> -->
                             <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Auth HC:</label>
                                 <div class='col-md-8'>
@@ -182,7 +182,36 @@
                                 </div>
                             </div>
                         </div>
+                    </div><br>
+                    <div class="box-header">
+                        <button class="btn btn-sm btn-primary pull-right" id="edit-team" data-client="<?php echo $client_id; ?>"><i class="fa fa-plus"></i>&nbsp;&nbsp; Add Team</button>
+                        <small style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">Team</small><hr>
+                    </div>
+                    <div class="row">
+                        <div class='form-group col-md-12' id="append-team">
+                            <?php 
+                                if(!empty($teams))
+                                {
+                                    foreach($teams as $row_team)
+                                    {
+                                        echo"<div>
+                                                <div class='col-md-2'>
+                                                    <input type='text' class='form-control team-name' name='team_name[]'  data-pk='".$row_team->team_id."' value='".$row_team->team_name."' placeholder='Sample team name'><br>
+                                                </div>
+                                                <div class='col-sm-1'>
+                                                    <button class='btn btn-danger btn-sm remove-team-edit' data-pk='".$row_team->team_id."'><i class='fa fa-remove text-dafault'></i>&nbsp;&nbsp;Remove</button>
+                                                </div>
+                                            </div>";
+                                    }
+                                }
+                            ?>
+                                
+                        </div>
+                        <div class='form-group col-md-6' ></div>
                     </div><hr>
+                    <div class="box-header">
+                        <small style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">Contract Information</small><hr>
+                    </div>
                     <div class="scrollit">
                         <table class="table table-bordered table-striped">
                             <thead>
@@ -227,16 +256,16 @@
                                                         }
                                                         if($count > 0)
                                                         {
-                                                            echo "<td class='text-center'><button data-contract='".$row->team_line_id."' data-team='".$client_id."' class='btn btn-sm btn-info attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;".$count." attached documents</button></td>";
+                                                            echo "<td class='text-center'><button data-contract='".$row->team_line_id."' data-client='".$client_id."' class='btn btn-sm btn-info attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;".$count." attached documents</button></td>";
                                                         }
                                                         else
                                                         {
-                                                            echo "<td class='text-center'><button  data-contract='".$row->team_line_id."' data-team='".$client_id."' class='btn btn-sm btn-warning attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;Attachment is not available</button></td>";
+                                                            echo "<td class='text-center'><button  data-contract='".$row->team_line_id."' data-client='".$client_id."' class='btn btn-sm btn-warning attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;Attachment is not available</button></td>";
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        echo "<td class='text-center'><button  data-contract='".$row->team_line_id."' data-team='".$client_id."' class='btn btn-sm btn-warning attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;Attachment is not available</button></td>";
+                                                        echo "<td class='text-center'><button  data-contract='".$row->team_line_id."' data-client='".$client_id."' class='btn btn-sm btn-warning attach-file'><i class='fa fa-paperclip'></i>&nbsp; &nbsp;Attachment is not available</button></td>";
                                                     }
                                                     echo"<td class='text-center'><button class='btn btn-sm btn-primary view-contract' data-pk='".$row->team_line_id."' data-contract='".$row->contract."' data-start_date='".@date_format(@date_create($row->start_date), 'Y-m-d')."' data-expiry_date='".@date_format(@date_create($row->expiry_date), 'Y-m-d')."' data-headcount='".$row->headcount."' data-remarks='".$row->remarks."' data-document='".$count."' data-client-id='".$client_id."'><i class='fa fa-eye'></i>&nbsp;&nbsp; View contract</td>";
                                                 echo"</tr>";
@@ -247,6 +276,7 @@
                             </tbody>
                             <tfoot>
                                 <td colspan="9">
+                                    <button class="btn btn-md btn-danger pull-left" id="proceed-delete-client"><i class="fa fa-trash"></i>&nbsp;&nbsp;&nbsp; Delete</button>
                                     <button class="btn btn-md btn-primary pull-right" id="proceed-update-client"><i class="fa fa-save"></i>&nbsp;&nbsp;&nbsp; Save Changes</button>
                                 </td>
                             </tfoot>

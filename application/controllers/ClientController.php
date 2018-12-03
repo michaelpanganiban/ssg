@@ -100,7 +100,7 @@ class ClientController extends MY_Controller
 					{
 						$temp = array(
 										'contract_no' => htmlspecialchars(trim($this->input->cookie('contract_id', TRUE))),
-										'team_id'	  => htmlspecialchars(trim($this->input->cookie('team_id', TRUE))),
+										'client_id'	  => htmlspecialchars(trim($this->input->cookie('client_id', TRUE))),
 										'filename'	  => $name
 									);
 						array_push($data, $temp);
@@ -127,7 +127,7 @@ class ClientController extends MY_Controller
 					{
 						$temp = array(
 										'contract_no' => htmlspecialchars(trim($this->input->cookie('contract_id', TRUE))),
-										'team_id'	  => htmlspecialchars(trim($this->input->cookie('team_id', TRUE))),
+										'client_id'	  => htmlspecialchars(trim($this->input->cookie('client_id', TRUE))),
 										'filename'	  => $name
 									);
 						array_push($data, $temp);
@@ -147,7 +147,6 @@ class ClientController extends MY_Controller
     	if($ssg_session_data = $this->session->userdata('ssg_set_session'))
         {
         	$data['session'] = $ssg_session_data;
-        	
 	        if($this->input->post('edit') == "true")
 	        {
 	        	//--------------------- LOGS --------------------
@@ -161,7 +160,7 @@ class ClientController extends MY_Controller
 		        				);
 		        	$this->MainModel->addActivityModel($logs);
 		        //--------------------- LOGS --------------------
-	        	$this->cache->delete(md5('clients'));
+        		$this->cache->delete(md5('clients'));
 	        	$data = $this->ClientModel->editClientModel();
 	        	echo json_encode($data);
 	        }
@@ -207,6 +206,19 @@ class ClientController extends MY_Controller
 	        {
 	        	echo json_encode($this->ClientModel->getFilesChild());
 	        }
+	        else if($this->input->post('remove_team') == "true")
+	        {
+	        	echo json_encode($this->ClientModel->removeTeamModel());
+	        }
+	        else if($this->input->post('add_team') == "true")
+	        {
+	        	echo json_encode($this->ClientModel->addTeamModel());
+	        }
+	        else if($this->input->post('delete_client') == "true")
+	        {
+	        	$this->cache->delete(md5('clients'));
+	        	echo json_encode($this->ClientModel->deleteClient());
+	        }
 	        else
 	        {
 	        	$data['session'] 	= $ssg_session_data;
@@ -214,6 +226,7 @@ class ClientController extends MY_Controller
 	        	$data['client_data']= $this->ClientModel->getParticularClient();
 	        	$data['headcount']  = $this->ClientModel->sumHeadCount();
 	        	$data['files']		= $this->ClientModel->getFilesMSA();
+	        	$data['teams']		= $this->ClientModel->getParticularTeam();
 	        	$data['user_modules'] = $this->restrict();
 	        	$this->load->view('title_container');
 		    	$this->load->view('header', $data);

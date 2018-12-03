@@ -40,7 +40,7 @@
                         <div class='row'>
                             <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Client Name:</label>
-                                <div class='col-md-6'>
+                                <div class='col-md-8'>
                                     <input type='text' class='form-control' id='client-name' placeholder="Sample client name">
                                 </div>
                             </div>
@@ -102,12 +102,12 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class='form-group col-md-6'>
+                            <!-- <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Case Study:</label>
                                 <div class='col-md-8'>
                                     <input type="text" class="form-control" id="case-study" placeholder="Case Study">
                                 </div>
-                            </div>
+                            </div> -->
                             <div class='form-group col-md-6'>
                                 <label class='control-label col-md-4'>Visit:</label>
                                 <div class='col-md-8'>
@@ -132,6 +132,23 @@
                                     <textarea id='job-desc' class='form-control' rows='5' placeholder="Describe what you do.."></textarea>
                                 </div>
                             </div>
+                        </div><br><br>
+                        <div class="box-header">
+                                <button class="btn btn-sm btn-primary pull-right" id="add-team"><i class="fa fa-plus"></i>&nbsp;&nbsp; Add Team</button>
+                                <small style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">Team</small><hr>
+                        </div>
+                        <div class="row">
+                            <div class='form-group col-md-12' id="append-team">
+                                <div class="clone-team">
+                                    <div class='col-md-2'>
+                                        <input type='text' class='form-control team-name' name="team_name[]" placeholder="Sample team name"><br>
+                                    </div>
+                                    <div class='col-sm-1'>
+                                        <button class="btn btn-danger btn-sm remove-team"><i class="fa fa-remove text-dafault"></i>&nbsp;&nbsp;Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='form-group col-md-6' ></div>
                         </div>
                     </div>
                     <div class="box-header">

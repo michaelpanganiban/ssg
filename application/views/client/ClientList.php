@@ -70,21 +70,21 @@
                                                 $hc = 0;
                                                 foreach($headcount as $hc_row)
                                                 {
-                                                    if($hc_row->team_id == $row->team_id)
+                                                    if($hc_row->client_id == $row->client_id)
                                                         $hc = $hc_row->headcount;
                                                 }
                                                 $class = "";
                                                 if($edit == 1)
                                                     $class= "class='client-each'";
                                                 echo"<tr class='hover-tbl' title='Click to update this client'>
-                                                        <td ".$class." data-pk='".$row->team_id."'>".$row->team_name."</td>
-                                                        <td ".$class." data-pk='".$row->team_id."'>".$row->ref_no."</td>
-                                                        <td ".$class." data-pk='".$row->team_id."'>".$row->div_name."</td>";
+                                                        <td ".$class." data-pk='".$row->client_id."'>".$row->client_name."</td>
+                                                        <td ".$class." data-pk='".$row->client_id."'>".$row->ref_no."</td>
+                                                        <td ".$class." data-pk='".$row->client_id."'>".$row->div_name."</td>";
                                                     if($hc <= 0)
                                                         echo"<td></td>";
                                                     else
-                                                        echo"<td align='right' ".$class." data-pk='".$row->team_id."'>".number_format($hc)."</td>";
-                                                    echo"<td ".$class." data-pk='".$row->team_id."'>".$row->hq."</td>";
+                                                        echo"<td align='right' ".$class." data-pk='".$row->client_id."'>".number_format($hc)."</td>";
+                                                    echo"<td ".$class." data-pk='".$row->client_id."'>".$row->hq."</td>";
                                                 echo"</tr>";
                                             }
                                         }
