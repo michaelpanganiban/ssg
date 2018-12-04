@@ -183,14 +183,14 @@
                             </div>
                         </div>
                     </div><br>
-                    <div class="box-header">
+                    <!-- <div class="box-header">
                         <button class="btn btn-sm btn-primary pull-right" id="edit-team" data-client="<?php echo $client_id; ?>"><i class="fa fa-plus"></i>&nbsp;&nbsp; Add Team</button>
                         <small style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">Team</small><hr>
                     </div>
                     <div class="row">
                         <div class='form-group col-md-12' id="append-team">
                             <?php 
-                                if(!empty($teams))
+                               /* if(!empty($teams))
                                 {
                                     foreach($teams as $row_team)
                                     {
@@ -203,12 +203,12 @@
                                                 </div>
                                             </div>";
                                     }
-                                }
+                                } */
                             ?>
                                 
-                        </div>
-                        <div class='form-group col-md-6' ></div>
-                    </div><hr>
+                        </div> 
+                        <div class='form-group col-md-6' ></div> 
+                    </div><hr> -->
                     <div class="box-header">
                         <small style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">Contract Information</small><hr>
                     </div>

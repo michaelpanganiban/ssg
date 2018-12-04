@@ -133,7 +133,7 @@
                                 </div>
                             </div>
                         </div><br><br>
-                        <div class="box-header">
+                       <!-- <div class="box-header">
                                 <button class="btn btn-sm btn-primary pull-right" id="add-team"><i class="fa fa-plus"></i>&nbsp;&nbsp; Add Team</button>
                                 <small style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">Team</small><hr>
                         </div>
@@ -149,7 +149,7 @@
                                 </div>
                             </div>
                             <div class='form-group col-md-6' ></div>
-                        </div>
+                        </div> -->
                     </div>
                     <div class="box-header">
                         <small style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">Contract Information</small><hr>

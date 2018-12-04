@@ -24,17 +24,17 @@ class ClientModel extends CI_Model
 		{
 			$functions[$i] += ['client_id' => $client_id];
 		}
-		$team = $this->input->post('team');
-		for($i = 0; $i < sizeof($team); $i++)
-		{
-			$team[$i] += ['client_id' => $client_id];
-		}
+		//$team = $this->input->post('team');
+		//for($i = 0; $i < sizeof($team); $i++)
+		//{
+		//	$team[$i] += ['client_id' => $client_id];
+		//}
 		$this->db->trans_start();
 			$this->db->insert('ssg_client', $client);
 			$this->db->insert('ssg_contracts', $contract);
 			$id = $this->db->insert_id();
 			$this->db->insert_batch('ssg_targets_and_actuals_line', $functions);
-			$this->db->insert_batch('team', $team);
+			//$this->db->insert_batch('team', $team);
 		$this->db->trans_complete();
 		if($this->db->trans_status() === FALSE)
 			return 0;
@@ -143,9 +143,9 @@ class ClientModel extends CI_Model
 	{
 		$client   = $this->input->post('client');
 		$client_id= $this->input->post('client_id');
-		$team     = $this->input->post('team'); 
+		//$team     = $this->input->post('team'); 
 		$this->db->trans_start();
-			$this->db->update_batch('team', $team, 'team_id');
+			//$this->db->update_batch('team', $team, 'team_id');
 			$this->db->where("client_id", $client_id);
 			$this->db->update('ssg_client', $client);
 		$this->db->trans_complete();

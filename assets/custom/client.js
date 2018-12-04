@@ -219,7 +219,7 @@ $("#proceed-add-client").click(function(e){
 	if($(".team-name").val() == "" || $(".team-name").val() == undefined)
 	{
 		$(".team-name").css('border', '1px solid red');
-		error = 1;
+		//error = 1;
 	}
 	else
 	{
@@ -325,7 +325,7 @@ $("#proceed-add-client").click(function(e){
 					waitingDialog.hide();
 					setTimeout(function(e){
 						location.reload();
-					}, 5000);
+					}, 1500);
 			});
 		});
 	}
@@ -400,7 +400,7 @@ $("#proceed-update-client").click(function(e){
 		if($(this).val() == "" || $(this).val() == undefined)
 		{
 			$(this).css('border', '1px solid red');
-			error = 1;
+			//error = 1;
 		}
 		else
 		{

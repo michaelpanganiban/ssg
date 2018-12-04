@@ -23,4 +23,12 @@ class MainModel extends CI_Model
 	{
 		return $this->db->query("SELECT sm.parent_module, sm.module_name, sum.is_set, sum.view, sum.edit, sum.delete, sum.add FROM ssg_user_modules sum LEFT JOIN ssg_modules sm ON sum.module_id = sm.module_id WHERE sum.user_id = '$id'")->result();
 	}
+
+	function validate_user_ldap($email)
+	{
+		$query = $this->db->query("SELECT p.emp_id, p.first_name, p.last_name, e.date_hired, e.position, e.work_location, sl.is_admin FROM profile p LEFT JOIN employment e ON p.emp_id = e.emp_id LEFT JOIN ssg_auth_login sl ON sl.emp_id = p.emp_id WHERE infinit_email like '$email%'  and (e.status = 14 or user_lvl=1) AND p.login_status='enabled' AND p.emp_id IN (SELECT emp_id FROM ssg_auth_login WHERE status = '1')");
+		
+		return $query->result();
+	}
 }
+
