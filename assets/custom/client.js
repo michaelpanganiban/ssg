@@ -284,7 +284,7 @@ $("#proceed-add-client").click(function(e){
 					if($("#attachment").val() != undefined && $("#attachment").val() != "")
 					{
 						var result = jQuery.parseJSON(r);
-						document.cookie = "team_id=" + result['team_id'] + "; path = /";
+						document.cookie = "client_id=" + result['client_id'] + "; path = /";
 						document.cookie = "contract_id=" + result['contract_id'] + "; path = /";
 						var data  = new FormData();
 						var counter = 0;
@@ -1087,9 +1087,9 @@ $("#view-headcount").click(function(e){
 						var total_cost 	 = 0;
 						$.each(data, function(key, val){
 							text += "<tr><td>"+this.title+"</td><td align='right'>"+this.billed_hc+"</td><td  align='right'>$ "+this.cost_per_title+"</td><td  align='right'>"+this.ttl_cost+"</td><td  align='right'>"+this.hours_work+"</td><td  align='right'>"+this.timezone+"</td><td  align='right'>"+this.shift+"</td><td  align='right'>"+this.location+"</td></tr>";
-							total_billed += parseInt(this.billed_hc);
+							total_billed += parseFloat(this.billed_hc);
 							if(this.billed_hc > 0)
-								total_cost 	 += parseInt(this.cost_per_title);
+								total_cost 	 += parseFloat(this.cost_per_title);
 						});
 							text += "<tr style='background-color: #d7d7d8;'><td><b>Total</b></td><td align='right'><b>"+total_billed+"</b></td><td  align='right'><b>$ "+total_cost+"</b></td><td  align='right'></td><td  align='right'></td><td  align='right'></td><td  align='right'></td><td></td></tr>";
 						$("#append-body").append(text);

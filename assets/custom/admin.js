@@ -1,3 +1,6 @@
+$("#user-access").click(function(e){
+	$(this).css('background-color','#')
+});
 $("#add-user").click(function(e){
 	Pace.restart();
 	Pace.track(function(){
@@ -38,7 +41,7 @@ $("#add-user").click(function(e){
 				        		var fullname= $("#employee-list").select2().find(":selected").data("name");
 				        		if(emp_id == "")
 				        		{
-				        			alertify.error("Employee name is required.");
+				        			alertify.error("Employee name is required.").dismissOthers();
 				        		}
 				        		else
 				        		{
@@ -47,7 +50,7 @@ $("#add-user").click(function(e){
 					        			$.post("userList", {grant_user: 'true', emp_id:emp_id, name:fullname}, function(r){
 					        				if(r == 1)
 					        				{
-					        					alertify.success("Access granted to " + fullname);
+					        					alertify.success("Access granted to " + fullname).dismissOthers();
 					        					$("#grand-btn").attr('disabled','true');
 					        					setTimeout(function(e){
 					        						location.reload();
@@ -55,7 +58,7 @@ $("#add-user").click(function(e){
 					        				}
 					        				else
 					        				{
-					        					alertify.error("Error granting access to " + fullname);
+					        					alertify.error("Error granting access to " + fullname).dismissOthers();
 					        				}
 					        			});
 					        		});
@@ -90,14 +93,14 @@ $(".remove-grant").click(function(e){
 						    			$.post("userList", {id:id, remove_grant:'true', emp_id:emp, name:name}, function(r){
 						    				if(r == 1)
 						    				{
-						    					alertify.success("Access was successfully removed.");
+						    					alertify.success("Access was successfully removed.").dismissOthers();
 						    					setTimeout(function(e){
 						    						location.reload();
 						    					}, 1500);
 						    				}
 						    				else
 						    				{
-						    					alertify.error("Error removing access.");
+						    					alertify.error("Error removing access.").dismissOthers();
 						    				}
 										});
 									});
@@ -129,14 +132,14 @@ $(".grant-access").click(function(e){
 						    			$.post("userList", {id:id, grant_access:'true', emp_id:emp, name:name}, function(r){
 						    				if(r == 1)
 						    				{
-						    					alertify.success("Access was successfully added.");
+						    					alertify.success("Access was successfully added.").dismissOthers();
 						    					setTimeout(function(e){
 						    						location.reload();
 						    					}, 1500);
 						    				}
 						    				else
 						    				{
-						    					alertify.error("Error adding access.");
+						    					alertify.error("Error adding access.").dismissOthers();
 						    				}
 										});
 									});
@@ -169,14 +172,14 @@ $(".delete-user").click(function(e){
 						    			$.post("userList", {id:id, delete_user:'true', emp_id:emp, name:name}, function(r){
 						    				if(r == 1)
 						    				{
-						    					alertify.success("User was successfully deleted.");
+						    					alertify.success("User was successfully deleted.").dismissOthers();
 						    					setTimeout(function(e){
 						    						location.reload();
 						    					}, 1500);
 						    				}
 						    				else
 						    				{
-						    					alertify.error("Error deleting user.");
+						    					alertify.error("Error deleting user.").dismissOthers();
 						    				}
 										});
 									});
@@ -227,9 +230,9 @@ $(document).on('ifChecked','.module-ssg',function(e){
 	var module_nm = $(this).data('mod');
 	$.post("userModules", {add_module: 'true', module_id:module_id, user_id: user_id, name:name, module:module_nm}, function(r){
 		if(r == 1)
-			alertify.success("Module added");
+			alertify.success("Module added").dismissOthers();
 		else
-			alertify.error("Error adding module.");
+			alertify.error("Error adding module.").dismissOthers();
 	});
 });
 
@@ -241,9 +244,9 @@ $(document).on('ifUnchecked', '.module-ssg', function(event){
 	var user_id   = $("#user-list").val();
 	$.post("userModules", {remove_module: 'true', id:id, name:name, module_id:module_id, module:module_nm, user_id:user_id}, function(r){
 		if(r == 1)
-			alertify.success("Module removed");
+			alertify.success("Module removed").dismissOthers();
 		else
-			alertify.error("Error removing module.");
+			alertify.error("Error removing module.").dismissOthers();
 	});
 });
 //----------------- User modules tab ------->>
@@ -257,9 +260,9 @@ $(document).on('ifChecked','.update-access',function(e){
 	var user_id = $(this).data('user');
 	$.post("userModules", {update_access: 'true', id:id, type: type, access:'true', module:mod, name:name, user_id:user_id}, function(r){
 		if(r == 1)
-			alertify.success("Access granted");
+			alertify.success("Access granted").dismissOthers();
 		else
-			alertify.error("Error adding access.");
+			alertify.error("Error adding access.").dismissOthers();
 	});
 });
 
@@ -271,9 +274,9 @@ $(document).on('ifUnchecked', '.update-access', function(event){
 	var user_id = $(this).data('user');
 	$.post("userModules", {update_access: 'true', id:id, type: type, access:'false', module:mod, name:name, user_id:user_id}, function(r){
 		if(r == 1)
-			alertify.success("Access removed");
+			alertify.success("Access removed").dismissOthers();
 		else
-			alertify.error("Error removing access.");
+			alertify.error("Error removing access.").dismissOthers();
 	});
 });
 //----------------- User access tab ------->>

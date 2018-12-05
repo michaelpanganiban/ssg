@@ -76,7 +76,7 @@
                 <div class="box box-primary" >
                     <div class="box-header">
                         <h4><?php echo "Client ID: <b>".$client_id."</b>"; ?></h4>
-                        <h4><?php echo "Reference #: <b>".$ref_no."</b>"; ?><button class="btn btn-sm btn-warning pull-right" id="view-headcount" data-pk="<?php echo $client_id; ?>" data-name="<?php echo $client_name; ?>"><i class="fa fa-users"></i>&nbsp;&nbsp;View headcount</button></h4>
+                        <h4><?php echo "Reference #: <b>".$ref_no."</b>"; ?></h4>
                         
                     </div><hr>
                     <div class="box-body">
@@ -210,7 +210,13 @@
                         <div class='form-group col-md-6' ></div> 
                     </div><hr> -->
                     <div class="box-header">
-                        <small style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">Contract Information</small><hr>
+                        <button class="btn btn-md btn-danger pull-left" id="proceed-delete-client"><i class="fa fa-trash"></i>&nbsp;&nbsp;&nbsp; Delete</button>
+                        <button class="btn btn-md btn-primary pull-right" id="proceed-update-client"><i class="fa fa-save"></i>&nbsp;&nbsp;&nbsp; Save Changes</button>
+                    </div><hr>
+                    <div class="box-header">
+                        <small style="font-family: Century Gothic; font-size:20px; color: #272727; font-weight: lighter;">Contract Information</small>
+                        <button class="btn btn-sm btn-warning pull-right" id="view-headcount" data-pk="<?php echo $client_id; ?>" data-name="<?php echo $client_name; ?>"><i class="fa fa-users"></i>&nbsp;&nbsp;View headcount</button>
+                        <hr>
                     </div>
                     <div class="scrollit">
                         <table class="table table-bordered table-striped">
@@ -240,7 +246,12 @@
                                                 $year2 = @date('Y', @strtotime($row->expiry_date));
                                                 $diff  = (($year2 - $year1) * 12) + ($date2 - $date1);
                                                 if($diff <= 0)
-                                                    $diff = "<i class='text-danger'>Contract Expired</i>";
+                                                {
+                                                    $exp_date = @date_create($row->expiry_date);
+                                                    $now      = @date_create(@date('Y-m-d'));
+                                                    $days     = @date_diff($exp_date, $now);
+                                                    $diff     = $days->format("%a day(s)");
+                                                }
                                                 echo"<tr class='pointer hover-tbl'>
                                                         <td class='text-center'>".$row->contract."</td>
                                                         <td class='text-center'>".@date_format(@date_create($row->start_date), 'd M, Y')."</td>
@@ -274,12 +285,6 @@
                                     }
                                 ?>
                             </tbody>
-                            <tfoot>
-                                <td colspan="9">
-                                    <button class="btn btn-md btn-danger pull-left" id="proceed-delete-client"><i class="fa fa-trash"></i>&nbsp;&nbsp;&nbsp; Delete</button>
-                                    <button class="btn btn-md btn-primary pull-right" id="proceed-update-client"><i class="fa fa-save"></i>&nbsp;&nbsp;&nbsp; Save Changes</button>
-                                </td>
-                            </tfoot>
                         </table>
                     <div class="scrollit">
                 </div>

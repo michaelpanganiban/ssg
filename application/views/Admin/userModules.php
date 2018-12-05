@@ -39,9 +39,9 @@
                     <div class="box-body">
                         <div class="col-md-12">
                             <div class="nav-tabs-custom">
-                                <ul class="nav nav-tabs">
-                                    <li class="active"><a href="#user-modules" data-toggle="tab">User Modules</a></li>
-                                    <li><a href="#user-access" data-toggle="tab">User Access</a></li>
+                                <ul class="nav nav-tabs" style="background-color: #75b2d6;">
+                                    <li class="active"><a href="#user-modules" data-toggle="tab"><b>User Modules</b></a></li>
+                                    <li><a href="#user-access" data-toggle="tab"><b>User Access</b></a></li>
                                 </ul>
                                 <div class="tab-content">
                                     <div class="active tab-pane" id="user-modules">

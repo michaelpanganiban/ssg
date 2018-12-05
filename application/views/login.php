@@ -40,7 +40,8 @@
 				        </div>
 			    	</div>
 			    </form>
-			    <a href="<?php echo site_url('MainController/forgotPassword'); ?>">I forgot my password</a><br>
+			    <a href="#">I forgot my password</a><br>
+			   <!--  <a href="<?php echo site_url('MainController/forgotPassword'); ?>">I forgot my password</a><br> -->
 		  	</div>
 		</div>
 

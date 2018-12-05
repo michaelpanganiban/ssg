@@ -83,7 +83,7 @@
                                                     if($hc <= 0)
                                                         echo"<td></td>";
                                                     else
-                                                        echo"<td align='right' ".$class." data-pk='".$row->client_id."'>".number_format($hc)."</td>";
+                                                        echo"<td align='right' ".$class." data-pk='".$row->client_id."'>".$hc."</td>";
                                                     echo"<td ".$class." data-pk='".$row->client_id."'>".$row->hq."</td>";
                                                 echo"</tr>";
                                             }
