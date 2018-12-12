@@ -53,7 +53,7 @@ $("#add-user").click(function(e){
 					        					alertify.success("Access granted to " + fullname).dismissOthers();
 					        					$("#grand-btn").attr('disabled','true');
 					        					setTimeout(function(e){
-					        						location.reload();
+					        						window.location = "userModules/new";
 					        					}, 1500);
 					        				}
 					        				else

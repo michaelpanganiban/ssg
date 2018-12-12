@@ -21,7 +21,14 @@ class MainModel extends CI_Model
 
 	public function getModuleList($id)
 	{
-		return $this->db->query("SELECT sm.parent_module, sm.module_name, sum.is_set, sum.view, sum.edit, sum.delete, sum.add FROM ssg_user_modules sum LEFT JOIN ssg_modules sm ON sum.module_id = sm.module_id WHERE sum.user_id = '$id'")->result();
+		return $this->db->query("SELECT sm.parent_module, sm.module_name, sum.is_set, sum.view, sum.edit, sum.delete, sum.add, sm.level_one FROM ssg_user_modules sum LEFT JOIN ssg_modules sm ON sum.module_id = sm.module_id WHERE sum.user_id = '$id'")->result();
+	}
+
+	public function addAuthLogs($data)
+	{
+		if($this->db->insert('ssg_auth_logs', $data))
+			return 1;
+		return 0;
 	}
 
 	function validate_user_ldap($email)

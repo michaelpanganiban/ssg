@@ -35,6 +35,12 @@
                 <div class="box box-success" >
                     <div class="box-header">
                         <!-- <button class="btn btn-sm btn-success pull-right" id="add-user"><i class="fa fa-plus-circle"></i>&nbsp;&nbsp;Add user</button> -->
+                        <?php 
+                            if(!empty($this->session->flashdata('message')))
+                            {
+                                echo'<div class="callout callout-info row col-xs-4 pull-right">'.$this->session->flashdata('message').'</div>';
+                            }
+                        ?>
                     </div>
                     <div class="box-body">
                         <div class="col-md-12">

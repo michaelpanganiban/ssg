@@ -37,6 +37,7 @@ class AdminController extends MY_Controller
 	        	$this->MainModel->addActivityModel($logs);
 	        	//--------------------- LOGS --------------------
 	        	$data = $this->AdminModel->grantAccess();
+	        	$this->session->set_flashdata('message', 'Please assign the module(s) for the user.');
 	        	echo $data;
 	        }
 	        else if(!empty($this->input->post('remove_grant')))

@@ -1,10 +1,12 @@
 <?php 
     $modules = array();
     $parent  = array();
+    $lvl_one = array();
     if(!empty($user_modules))
     {
         foreach($user_modules as $rows)
         {
+            array_push($lvl_one, $rows->level_one);
             array_push($modules, $rows->module_name);
             array_push($parent, $rows->parent_module);
         }
@@ -179,18 +181,54 @@
                                 </ul>
                             </li>
                             <?php } ?>
-                            <!-- <li <?php echo ($this->uri->segment(2) == "userActivityLogs")? "class='active treeview'" : "class='treeview'" ?>>
+                            <?php 
+                                if(in_array('Reports', $parent)){
+                            ?>
+                            <li <?php echo ($this->uri->segment(2) == "headcountReport" ||  $this->uri->segment(2) == "userActivityLogs" ||  $this->uri->segment(2) == "authLogs")? "class='active treeview'" : "class='treeview'" ?>>
                                 <a href="#">
                                     <i class="fa fa-files-o"></i>
-                                    <span><?php echo ($this->uri->segment(2) == "userActivityLogs")? "<b style='color:#00c0ef;'>Reports</b>" : "Reports" ?></span>
+                                    <span><?php echo ($this->uri->segment(2) == "headcountReport" ||  $this->uri->segment(2) == "userActivityLogs" || $this->uri->segment(2) == "authLogs")? "<b style='color:#00c0ef;'>Reports</b>" : "Reports" ?></span>
                                     <span class="pull-right-container">
                                         <i class="fa fa-angle-left pull-right"></i>
                                     </span>
                                 </a>
                                 <ul class="treeview-menu">
-                                    <li <?php echo ($this->uri->segment(2) == "userActivityLogs")? "class='active'" : "" ?>><a href="<?php echo base_url("AdminReportsController/userActivityLogs"); ?>"><i class="fa fa-circle-o"></i>User Activity Logs</a></li>
+                                    <?php if(in_array('Admin', $lvl_one)) { ?>
+                                        <li <?php echo ($this->uri->segment(2) == "authLogs")? "class='treeview active'" : "class='treeview'" ?>>
+                                            <a href="#"><i class="fa fa-user-secret"></i>Admin Reports
+                                                <span class="pull-right-container">
+                                                  <i class="fa fa-angle-left pull-right"></i>
+                                                </span>
+                                            </a>
+                                            <ul class="treeview-menu">
+                                                <?php 
+                                                    if(in_array('authentication logs', $modules)){
+                                                ?>
+                                                <li <?php echo ($this->uri->segment(2) == "authLogs")? "class='active'" : "" ?>><a href="<?php echo base_url("AdminReportsController/authLogs"); ?>"><i class="fa fa-lock"></i>Authentication Logs</a></li>
+                                                <!--  <li <?php echo ($this->uri->segment(2) == "userActivityLogs")? "class='active'" : "" ?>><a href="<?php echo base_url("AdminReportsController/userActivityLogs"); ?>"><i class="fa fa-circle-o"></i>User Activity Logs</a></li> -->
+                                                <?php } ?>
+                                            </ul>
+                                        </li>
+                                    <?php } ?>
+                                    <?php if(in_array('Client', $lvl_one)) { ?>
+                                        <li <?php echo ($this->uri->segment(2) == "headcountReport")? "class='treeview active'" : "class='treeview'" ?>>
+                                            <a href="#"><i class="fa fa-user"></i>Client Reports
+                                                <span class="pull-right-container">
+                                                  <i class="fa fa-angle-left pull-right"></i>
+                                                </span>
+                                            </a>
+                                            <ul class="treeview-menu">
+                                                <?php 
+                                                    if(in_array('client list report', $modules)){
+                                                ?>
+                                                <li <?php echo ($this->uri->segment(2) == "headcountReport")? "class='active'" : "" ?>><a href="<?php echo base_url("ClientReportController/headcountReport"); ?>"><i class="fa fa-users"></i>Headcount Report</a></li>
+                                                <?php } ?>
+                                            </ul>
+                                        </li>
+                                    <?php } ?>
                                 </ul>
-                            </li> -->
+                            </li>
+                            <?php } ?>
                             <!-- <li>
                                 <a href="pages/widgets.html">
                                     <i class="fa fa-th"></i> <span>Widgets</span>

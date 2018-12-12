@@ -16,6 +16,10 @@
 		$title = "User Modules";
 	else if($this->uri->segment(2) == "userActivityLogs")
 		$title = "User Activity Logs";
+	else if($this->uri->segment(2) == "authLogs")
+		$title = "Authentication Logs";
+	else if($this->uri->segment(2) == "headcountReport")
+		$title = "Headcount Report";
 
 
 

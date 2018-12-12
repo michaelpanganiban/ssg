@@ -21,7 +21,7 @@
 	<body class="hold-transition login-page">
 		<div class="login-box">
 		  	<div class="login-logo">
-		    	<a href="#"><b>Infinit - o</b><br>Client Database</a>
+		    	<a href="#"><img src="<?php echo base_url('assets/logo-infinit.png'); ?>" alt="logo"><br><b>Client Database</b></a>
 		  	</div>
 		  	<div class="login-box-body">
 		    	<p class="login-box-msg">Sign in to start your session</p>

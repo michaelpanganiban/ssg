@@ -92,6 +92,12 @@
         <!-- react -->
         <script src="<?php echo base_url('assets/custom/admin.js'); ?>"></script>
         <script src="<?php echo base_url('assets/custom/client.js'); ?>"></script>
+    <?php if($this->uri->segment(1) == 'AdminReportsController') { ?>
+        <script src="<?php echo base_url('assets/custom/admin-reports.js'); ?>"></script>
+    <?php } ?>
+    <?php if($this->uri->segment(1) == 'ClientReportController') { ?>
+        <script src="<?php echo base_url('assets/custom/client-report.js'); ?>"></script>
+    <?php } ?>
         <script src="<?php echo base_url('assets/loading.js'); ?>"></script>
         
         <script>
@@ -122,7 +128,7 @@
             // $("").datePicker();
             $('.date-picker').datepicker({
                 autoclose: true,
-                format: 'yyyy-m-d'
+                format: 'yyyy-m-dd'
             });
 
              //iCheck for checkbox and radio inputs
@@ -133,5 +139,13 @@
 
             $(".data-table").DataTable({'ordering'    : false});
         </script>
+        <?php 
+            if($this->uri->segment(1) == 'ClientReportController')
+            {
+                echo"<script>
+                        $('.dataTables_filter').attr('hidden','true');
+                    </script>";
+            }
+        ?>
     </body>
 </html>

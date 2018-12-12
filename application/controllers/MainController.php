@@ -34,6 +34,13 @@ class MainController extends MY_Controller
 		$data['session'] = $ssg_session_data;
         	$id = $data['session'][md5('emp_id')];
 		$this->cache->delete(md5($id.'user_modules'));
+		$data = array(
+	   							'user_id' 		=> $id,
+	   							'ip_address'	=> $this->get_client_ip(),
+	   							'action'		=> 'OUT',
+	   							'result'		=> 1 
+	   						);
+		$this->MainModel->addAuthLogs($data);
 		session_destroy();
 		redirect('','refresh');
 	}
@@ -69,6 +76,7 @@ class MainController extends MY_Controller
 			{
 				foreach($data as $row)
 				{
+					$user_id = $row->emp_id;
 					$ssg_session_array = array(
 												md5('emp_id')  	 	 => $row->emp_id,
 												md5('fullname') 	 => $row->last_name.", ".$row->first_name,
@@ -79,10 +87,24 @@ class MainController extends MY_Controller
 											  );
 				}
 	   			$ssg_session_data = $this->session->set_userdata('ssg_set_session', $ssg_session_array);
+	   			$data = array(
+	   							'user_id' 		=> $user_id,
+	   							'ip_address'	=> $this->get_client_ip(),
+	   							'action'		=> 'IN',
+	   							'result'		=> 1 
+	   						);
+				$this->MainModel->addAuthLogs($data);
 				echo 1;
 			}
 			else
 			{
+				$data = array(
+	   							'user_id' 		=> htmlspecialchars(trim($this->input->post('username', TRUE))),
+	   							'ip_address'	=> $this->get_client_ip(),
+	   							'action'		=> 'IN',
+	   							'result'		=> 0 
+	   						);
+				$this->MainModel->addAuthLogs($data);
 				echo 0;
 			}
 		}
@@ -159,6 +181,6 @@ class MainController extends MY_Controller
         } else {
             $data['logged_in'] = FALSE;
         }
- 
+ 	
     }
 }

@@ -51,4 +51,41 @@ class AdminReportsController extends MY_Controller
 			redirect('','refresh');
 		}
     }
+
+    public function authLogs()
+    {
+        if($ssg_session_data = $this->session->userdata('ssg_set_session'))
+        {
+            $data['session'] = $ssg_session_data;
+            $id = $data['session'][md5('emp_id')];
+            $cache = md5('users');
+            if(!$data['users'] = $this->cache->get($cache))
+            {
+                $data['users'] = $this->AdminModel->getUserList2();
+                $this->cache->save($cache, $data['users'], 3600);
+            }
+            $data['user_modules'] = $this->restrict();
+            $data['auth_logs'] = $this->AdminReportsModel->getAuthLogs($id);
+
+            if($this->input->get('save', TRUE) == 'pdf')
+            {
+                $this->load->view('Reports/admin/authLogs-PDF', $data);
+            }
+            if($this->input->get('save', TRUE) == 'excel')
+            {
+                $this->load->view('Reports/admin/authLogs-EXCEL', $data);
+            }
+            else
+            {
+                $this->load->view('title_container');
+                $this->load->view('header', $data);
+                $this->load->view('Reports/admin/authLogs');
+                $this->load->view('footer');
+            }
+        }
+        else
+        {
+            redirect('','refresh');
+        }
+    }
 }
